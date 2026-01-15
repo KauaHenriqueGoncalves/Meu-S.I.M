@@ -11,7 +11,11 @@ import java.util.Base64;
 public final class PemUtils {
     private PemUtils() {}
 
-    public static PublicKey readPublicKey(InputStream input) throws Exception {
+    public static PemUtils getInstance() {
+        return new PemUtils();
+    }
+
+    public PublicKey readPublicKey(InputStream input) throws Exception {
         String key = new String(input.readAllBytes())
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
@@ -21,7 +25,7 @@ public final class PemUtils {
         return KeyFactory.getInstance("RSA").generatePublic(spec);
     }
 
-    public static PrivateKey readPrivateKey(InputStream input) throws Exception {
+    public PrivateKey readPrivateKey(InputStream input) throws Exception {
         String key = new String(input.readAllBytes())
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")

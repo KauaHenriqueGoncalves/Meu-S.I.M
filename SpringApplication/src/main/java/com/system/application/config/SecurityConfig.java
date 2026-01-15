@@ -13,10 +13,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -43,51 +45,81 @@ public class SecurityConfig {
 
     @Bean
     public RSAPublicKey publicKey() throws Exception {
-        return (RSAPublicKey) PemUtils.readPublicKey(publicKeyResource.getInputStream());
+        return (RSAPublicKey) PemUtils.getInstance().readPublicKey(publicKeyResource.getInputStream());
     }
 
     @Bean
     public RSAPrivateKey privateKey() throws Exception {
-        return (RSAPrivateKey) PemUtils.readPrivateKey(privateKeyResource.getInputStream());
+        return (RSAPrivateKey) PemUtils.getInstance().readPrivateKey(privateKeyResource.getInputStream());
     }
 
     @Bean
     @Order(1)
     @Profile("test")
-    public SecurityFilterChain h2SecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain testPublicChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/console-h2/**")
-                .csrf(csrf -> csrf.disable())
-                .headers(headers ->
-                        headers.frameOptions(frame -> frame.disable())
+                .securityMatcher(
+                        "/console-h2/**",
+                        "/users/school-admin"
                 )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/console-h2/**").permitAll()
-                        .anyRequest().authenticated()
+                .cors(withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable);
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .oauth2ResourceServer(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
     @Bean
     @Order(2)
-    @Profile({"prod", "dev"})
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Profile("test")
+    public SecurityFilterChain testProtectedChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .oauth2ResourceServer(oauth -> oauth.jwt(withDefaults()));
+        return http.build();
+    }
+
+    @Bean
+    @Order(1)
+    @Profile({"prod", "dev"})
+    public SecurityFilterChain publicRegisterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(HttpMethod.POST.toString(), "/users/school-admin")
+                .cors(withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .oauth2ResourceServer(oauth -> oauth
-                        .jwt(withDefaults())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .oauth2ResourceServer(AbstractHttpConfigurer::disable);
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    @Profile({"prod", "dev"})
+    public SecurityFilterChain securedChain(HttpSecurity http) throws Exception {
+        http
+                .cors(withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable);
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .oauth2ResourceServer(oauth -> oauth.jwt(withDefaults()));
+
         return http.build();
     }
 

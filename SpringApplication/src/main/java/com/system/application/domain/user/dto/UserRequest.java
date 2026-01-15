@@ -1,22 +1,19 @@
 package com.system.application.domain.user.dto;
 
-import com.system.application.domain.role.Role;
 import com.system.application.shared.exception.CpfInvalidException;
 import com.system.application.shared.util.CpfValidator;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
 
-public record UserDto(
-        UUID id,
-
+public record UserRequest(
         @NotBlank(message = "Username can't be blank")
         @NotNull(message = "Username can't be null")
-        @Size(max = 100, message = "Username must be higher then 100")
+        @Size(max = 100, message = "Username must be lower then 100")
         String username,
 
         @NotNull(message = "Email can't be null")
@@ -35,18 +32,14 @@ public record UserDto(
         @Size(min = 11, max = 11, message = "CPF must have 11 characters.")
         String cpf,
 
-        @NotNull
-        @NotBlank
-        @Size(max = 20)
-        String phoneNumber,
-
-        Boolean isActive,
-        Instant createdAt,
-        Set<Role> role
+        @NotNull(message = "phonenumber can't be null")
+        @NotBlank(message = "phoneNumber can't be blank")
+        @Size(max = 20, message = "phoneNumber must be lower 20 characters.")
+        String phoneNumber
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    public UserDto {
+    public UserRequest {
         if (!CpfValidator.getInstance().isValid(cpf)) {
             throw new CpfInvalidException("Cpf must be valid!");
         }

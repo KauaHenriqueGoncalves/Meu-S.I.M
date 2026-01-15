@@ -34,4 +34,4 @@ build/
 .vscode/
 
 ### Keys ###
-./src/main/resources/key/*
+src/main/resources/key/*

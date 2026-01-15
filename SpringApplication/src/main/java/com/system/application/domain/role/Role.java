@@ -55,4 +55,21 @@ public final class Role implements Serializable {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    public enum Values {
+        SYSTEM_ADMIN(1L),
+        SCHOOL_ADMIN(2L),
+        COLLABORATOR(3L),
+        LEGAL_GUARDIAN(4l);
+
+        private Long value;
+
+        Values(Long value) {
+            this.value = value;
+        }
+
+        public long getValue() {
+            return value;
+        }
+    }
 }

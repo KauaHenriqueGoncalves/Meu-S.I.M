@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Profile;
 public class TestConfig implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Test-Security: http://localhost:8080/login");
         System.out.println("Console-H2: http://localhost:8080/console-h2");
     }
 }
