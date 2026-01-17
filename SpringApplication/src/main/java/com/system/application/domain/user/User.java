@@ -44,7 +44,7 @@ public final class User implements Serializable {
     @CreationTimestamp
     private Instant createdAt;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),

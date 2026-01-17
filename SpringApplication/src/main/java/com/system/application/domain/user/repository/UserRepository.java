@@ -22,4 +22,18 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             OR u.phoneNumber = :phone
             """)
     Boolean existsConflict(@Param("email") String email, @Param("cpf") String cpf, @Param("phone") String phone);
+    @Query(
+            """
+            select distinct u
+            from User u
+            join u.role r
+            left join SchoolAdmin sa on sa.userId = u
+            left join sa.schoolId s
+            where u.email = :email
+            and (
+                r.name = 'SYSTEM_ADMIN'
+                or s.nameCode = :schoolCode
+            )
+            """)
+    Optional<User> findForLogin(@Param("email") String email, @Param("schoolCode") String schoolCode);
 }

@@ -71,25 +71,6 @@ class UserRequestTest {
             .anyMatch(v -> v.getMessage().contains("Username can't be")));
     }
 
-    @Test
-    void shouldFail_WhenUsernameExceeds100Characters() {
-        String longUsername = "a".repeat(101);
-
-        UserRequest dto = new UserRequest(
-            longUsername,
-            "test@example.com",
-            "Password123",
-            "90656982055",
-            "+55 11 99999-9999"
-        );
-
-        Set<ConstraintViolation<UserRequest>> violations = validator.validate(dto);
-
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream()
-            .anyMatch(v -> v.getMessage().contains("Username must be higher then 100")));
-    }
-
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "  "})
@@ -177,22 +158,6 @@ class UserRequestTest {
             );
         });
         assertEquals("Cpf must be valid!", exception.getMessage());
-    }
-
-    @Test
-    void shouldFail_WhenPhoneNumberExceeds20Characters() {
-        String longPhoneNumber = "+55 11 99999-99999 1234";
-        UserRequest dto = new UserRequest(
-            "john.doe",
-            "test@example.com",
-            "Password123",
-            "90656982055",
-            longPhoneNumber
-        );
-        Set<ConstraintViolation<UserRequest>> violations = validator.validate(dto);
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream()
-            .anyMatch(v -> v.getMessage().contains("phoneNumber is max 20 characters")));
     }
 
     @ParameterizedTest

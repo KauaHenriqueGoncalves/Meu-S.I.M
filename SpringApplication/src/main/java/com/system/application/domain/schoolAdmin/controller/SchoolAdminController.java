@@ -32,12 +32,11 @@ public final class SchoolAdminController {
         this.schoolAdminService = schoolAdminService;
     }
 
-
     @PostMapping("/school-admin")
     public ResponseEntity<Void> createSchoolAdmin(@RequestBody @Valid CreateSchoolAdminRequest createSchoolAdminRequest) {
         User user = userMapper.toEntity(createSchoolAdminRequest.userRequest());
         School school = schoolMapper.toEntity(createSchoolAdminRequest.schoolRequest());
-        UUID idSchoolAdmin = schoolAdminService.createSchoolAdmin(user, school);
+        UUID idSchoolAdmin = schoolAdminService.saveSchoolAdmin(user, school);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -45,5 +44,4 @@ public final class SchoolAdminController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
-
 }

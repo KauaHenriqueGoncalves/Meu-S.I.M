@@ -36,7 +36,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
     @Value("${jwt.public.key}")
     private Resource publicKeyResource;
 
@@ -60,7 +59,11 @@ public class SecurityConfig {
         http
                 .securityMatcher(
                         "/console-h2/**",
-                        "/users/school-admin"
+                        "/users/school-admin",
+                        "/auth/login",
+                        "/auth/refresh",
+                        "/auth/logout",
+                        "/auth/login/admin"
                 )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)

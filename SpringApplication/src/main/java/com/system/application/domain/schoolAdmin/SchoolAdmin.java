@@ -20,11 +20,11 @@ public final class SchoolAdmin implements Serializable {
     @Column(name = "id")
     private UUID id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User userId;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id", nullable = false)
     private School schoolId;
 
