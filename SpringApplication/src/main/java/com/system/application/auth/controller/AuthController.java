@@ -37,6 +37,7 @@ public final class AuthController {
     public ResponseEntity<User> login(@RequestBody @Valid LoginRequest loginRequest,
                                                HttpServletResponse response) {
         User loginResponse = loginService.login(loginRequest);
+        //TODO
 //        String acessToken = jwtService.generateAccessToken(loginResponse);
 //        String refreshToken = jwtService.generateRefreshToken(loginResponse);
 //        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
