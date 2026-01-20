@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +82,7 @@ public final class GlobalExpectionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<StandardError>  handleBadCredentialsException(BadCredentialsException ex,
+    public ResponseEntity<StandardError> handleBadCredentialsException(BadCredentialsException ex,
                                                                         HttpServletRequest request) {
         String message = "Bad credentials";
         HttpStatus status = HttpStatus.UNAUTHORIZED;
@@ -93,5 +94,20 @@ public final class GlobalExpectionHandler {
                 request.getRequestURI()
         );
         return ResponseEntity.status(status).body(standardError);
+    }
+
+    @ExceptionHandler(DateTimeException.class)
+    public ResponseEntity<StandardError> handleDateTimeException(DateTimeException ex,
+                                                                 HttpServletRequest request) {
+        String message = "DateTime is wrong!";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError error = new StandardError(
+                Instant.now(),
+                status.value(),
+                message,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
     }
 }

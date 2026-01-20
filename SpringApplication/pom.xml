@@ -11,7 +11,7 @@
 
 	<groupId>com.system</groupId>
 	<artifactId>application</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>system management</name>
 	<description>Administrative management system for &quot;reforco academico&quot;.</description>
 	<url/>

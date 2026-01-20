@@ -8,5 +8,6 @@ import java.util.UUID;
 
 public interface SchoolAdminService {
     SchoolAdmin findById(UUID id);
+    SchoolAdmin findByUserId(UUID id);
     UUID saveSchoolAdmin(User user, School school);
 }

@@ -27,7 +27,7 @@ public final class JwtServiceImpl implements JwtService {
                 .issuer("api-system-application")
                 .audience(List.of("system-web"))
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(900)) //30 = 30s, 900 = 15 min
+                .expiresAt(now.plusSeconds(900)) //900 = 15 min
                 .subject(loginResponse.id().toString())
                 .claims(claims -> {
                     claims.put(

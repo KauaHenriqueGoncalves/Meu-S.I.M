@@ -40,8 +40,8 @@ public final class User implements Serializable {
     @Column(name = "is_active",nullable = false)
     private Boolean isActive;
 
-    @Column(name = "create_at")
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @ManyToMany(fetch = FetchType.LAZY)

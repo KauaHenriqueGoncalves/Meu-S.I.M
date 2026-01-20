@@ -1,15 +1,14 @@
-package com.system.application.domain.schoolAdmin.dto;
+package com.system.application.domain.legalGuardian.dto;
 
-import com.system.application.domain.school.dto.SchoolRequest;
 import com.system.application.domain.user.dto.UserRequest;
 import jakarta.validation.Valid;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-public record CreateSchoolAdminRequest(
+public record CreateLegalGuardianRequest(
         @Valid UserRequest userRequest,
-        @Valid SchoolRequest schoolRequest
+        @Valid LegalGuardianRequest legalGuardianRequest
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

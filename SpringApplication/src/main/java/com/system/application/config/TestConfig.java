@@ -19,7 +19,7 @@ public class TestConfig implements CommandLineRunner {
                 new User(
                         null,
                         "kauã henrique ADMINNN",
-                        "email@email.com",
+                        "emailLLLLLLLLLLLL@email.com",
                         "admin_poderoso",
                         "15930989443",
                         "123123123",

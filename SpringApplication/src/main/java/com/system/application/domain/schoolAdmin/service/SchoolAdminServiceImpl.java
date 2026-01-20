@@ -6,7 +6,6 @@ import com.system.application.domain.schoolAdmin.SchoolAdmin;
 import com.system.application.domain.schoolAdmin.repository.SchoolAdminRepository;
 import com.system.application.domain.user.User;
 import com.system.application.domain.user.service.UserService;
-import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,13 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     @Override
     public SchoolAdmin findById(UUID id) {
         return schoolAdminRepository.findById(id).orElseThrow(
+                () -> new BadCredentialsException("Bad credentials")
+        );
+    }
+
+    @Override
+    public SchoolAdmin findByUserId(UUID id) {
+        return schoolAdminRepository.findByUserId_Id(id).orElseThrow(
                 () -> new BadCredentialsException("Bad credentials")
         );
     }

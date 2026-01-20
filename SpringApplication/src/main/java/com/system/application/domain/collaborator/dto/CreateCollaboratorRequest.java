@@ -1,15 +1,14 @@
-package com.system.application.domain.schoolAdmin.dto;
+package com.system.application.domain.collaborator.dto;
 
-import com.system.application.domain.school.dto.SchoolRequest;
 import com.system.application.domain.user.dto.UserRequest;
 import jakarta.validation.Valid;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-public record CreateSchoolAdminRequest(
+public record CreateCollaboratorRequest(
         @Valid UserRequest userRequest,
-        @Valid SchoolRequest schoolRequest
+        @Valid CollaboratorRequest collaboratorRequest
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
