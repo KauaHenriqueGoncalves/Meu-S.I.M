@@ -24,4 +24,5 @@ public interface CollaboratorRepository extends JpaRepository<Collaborator, UUID
             WHERE c.school.id = :schoolId
             """)
     Page<CollaboratorListView> findAllBySchoolId(@Param("schoolId") UUID schoolId, Pageable pageable);
+    Boolean existsByIdAndSchool_Id(UUID collaboratorId, UUID schoolId);
 }
