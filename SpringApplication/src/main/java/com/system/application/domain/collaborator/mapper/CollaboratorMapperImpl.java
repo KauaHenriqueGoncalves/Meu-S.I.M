@@ -27,6 +27,7 @@ public class CollaboratorMapperImpl implements CollaboratorMapper {
                 collaborator.getUser().getEmail(),
                 collaborator.getUser().getCpf(),
                 collaborator.getUser().getPhoneNumber(),
+                collaborator.getUser().getAddress(),
                 collaborator.getDateOfBirth(),
                 collaborator.getSpecialty(),
                 collaborator.getWorkload()

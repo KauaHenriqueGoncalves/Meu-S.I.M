@@ -15,4 +15,9 @@ public record PageResponse<T>(
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    public PageResponse {
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("Informe valores positivos ou igual à 0!");
+        }
+    }
 }

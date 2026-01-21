@@ -1,8 +1,6 @@
 package com.system.application.domain.collaborator.controller;
 
-import com.system.application.domain.collaborator.dto.CollaboratorRequest;
-import com.system.application.domain.collaborator.dto.CollaboratorResponse;
-import com.system.application.domain.collaborator.dto.CreateCollaboratorRequest;
+import com.system.application.domain.collaborator.dto.*;
 import com.system.application.domain.collaborator.service.CollaboratorService;
 import com.system.application.domain.user.User;
 import com.system.application.domain.user.mapper.UserMapper;
@@ -31,26 +29,16 @@ public class CollaboratorController {
         this.collaboratorService = collaboratorService;
     }
 
-
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")
-    @PostMapping("/collaborator")
-    public ResponseEntity<Void> createCollaborator(@RequestBody @Valid CreateCollaboratorRequest createCollaboratorRequest,
-                                                          JwtAuthenticationToken jwtToken) {
-        User user = userMapper.toEntity(createCollaboratorRequest.userRequest());
-        UUID adminId = UUID.fromString(jwtToken.getName());
-        CollaboratorRequest request = createCollaboratorRequest.collaboratorRequest();
-        UUID collaboratorId = collaboratorService.saveCollaborator(user, adminId, request);
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(collaboratorId)
-                .toUri();
-        return ResponseEntity.created(uri).build();
+    @GetMapping("/collaborator/{id}")
+    public ResponseEntity<CollaboratorDetailResponse> findByIdCollaborator(@PathVariable UUID id) {
+        CollaboratorDetailResponse collaborator = collaboratorService.findById(id);
+        return ResponseEntity.ok(collaborator);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")
     @GetMapping("/collaborators")
-    public ResponseEntity<PageResponse<CollaboratorResponse>> getAllCollaboratorResponse(@RequestParam(value = "page", defaultValue = "0") int page,
+    public ResponseEntity<PageResponse<CollaboratorResponse>> findAllCollaboratorResponse(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                    @RequestParam(value = "size", defaultValue = "3") int size,
                                                                    JwtAuthenticationToken jwtToken) {
         UUID adminId = UUID.fromString(jwtToken.getName());
@@ -65,5 +53,50 @@ public class CollaboratorController {
                 collaboratorPage.hasPrevious()
         );
         return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    @PostMapping("/collaborator")
+    public ResponseEntity<Void> createCollaborator(@RequestBody @Valid CreateCollaboratorRequest createCollaboratorRequest,
+                                                   JwtAuthenticationToken jwtToken) {
+        User user = userMapper.toEntity(createCollaboratorRequest.userRequest());
+        UUID adminId = UUID.fromString(jwtToken.getName());
+        CollaboratorRequest request = createCollaboratorRequest.collaboratorRequest();
+        UUID collaboratorId = collaboratorService.saveCollaborator(user, adminId, request);
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(collaboratorId)
+                .toUri();
+        return ResponseEntity.created(uri).build();
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    @PutMapping("/collaborator/{id}")
+    public ResponseEntity<Void> updateCollaborator(@PathVariable("id") UUID collaboratorId,
+                                                   @RequestBody @Valid UpdateCollaboratorRequest updateCollaborator,
+                                                   JwtAuthenticationToken jwtToken) {
+        UUID adminId = UUID.fromString(jwtToken.getName());
+        collaboratorService.updateCollaborator(adminId, collaboratorId, updateCollaborator);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    @PutMapping("/collaborator/password/{id}")
+    public ResponseEntity<Void> updatePassword(@PathVariable("id") UUID collaboratorId,
+                                               @RequestBody @Valid UpdateCollaboratorPasswordRequest updatePasswordRequest,
+                                               JwtAuthenticationToken jwtToken) {
+        UUID adminId = UUID.fromString(jwtToken.getName());
+        collaboratorService.updatePassword(adminId, collaboratorId, updatePasswordRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    @DeleteMapping("/collaborator/{id}")
+    public ResponseEntity<Void> deleteByIdCollaborator(@PathVariable("id") UUID collaboratorId,
+                                                       JwtAuthenticationToken jwtToken) {
+        UUID adminId = UUID.fromString(jwtToken.getName());
+        collaboratorService.deleteById(adminId, collaboratorId);
+        return ResponseEntity.noContent().build();
     }
 }

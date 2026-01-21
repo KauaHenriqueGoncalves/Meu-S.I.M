@@ -17,6 +17,7 @@ public final class UserMapperImpl implements UserMapper {
                 userRequest.password(),
                 userRequest.cpf(),
                 userRequest.phoneNumber(),
+                userRequest.address(),
                 null,
                 null,
                 null

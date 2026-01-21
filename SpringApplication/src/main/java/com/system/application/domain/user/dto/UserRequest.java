@@ -34,7 +34,12 @@ public record UserRequest(
         @NotBlank(message = "phoneNumber can't be blank")
         @Size(max = 20, message = "phoneNumber must be lower 20 characters.")
         @NoLeadingTrailingSpace
-        String phoneNumber
+        String phoneNumber,
+
+        @NotNull
+        @Size(max = 100, message = "Endereço é no maximo 100 caracteres")
+        @NoLeadingTrailingSpace
+        String address
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
