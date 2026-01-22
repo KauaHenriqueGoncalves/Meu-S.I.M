@@ -12,10 +12,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NoLeadingTrailingSpace {
-
     String message() default "Must not contain leading or trailing spaces";
-
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
 }

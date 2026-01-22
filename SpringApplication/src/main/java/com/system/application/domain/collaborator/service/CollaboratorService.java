@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.UUID;
 
 public interface CollaboratorService {
-    Page<CollaboratorResponse> findAllBySchoolAdminId(@Param("adminId") UUID adminId, Pageable pageable);
+    Page<CollaboratorResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable);
     CollaboratorDetailResponse findById(UUID id);
     UUID saveCollaborator(User user, UUID admin, CollaboratorRequest collaboratorRequest);
     UUID updateCollaborator(UUID adminId, UUID collaboratorId, UpdateCollaboratorRequest updateCollaboratorRequest);
