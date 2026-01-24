@@ -61,6 +61,13 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     }
 
     @Override
+    public LegalGuardian findByIdEntity(UUID id) {
+        return legalGuardianRepository.findById(id).orElseThrow(
+                () -> new NotFoundObjectException("Not found legal guardian")
+        );
+    }
+
+    @Override
     @Transactional
     public UUID saveLegalGuardian(User user, UUID adminId, LegalGuardianRequest legalGuardianRequest) {
         user = userService.saveLegalGuardian(user);
@@ -109,7 +116,8 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
         legalGuardianRepository.deleteById(legalGuardianId);
     }
 
-    private void validateLegalGuardianBelongsToSchool(UUID adminId, UUID legalGuardianId) {
+    @Override
+    public void validateLegalGuardianBelongsToSchool(UUID adminId, UUID legalGuardianId) {
         UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
         Boolean belongsToSchool = legalGuardianRepository.existsByIdAndSchool_Id(legalGuardianId, schoolId);
         if (!belongsToSchool) {
