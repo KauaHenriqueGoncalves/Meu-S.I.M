@@ -37,11 +37,14 @@ public final class User implements Serializable {
     @Column(name = "phone_number", length = 20, nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(name = "is_active",nullable = false)
+    @Column(name = "address", length = 100)
+    private String address;
+
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    @Column(name = "create_at")
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -60,6 +63,7 @@ public final class User implements Serializable {
                 String password,
                 String cpf,
                 String phoneNumber,
+                String address,
                 Boolean isActive,
                 Instant createdAt,
                 Set<Role> role) {
@@ -69,6 +73,7 @@ public final class User implements Serializable {
         this.password = password;
         this.cpf = cpf;
         this.phoneNumber = phoneNumber;
+        this.address = address;
         this.isActive = isActive;
         this.createdAt = createdAt;
         this.role = role;
@@ -122,6 +127,14 @@ public final class User implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public Boolean getActive() {
         return isActive;
     }
@@ -167,6 +180,7 @@ public final class User implements Serializable {
                 ", password='" + password + '\'' +
                 ", cpf='" + cpf + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", address='" + address + '\'' +
                 ", isActive=" + isActive +
                 ", createdAt=" + createdAt +
                 ", role=" + role +

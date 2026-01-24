@@ -73,4 +73,28 @@ public class UserServiceImpl implements UserService {
         user.setActive(true); //TODO: por padrão será false
         return userRepository.save(user);
     }
+
+    @Override
+    @Transactional
+    public User saveColaborator(User user) {
+        Boolean someDataIsSame = userRepository.existsConflict(user.getEmail(), user.getCpf(), user.getPhoneNumber());
+        if (someDataIsSame) throw new EntityAlreadyExistsException("User already exists");
+        Role role = roleService.findByName(Role.Values.COLLABORATOR.name());
+        user.setRole(Set.of(role));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setActive(true); //TODO: por padrão será false
+        return userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public User saveLegalGuardian(User user) {
+        Boolean someDataIsSame = userRepository.existsConflict(user.getEmail(), user.getCpf(), user.getPhoneNumber());
+        if (someDataIsSame) throw new EntityAlreadyExistsException("User already exists");
+        Role role = roleService.findByName(Role.Values.LEGAL_GUARDIAN.name());
+        user.setRole(Set.of(role));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setActive(true); //TODO: por padrão será false
+        return userRepository.save(user);
+    }
 }

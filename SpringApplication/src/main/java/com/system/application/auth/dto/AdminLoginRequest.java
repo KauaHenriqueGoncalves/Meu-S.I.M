@@ -31,5 +31,6 @@ public record AdminLoginRequest(
         if (!CpfValidator.getInstance().isValid(cpf)) {
             throw new CpfInvalidException("Cpf must be valid!");
         }
+        email = email.toLowerCase();
     }
 }

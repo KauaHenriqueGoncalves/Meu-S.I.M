@@ -35,6 +35,20 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     }
 
     @Override
+    public SchoolAdmin findByUserId(UUID id) {
+        return schoolAdminRepository.findByUserId_Id(id).orElseThrow(
+                () -> new BadCredentialsException("Bad credentials")
+        );
+    }
+
+    @Override
+    public UUID findSchoolIdByUserId(UUID userId) {
+        return schoolAdminRepository.findSchoolIdByUserId(userId).orElseThrow(
+                () -> new NotFoundObjectException("Not found schoolAdmin")
+        );
+    }
+
+    @Override
     @Transactional
     public UUID saveSchoolAdmin(User user, School school) {
         user = userService.saveSchoolAdmin(user);

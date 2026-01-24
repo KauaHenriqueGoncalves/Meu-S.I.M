@@ -98,13 +98,25 @@ public class SecurityConfig {
     @Profile({"prod", "dev"})
     public SecurityFilterChain publicRegisterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher(HttpMethod.POST.toString(), "/users/school-admin")
+                .securityMatcher(
+                        "/auth/**",
+                        "/users/school-admin"
+                )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST,
+                                "/users/school-admin",
+                                "/auth/login",
+                                "/auth/refresh",
+                                "/auth/logout",
+                                "/auth/login/admin"
+                        ).permitAll()
+                        .anyRequest().denyAll()
+                )
                 .oauth2ResourceServer(AbstractHttpConfigurer::disable);
 
         return http.build();
