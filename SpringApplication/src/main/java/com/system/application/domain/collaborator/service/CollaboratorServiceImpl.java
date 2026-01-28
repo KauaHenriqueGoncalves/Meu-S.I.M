@@ -19,14 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-/**
- * Service responsável pelo gerenciamento de colaboradores.
- *
- * Regras principais:
- * - Um colaborador sempre pertence a uma única escola
- * - Apenas administradores da mesma escola podem gerenciar colaboradores
- * - Todas as operações sensíveis validam o vínculo com a instituição
- */
 @Service
 public class CollaboratorServiceImpl implements CollaboratorService {
     private final UserService userService;
@@ -47,13 +39,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * Retorna os colaboradores vinculados à escola do administrador informado.
-     *
-     * @param adminId id do usuário administrador da escola
-     * @param pageable informações de paginação
-     * @return página de colaboradores da mesma instituição
-     */
     @Override
     public Page<CollaboratorResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
@@ -75,23 +60,10 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         return collaboratorMapper.toDtoDetail(collaborator);
     }
 
-    /**
-     * Cria um novo colaborador vinculado à escola do administrador.
-     *
-     * Fluxo:
-     * 1. Cria o usuário do colaborador
-     * 2. Recupera a escola do administrador
-     * 3. Associa o colaborador à escola
-     *
-     * @param user usuário base do colaborador
-     * @param adminId id do administrador da escola
-     * @param collaboratorRequest dados do colaborador
-     * @return id do colaborador criado
-     */
     @Override
     @Transactional
     public UUID saveCollaborator(User user, UUID adminId, CollaboratorRequest collaboratorRequest) {
-        user = userService.saveColaborator(user);
+        user = userService.saveCollaborator(user);
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
         School school = schoolAdmin.getSchoolId();
         Collaborator collaborator = new Collaborator(
@@ -106,15 +78,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         return collaborator.getId();
     }
 
-    /**
-     * Atualiza os dados de um colaborador pertencente à mesma escola do administrador.
-     *
-     * Regras:
-     * - O colaborador deve pertencer à mesma instituição do administrador
-     * - Caso o email seja alterado, futuramente a conta poderá ser desativada
-     *
-     * @throws AccessDeniedException se o colaborador não pertencer à escola
-     */
     @Override
     @Transactional
     public UUID updateCollaborator(UUID adminId, UUID collaboratorId, UpdateCollaboratorRequest updateCollaboratorRequest) {
@@ -131,10 +94,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         return collaborator.getId();
     }
 
-    /**
-     * Atualiza a senha de um colaborador.
-     * Apenas administradores da mesma escola podem executar esta operação.
-     */
     @Override
     @Transactional
     public void updatePassword(UUID adminId, UUID collaboratorId, UpdateCollaboratorPasswordRequest updatePasswordRequest) {
@@ -142,9 +101,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         collaborator.getUser().setPassword(passwordEncoder.encode(updatePasswordRequest.newPassword()));
     }
 
-    /**
-     * Remove um colaborador da instituição do administrador.
-     */
     @Override
     @Transactional
     public void deleteById(UUID adminId, UUID collaboratorId) {
@@ -152,7 +108,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         collaboratorRepository.deleteById(collaboratorId);
     }
 
-    // Valida se o colaborador pertence à mesma escola do administrador
     private Collaborator validateCollaboratorBelongsToSchool(UUID adminId, UUID collaboratorId) {
         UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
         Boolean belongsToSchool = collaboratorRepository.existsByIdAndSchool_Id(collaboratorId, schoolId);

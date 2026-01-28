@@ -9,8 +9,9 @@ public interface UserService {
     Page<User> findAll(Integer page, Integer size);
     User findById(UUID id);
     User findForLogin(String email, String schoolCode);
+    User save(User user);
     User saveSchoolAdmin(User user);
     User saveSystemAdmin(User user);
-    User saveColaborator(User user);
+    User saveCollaborator(User user);
     User saveLegalGuardian(User user);
 }
