@@ -44,4 +44,7 @@ public final class SchoolAdminController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
+    // TODO: Vai ser redirecionado para uma pagina avisando que tem 15 minutos para
+    //  fazer o login e 30 minutos para um novo cadastro
+
 }

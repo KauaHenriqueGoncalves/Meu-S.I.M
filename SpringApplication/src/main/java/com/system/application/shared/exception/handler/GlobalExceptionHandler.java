@@ -140,6 +140,21 @@ public final class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<StandardError> handlerBusinessException(BusinessException e,
+                                                                  HttpServletRequest request) {
+        String message = "Business Exeception";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError error = new StandardError(
+                Instant.now(),
+                status.value(),
+                message,
+                e.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<StandardError> handleDataIntegrityViolation(DataIntegrityViolationException ex,
                                                                       HttpServletRequest request) {

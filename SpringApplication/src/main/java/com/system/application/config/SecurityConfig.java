@@ -63,7 +63,8 @@ public class SecurityConfig {
                         "/auth/login",
                         "/auth/refresh",
                         "/auth/logout",
-                        "/auth/login/admin"
+                        "/auth/login/admin",
+                        "/auth/verify"
                 )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -114,6 +115,9 @@ public class SecurityConfig {
                                 "/auth/refresh",
                                 "/auth/logout",
                                 "/auth/login/admin"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/auth/verify"
                         ).permitAll()
                         .anyRequest().denyAll()
                 )

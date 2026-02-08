@@ -4,13 +4,18 @@ import com.system.application.domain.school.School;
 import com.system.application.domain.user.User;
 import jakarta.persistence.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
 @Table(name = "collaborator")
-public final class Collaborator {
+public final class Collaborator implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
