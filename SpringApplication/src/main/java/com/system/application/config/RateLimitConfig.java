@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
-public class PublicRateLimitConfig extends OncePerRequestFilter {
+public class RateLimitConfig extends OncePerRequestFilter {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     @Override
@@ -24,11 +24,12 @@ public class PublicRateLimitConfig extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
-        // só aplica em endpoints públicos
-        if (!uri.startsWith("/public") &&
-            !uri.startsWith("/auth") &&
-            !uri.equals("/users/school-admin")
-        ) {
+
+        Boolean endPointWithRateLimit = !uri.startsWith("/public") &&
+                                        !uri.startsWith("/auth") &&
+                                        !uri.equals("/users/school-admin");
+
+        if (endPointWithRateLimit) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -37,8 +38,8 @@ public class PublicRateLimitConfig extends OncePerRequestFilter {
         Bucket bucket = buckets.computeIfAbsent(key, k ->
                 Bucket.builder()
                         .addLimit(Bandwidth.classic(
-                                10, // 10 requisições
-                                Refill.intervally(10, Duration.ofMinutes(5))
+                                10, // 10 requisicoes
+                                Refill.intervally(10, Duration.ofMinutes(5)) // 5 minutos
                         ))
                         .build()
         );

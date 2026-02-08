@@ -12,6 +12,7 @@ import com.system.application.domain.user.service.UserService;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,6 +41,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     }
 
     @Override
+    @Cacheable(value = "collaborators")
     public Page<CollaboratorResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
         UUID schoolId = schoolAdmin.getSchoolId().getId();

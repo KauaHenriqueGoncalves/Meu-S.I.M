@@ -15,6 +15,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     Optional<User> findByCpf(String cpf);
     Optional<User> findByPhoneNumber(String phoneNumber);
+
     @Query(
             """
             SELECT COUNT(u) > 0 FROM User u
@@ -23,6 +24,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             OR u.phoneNumber = :phone
             """)
     Boolean existsConflict(@Param("email") String email, @Param("cpf") String cpf, @Param("phone") String phone);
+
     @Query("""
             select distinct u
             from User u

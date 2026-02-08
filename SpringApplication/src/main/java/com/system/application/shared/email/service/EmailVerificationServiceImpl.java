@@ -35,7 +35,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService{
         EmailVerificationToken verificationToken = new EmailVerificationToken(
                 null,
                 UUID.randomUUID().toString(),
-                Instant.now().plusSeconds(86400),
+                Instant.now().plusSeconds(900), // 15 minutos para confirmar o cadastro
                 user.getId()
         );
         verificationToken = emailVerificationRepository.save(verificationToken);
