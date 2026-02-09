@@ -43,8 +43,7 @@ public final class SchoolAdminController {
                 .buildAndExpand(idSchoolAdmin)
                 .toUri();
         return ResponseEntity.created(uri).build();
+        // TODO: Vai ser redirecionado para uma pagina avisando que tem 15 minutos para
+        //  fazer o login e 35 minutos para um novo cadastro de usuario e escola
     }
-    // TODO: Vai ser redirecionado para uma pagina avisando que tem 15 minutos para
-    //  fazer o login e 30 minutos para um novo cadastro
-
 }

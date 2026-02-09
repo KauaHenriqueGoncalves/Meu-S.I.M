@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +19,12 @@ public interface SchoolAdminRepository extends CrudRepository<SchoolAdmin, UUID>
     @Query("SELECT sa.schoolId.id FROM SchoolAdmin sa WHERE sa.userId.id = :userId")
     Optional<UUID> findSchoolIdByUserId(@Param("userId") UUID userId);
 
-    @Query("SELECT sa FROM SchoolAdmin sa WHERE sa.userId.isActive = false")
-    List<SchoolAdmin> findInactiveProfiles();
+    @Query("""
+            SELECT sa
+            FROM SchoolAdmin sa
+            JOIN FETCH sa.userId u
+            WHERE sa.userId.isActive = false 
+                AND u.createdAt < :limit
+            """)
+    List<SchoolAdmin> findInactiveOlderThan(@Param("limit") Instant limit);
 }
