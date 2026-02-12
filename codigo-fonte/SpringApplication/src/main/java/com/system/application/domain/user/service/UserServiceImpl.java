@@ -10,6 +10,7 @@ import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.EntityAlreadyExistsException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -61,6 +62,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User save(User user) {
         return userRepository.save(user);
     }
@@ -83,7 +85,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleService.findByName(Role.Values.SCHOOL_ADMIN.name());
         user.setRole(Set.of(role));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActive(true); // TODO: Padrão é falso
+        user.setActive(false); // TODO: Padrão é falso
         User savedUser = userRepository.save(user);
         sendVerificationEmail(savedUser);
         return user;

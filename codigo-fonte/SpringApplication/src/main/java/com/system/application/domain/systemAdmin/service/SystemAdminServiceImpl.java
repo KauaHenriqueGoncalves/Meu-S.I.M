@@ -5,6 +5,7 @@ import com.system.application.domain.systemAdmin.repository.SystemAdminRepositor
 import com.system.application.domain.user.User;
 import com.system.application.domain.user.service.UserService;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 

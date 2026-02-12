@@ -25,6 +25,7 @@ public class RateLimitConfig extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
 
+        // Informe as rotas com rate limit
         Boolean endPointWithRateLimit = !uri.startsWith("/public") &&
                                         !uri.startsWith("/auth") &&
                                         !uri.equals("/users/school-admin");

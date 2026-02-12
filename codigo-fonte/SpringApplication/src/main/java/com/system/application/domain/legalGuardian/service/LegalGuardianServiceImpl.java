@@ -12,6 +12,8 @@ import com.system.application.domain.user.service.UserService;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,6 +42,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     }
 
     @Override
+    @Cacheable(key = "#adminId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_legal_guardians")
     public Page<LegalGuardianResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
         return legalGuardianRepository.findAllBySchoolId(schoolId, pageable)
@@ -69,6 +72,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public UUID saveLegalGuardian(User user, UUID adminId, LegalGuardianRequest legalGuardianRequest) {
         user = userService.saveLegalGuardian(user);
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
@@ -85,6 +89,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public UUID updateLegalGuardian(UUID adminId, UUID legalGuardianId, UpdateLegalGuardianRequest updateLegalGuardianRequest) {
         validateLegalGuardianBelongsToSchool(adminId, legalGuardianId);
         LegalGuardian legalGuardian = legalGuardianRepository.findById(legalGuardianId).orElseThrow(
@@ -111,6 +116,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public void deleteById(UUID adminId, UUID legalGuardianId) {
         validateLegalGuardianBelongsToSchool(adminId, legalGuardianId);
         legalGuardianRepository.deleteById(legalGuardianId);

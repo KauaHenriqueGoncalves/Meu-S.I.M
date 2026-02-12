@@ -14,6 +14,8 @@ import com.system.application.domain.student.repository.StudentRepository;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Cacheable(key = "#adminId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_students")
     public Page<StudentResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
         return studentRepository.findAllBySchool_Id(schoolId, pageable).map(studentMapper::toDto);
@@ -52,6 +55,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_students", allEntries = true)
     public UUID save(UUID adminId, StudentRequest studentRequest) {
         legalGuardianService.validateLegalGuardianBelongsToSchool(adminId, studentRequest.legalGuardianId());
         LegalGuardian legalGuardian = legalGuardianService.findByIdEntity(studentRequest.legalGuardianId());
@@ -70,6 +74,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_students", allEntries = true)
     public UUID update(UUID adminId, UUID studentId, UpdateStudentRequest updateRequest) {
         legalGuardianService.validateLegalGuardianBelongsToSchool(adminId, updateRequest.legalGuardianId());
         Student student = studentRepository.findById(studentId).orElseThrow(
@@ -90,6 +95,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_students", allEntries = true)
     public void deleteById(UUID adminId, UUID studentId) {
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
         System.out.println(schoolAdmin.getSchoolId());

@@ -5,6 +5,7 @@ import com.system.application.domain.school.repository.SchoolRepository;
 import com.system.application.shared.exception.EntityAlreadyExistsException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

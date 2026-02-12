@@ -12,6 +12,7 @@ import com.system.application.domain.user.service.UserService;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +42,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     }
 
     @Override
-    @Cacheable(value = "collaborators")
+    @Cacheable(key = "#adminId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_collaborators")
     public Page<CollaboratorResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
         UUID schoolId = schoolAdmin.getSchoolId().getId();
@@ -64,6 +65,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_collaborators", allEntries = true)
     public UUID saveCollaborator(User user, UUID adminId, CollaboratorRequest collaboratorRequest) {
         user = userService.saveCollaborator(user);
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
@@ -82,8 +84,8 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_collaborators", allEntries = true)
     public UUID updateCollaborator(UUID adminId, UUID collaboratorId, UpdateCollaboratorRequest updateCollaboratorRequest) {
-        // TODO: Futuramente implementar que a conta fica desativada, caso troque de email
         Collaborator collaborator = validateCollaboratorBelongsToSchool(adminId, collaboratorId);
         collaborator.getUser().setUsername(updateCollaboratorRequest.username());
         collaborator.getUser().setEmail(updateCollaboratorRequest.email());
@@ -105,6 +107,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "page_collaborators", allEntries = true)
     public void deleteById(UUID adminId, UUID collaboratorId) {
         validateCollaboratorBelongsToSchool(adminId, collaboratorId);
         collaboratorRepository.deleteById(collaboratorId);
