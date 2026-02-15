@@ -1,9 +1,11 @@
 package com.system.application.domain.school;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -26,6 +28,10 @@ public final class School implements Serializable {
 
     @Column(name = "cnpj",  length = 14, nullable = false, unique = true)
     private String cnpj;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private Instant createdAt;
 
     public School() {}
 
@@ -71,6 +77,14 @@ public final class School implements Serializable {
         this.cnpj = cnpj;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -81,15 +95,5 @@ public final class School implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "School{" +
-                "id=" + id +
-                ", nameCode='" + nameCode + '\'' +
-                ", schoolName='" + schoolName + '\'' +
-                ", cnpj='" + cnpj + '\'' +
-                '}';
     }
 }

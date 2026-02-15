@@ -18,8 +18,8 @@ public class SchoolAdminSchedule {
         this.schoolAdminRepository = schoolAdminRepository;
     }
 
-    @Scheduled(cron = "0 */30 * * * *")
     @Transactional
+    @Scheduled(cron = "0 */30 * * * *")
     public void deleteInactiveProfiles() {
         // Usuarios inativos e que foram criados acima de 15 minutos
         // Esse é para usarios que acabaram de criar o perfil
