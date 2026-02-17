@@ -1,0 +1,14 @@
+package com.system.application.domain.subject.repository;
+
+import com.system.application.domain.subject.Subject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+public interface SubjectRepository extends JpaRepository<Subject, UUID> {
+    Page<Subject> findAllBySchool_Id(UUID schoolId, Pageable pageable);
+}

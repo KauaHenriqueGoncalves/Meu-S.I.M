@@ -26,6 +26,13 @@ public class SchoolServiceImpl implements SchoolService {
     }
 
     @Override
+    public School findByUser(UUID userId) {
+        return schoolRepository.findSchoolIdByUserId(userId).orElseThrow(
+                () -> new NotFoundObjectException("Escola não foi encontrada")
+        );
+    }
+
+    @Override
     @Transactional
     public School save(School school) {
         Boolean existConflict = schoolRepository.existsConflict(school.getNameCode(), school.getCnpj());

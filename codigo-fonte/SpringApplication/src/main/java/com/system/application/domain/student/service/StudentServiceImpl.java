@@ -98,7 +98,6 @@ public class StudentServiceImpl implements StudentService {
     @CacheEvict(value = "page_students", allEntries = true)
     public void deleteById(UUID adminId, UUID studentId) {
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
-        System.out.println(schoolAdmin.getSchoolId());
         Student student = studentRepository.findById(studentId).orElseThrow(
                 () -> new NotFoundObjectException("Not Found Student")
         );

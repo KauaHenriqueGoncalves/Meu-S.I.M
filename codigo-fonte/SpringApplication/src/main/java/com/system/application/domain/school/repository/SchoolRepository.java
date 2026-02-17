@@ -33,4 +33,13 @@ public interface SchoolRepository extends CrudRepository<School, UUID> {
         AND NOT EXISTS (SELECT st FROM Student st WHERE st.school = s)
     """)
     List<School> findAbandonedSchools(Instant limit);
+
+    @Query("""
+    SELECT s FROM School s
+    WHERE 
+        EXISTS (SELECT sa FROM SchoolAdmin sa WHERE sa.schoolId = s AND sa.userId.id = :userId)
+        OR EXISTS (SELECT c FROM Collaborator c WHERE c.school = s AND c.user.id = :userId)
+        OR EXISTS (SELECT lg FROM LegalGuardian lg WHERE lg.school = s AND lg.user.id = :userId)
+    """)
+    Optional<School> findSchoolIdByUserId(@Param("userId") UUID userId);
 }
