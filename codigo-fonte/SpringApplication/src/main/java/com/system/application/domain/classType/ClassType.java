@@ -1,4 +1,4 @@
-package com.system.application.domain.role;
+package com.system.application.domain.classType;
 
 import jakarta.persistence.*;
 
@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "role")
-public final class Role implements Serializable {
+@Table(name = "class_type")
+public final class ClassType implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -39,8 +39,8 @@ public final class Role implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Role role = (Role) o;
-        return Objects.equals(id, role.id);
+        ClassType classType = (ClassType) o;
+        return Objects.equals(id, classType.id);
     }
 
     @Override
@@ -48,19 +48,15 @@ public final class Role implements Serializable {
         return Objects.hashCode(id);
     }
 
-    @Override
-    public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
-
     public enum Values {
-        SYSTEM_ADMIN(1L),
-        SCHOOL_ADMIN(2L),
-        COLLABORATOR(3L),
-        LEGAL_GUARDIAN(4l);
+        INDIVIDUAL(1L),
+        GROUP(2L),
+        INTENSIVE_REVIEW(3L),
+        HOMEWORK_SUPPORT(4L),
+        EXAM_PREPARATION(5L),
+        SCHOOL_RECOVERY(6L),
+        WORKSHOP(7L),
+        ONLINE(8L);
 
         private Long value;
 
