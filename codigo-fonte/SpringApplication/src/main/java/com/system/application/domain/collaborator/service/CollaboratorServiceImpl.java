@@ -15,7 +15,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +48,14 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     public Page<CollaboratorResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
         UUID schoolId = schoolAdmin.getSchoolId().getId();
-        return collaboratorRepository.findAllBySchoolId(schoolId, pageable)
+
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by("user.username").ascending()
+        );
+
+        return collaboratorRepository.findAllBySchoolId(schoolId, sortedPageable)
                 .map(c -> new CollaboratorResponse(
                         c.getId(),
                         c.getUsername(),

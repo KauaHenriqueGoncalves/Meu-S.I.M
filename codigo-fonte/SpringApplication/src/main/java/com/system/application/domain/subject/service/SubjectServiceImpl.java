@@ -13,7 +13,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -33,7 +35,14 @@ public class SubjectServiceImpl implements SubjectService{
     @Cacheable(key = "#userId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_subjects")
     public PageResponse<SubjectResponse> findAllBySchool(UUID userId, Pageable pageable) {
         School school = schoolService.findByUser(userId);
-        Page<SubjectResponse> subjectsPage = subjectRepository.findAllBySchool_Id(school.getId(), pageable)
+
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by("name").ascending()
+        );
+
+        Page<SubjectResponse> subjectsPage = subjectRepository.findAllBySchool_Id(school.getId(), sortedPageable)
                 .map(s -> new SubjectResponse(s.getId(), s.getName()));
         return new PageResponse<>(
                 subjectsPage.getContent(),
@@ -50,6 +59,12 @@ public class SubjectServiceImpl implements SubjectService{
     public SubjectResponse findById(UUID subjectId) {
         return subjectRepository.findById(subjectId)
                 .map(s -> new SubjectResponse(s.getId(), s.getName()))
+                .orElseThrow(() -> new NotFoundObjectException("Disciplina não encontrada"));
+    }
+
+    @Override
+    public Subject findByIdEntity(UUID subjectId) {
+        return subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new NotFoundObjectException("Disciplina não encontrada"));
     }
 

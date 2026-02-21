@@ -17,7 +17,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -43,14 +45,27 @@ public class StudentServiceImpl implements StudentService {
     @Cacheable(key = "#adminId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_students")
     public Page<StudentResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
-        return studentRepository.findAllBySchool_Id(schoolId, pageable).map(studentMapper::toDto);
+
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by("name").ascending()
+        );
+
+        return studentRepository.findAllBySchool_Id(schoolId, sortedPageable).map(studentMapper::toDto);
     }
 
     @Override
     public StudentResponse findById(UUID studentId) {
-        return studentRepository.findById(studentId).map(studentMapper::toDto).orElseThrow(
-                () -> new NotFoundObjectException("Not Found Student")
-        );
+        return studentRepository.findById(studentId)
+                .map(studentMapper::toDto)
+                .orElseThrow(() -> new NotFoundObjectException("Not Found Student"));
+    }
+
+    @Override
+    public Student findByIdEntity(UUID studentId) {
+        return studentRepository.findById(studentId)
+                .orElseThrow(() -> new NotFoundObjectException("Not Found Student"));
     }
 
     @Override

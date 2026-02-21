@@ -15,7 +15,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +47,14 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     @Cacheable(key = "#adminId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_legal_guardians")
     public Page<LegalGuardianResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
-        return legalGuardianRepository.findAllBySchoolId(schoolId, pageable)
+
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by("user.username").ascending()
+        );
+
+        return legalGuardianRepository.findAllBySchoolId(schoolId, sortedPageable)
                 .map(l ->
                         new LegalGuardianResponse(
                             l.getId(),

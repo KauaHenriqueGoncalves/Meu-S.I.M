@@ -1,7 +1,10 @@
+# Este docker-compose é utilizado para criar o ambiente de desenvolvimento do software
+# Sendo possivel, testar ferramentas externas no ambiente de desenvolvimento
+
 services:
   postgres:
-    image: postgres:15.14-alpine3.21
     container_name: system_management_postgres_test
+    image: postgres:15.14-alpine3.21
     restart: unless-stopped
     shm_size: 64mb
     environment:
@@ -21,21 +24,37 @@ services:
       retries: 5
   
   redis:
-    image: redis:7-alpine
     container_name: redis-local
+    image: redis:7-alpine
     ports:
       - "6379:6379"
     command: redis-server --appendonly yes
 
+  # Container para teste de servidor de email
   mailhog:
-    image: mailhog/mailhog:latest
     container_name: mailhog
+    image: mailhog/mailhog:latest
     ports:
       - "1025:1025"   # SMTP
       - "8025:8025"   # Interface web
 
+  # Container para teste de servidor de arquivo S3
+  minio:
+    container_name: minio-S3
+    image: minio/minio
+    ports:
+      - "9000:9000" # API S3
+      - "9001:9001" # Interface web
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
 volumes:
   postgres_test_data:
+  minio_data:
 
 networks:
   pg_net:
