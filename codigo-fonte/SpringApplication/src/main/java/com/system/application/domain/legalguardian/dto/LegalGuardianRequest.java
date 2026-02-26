@@ -8,8 +8,8 @@ import java.io.Serial;
 import java.io.Serializable;
 
 public record LegalGuardianRequest(
-        @NotBlank(message = "Informação é obrigatória")
-        @Size(min = 3, max = 30, message = "Especialidade deve ter entre 3 e 30 caracteres")
+        @NotBlank(message = "Nível de Parentesco não pode ser vazio")
+        @Size(min = 3, max = 30, message = "Nível de Parentesco deve ter entre 3 e 30 caracteres")
         @NoLeadingTrailingSpace
         String degreeOfKinship
 ) implements Serializable {

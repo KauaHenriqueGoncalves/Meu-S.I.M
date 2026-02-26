@@ -1,9 +1,8 @@
-package com.system.application.shared.email.service;
+package com.system.application.email.service;
 
-import com.system.application.domain.user.User;
-import com.system.application.domain.user.repository.UserRepository;
-import com.system.application.shared.email.EmailVerificationToken;
-import com.system.application.shared.email.repository.EmailVerificationRepository;
+import com.system.application.domain.user.service.UserService;
+import com.system.application.email.EmailVerificationToken;
+import com.system.application.email.repository.EmailVerificationRepository;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
@@ -16,14 +15,14 @@ import java.util.UUID;
 @Service
 public class EmailVerificationServiceImpl implements EmailVerificationService{
     private final EmailVerificationRepository emailVerificationRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     public EmailVerificationServiceImpl(
             EmailVerificationRepository emailVerificationRepository,
-            UserRepository userRepository
+            UserService userService
     ) {
         this.emailVerificationRepository = emailVerificationRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -52,10 +51,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService{
         if (verificationToken.getExpiresAt().isBefore(Instant.now())) {
             throw new AccessDeniedException("Token expirado");
         }
-        User user = userRepository.findById(verificationToken.getUserId())
-                .orElseThrow(() -> new NotFoundObjectException("Usuario não existe no token"));
-        user.setActive(true);
-        userRepository.save(user);
+        userService.activateUser(verificationToken.getUserId());
         emailVerificationRepository.deleteById(verificationToken.getId());
     }
 }

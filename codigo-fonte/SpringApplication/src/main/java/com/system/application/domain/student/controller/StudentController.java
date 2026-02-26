@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -38,6 +39,18 @@ public class StudentController {
         UUID userId = UUID.fromString(token.getName());
         PageResponse<StudentResponse> response =
                 studentService.findAllResponseBySchool(userId, page, size);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/f/lg/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<List<StudentResponse>> findAllByLegalGuardianId(
+            @PathVariable("id") UUID legalGuardianId,
+            JwtAuthenticationToken token
+    ) {
+        UUID userId = UUID.fromString(token.getName());
+        List<StudentResponse> response =
+                studentService.findAllResponseByLegalGuardian(userId, legalGuardianId);
         return ResponseEntity.ok(response);
     }
 

@@ -53,13 +53,15 @@ public final class Classroom implements Serializable {
     public Classroom() {
     }
 
-    public Classroom(UUID id,
-                     School school,
-                     ClassType classType,
-                     Subject subject,
-                     String name,
-                     Integer maxStudents,
-                     Set<Student> students) {
+    public Classroom(
+            UUID id,
+            School school,
+            ClassType classType,
+            Subject subject,
+            String name,
+            Integer maxStudents,
+            Set<Student> students
+    ) {
         this.id = id;
         this.school = school;
         this.classType = classType;

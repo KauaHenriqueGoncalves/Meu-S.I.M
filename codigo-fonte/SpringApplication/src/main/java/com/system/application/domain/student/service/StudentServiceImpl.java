@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -41,8 +42,6 @@ public class StudentServiceImpl implements StudentService {
         this.legalGuardianService = legalGuardianService;
     }
 
-    // TODO: Criar metodo para buscar estudantes relacionados ao responsavel
-
     @Override
     @Cacheable(value = "page_students", key = "#userId + ':' + #page + ':' + #size")
     public PageResponse<StudentResponse> findAllResponseBySchool(UUID userId, int page, int size) {
@@ -51,6 +50,23 @@ public class StudentServiceImpl implements StudentService {
         Page<StudentResponse> response = studentRepository.findAllBySchoolId(school.getId(), sortedPageable)
                 .map(s -> new StudentResponse(s.getId(), s.getName(), s.getDateOfBirth(), s.getGrade()));
         return PageResponse.from(response);
+    }
+
+    @Override
+    public List<StudentResponse> findAllResponseByLegalGuardian(UUID userId, UUID legalGuardianId) {
+        School school = schoolService.findByUserId(userId);
+        LegalGuardian legalGuardian = legalGuardianService.findById(legalGuardianId);
+        ensureLegalGuardianBelongsToUserSchool(school.getId(), legalGuardian);
+        return studentRepository.findAllByLegalGuardianId(legalGuardian.getId())
+                .stream()
+                .map(s -> {
+                    return new StudentResponse(
+                            s.getId(),
+                            s.getName(),
+                            s.getDateOfBirth(),
+                            s.getGrade());
+                })
+                .toList();
     }
 
     @Override

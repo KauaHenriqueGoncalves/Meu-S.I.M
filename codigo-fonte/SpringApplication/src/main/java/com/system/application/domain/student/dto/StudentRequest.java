@@ -12,17 +12,17 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record StudentRequest(
-        @NotBlank(message = "Campo nome vazio")
-        @Size(max = 100, message = "Nome deve conter no máximo 100 caracteres")
+        @NotBlank(message = "Nome não pode ser vazio")
+        @Size(max = 100, message = "Nome deve ser menor que 100 caracteres")
         @NoLeadingTrailingSpace
         String name,
 
-        @NotNull(message = "Data de nascimento é obrigatória")
+        @NotNull(message = "Data de nascimento é obrigatório")
         @Past(message = "Data de nascimento deve ser no passado")
         LocalDate dateOfBirth,
 
-        @NotBlank(message = "Campo serie vazio!")
-        @Size(max = 20, message = "Campo serie deve conter no máximo 20 caracteres")
+        @NotBlank(message = "Turma do estudante deve ser informado")
+        @Size(max = 20, message = "Turma do estudante deve ser menor que 20 caracteres")
         @NoLeadingTrailingSpace
         String grade,
 

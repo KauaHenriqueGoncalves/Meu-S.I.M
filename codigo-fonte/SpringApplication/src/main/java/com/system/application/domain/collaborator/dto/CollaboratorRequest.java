@@ -8,16 +8,16 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 public record CollaboratorRequest(
-        @NotNull(message = "Data de nascimento é obrigatória")
+        @NotNull(message = "Data de nascimento é necessário informar")
         @Past(message = "Data de nascimento deve ser no passado")
         LocalDate dateOfBirth,
 
-        @NotBlank(message = "Especialidade é obrigatória")
+        @NotBlank(message = "Especialidade não pode ser vazio")
         @Size(min = 3, max = 30, message = "Especialidade deve ter entre 3 e 30 caracteres")
         @NoLeadingTrailingSpace
         String specialty,
 
-        @NotBlank(message = "Carga horária é obrigatória")
+        @NotBlank(message = "Carga horária não pode ser vazio")
         @Pattern(regexp = "^(\\d{1,2})h$", message = "Carga horária deve estar no formato '8h', '12h', etc.")
         @NoLeadingTrailingSpace
         String workload

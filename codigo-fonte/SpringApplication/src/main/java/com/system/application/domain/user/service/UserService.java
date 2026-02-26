@@ -10,9 +10,5 @@ public interface UserService {
     User findById(UUID id);
     User findUserForLogin(String email, String schoolCode);
     User registerUserWithRole(UserRequest request, Role.Values role);
-
-    User saveSchoolAdmin(User user);
-    User saveSystemAdmin(User user);
-    User saveCollaborator(User user);
-    User saveLegalGuardian(User user);
+    void activateUser(UUID id);
 }

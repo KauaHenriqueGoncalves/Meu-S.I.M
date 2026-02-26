@@ -1,6 +1,6 @@
-package com.system.application.shared.email.controller;
+package com.system.application.email.controller;
 
-import com.system.application.shared.email.service.EmailVerificationService;
+import com.system.application.email.service.EmailVerificationService;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import org.springframework.http.ResponseEntity;

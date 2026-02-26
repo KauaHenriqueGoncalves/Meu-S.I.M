@@ -2,13 +2,14 @@ package com.system.application.domain.collaborator.service;
 
 import com.system.application.domain.collaborator.Collaborator;
 import com.system.application.domain.collaborator.dto.*;
-import com.system.application.domain.collaborator.mapper.CollaboratorMapper;
 import com.system.application.domain.collaborator.repository.CollaboratorRepository;
+import com.system.application.domain.role.Role;
 import com.system.application.domain.school.School;
-import com.system.application.domain.schooladmin.SchoolAdmin;
-import com.system.application.domain.schooladmin.service.SchoolAdminService;
+import com.system.application.domain.school.service.SchoolService;
 import com.system.application.domain.user.User;
+import com.system.application.domain.user.dto.UserRequest;
 import com.system.application.domain.user.service.UserService;
+import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
@@ -25,60 +26,67 @@ import java.util.UUID;
 
 @Service
 public class CollaboratorServiceImpl implements CollaboratorService {
-    private final UserService userService;
-    private final SchoolAdminService schoolAdminService;
-    private final CollaboratorMapper collaboratorMapper;
     private final CollaboratorRepository collaboratorRepository;
+    private final UserService userService;
+    private final SchoolService schoolService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public CollaboratorServiceImpl(UserService userService,
-                                   SchoolAdminService schoolAdminService,
-                                   CollaboratorMapper collaboratorMapper,
-                                   CollaboratorRepository collaboratorRepository,
-                                   BCryptPasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.schoolAdminService = schoolAdminService;
-        this.collaboratorMapper = collaboratorMapper;
+    public CollaboratorServiceImpl(
+            CollaboratorRepository collaboratorRepository,
+            UserService userService,
+            SchoolService schoolService,
+            BCryptPasswordEncoder passwordEncoder
+    ) {
         this.collaboratorRepository = collaboratorRepository;
+        this.userService = userService;
+        this.schoolService = schoolService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    @Cacheable(key = "#adminId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_collaborators")
-    public Page<CollaboratorResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
-        SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
-        UUID schoolId = schoolAdmin.getSchool().getId();
-
-        Pageable sortedPageable = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                Sort.by("user.username").ascending()
-        );
-
-        return collaboratorRepository.findAllBySchoolId(schoolId, sortedPageable)
-                .map(c -> new CollaboratorResponse(
-                        c.getId(),
-                        c.getUsername(),
-                        c.getSpecialty(),
-                        c.getWorkload()
-                ));
+    @Cacheable(value = "page_collaborators", key = "#userId + ':' + #page + ':' + #size")
+    public PageResponse<CollaboratorResponse> findAllResponseBySchool(UUID userId, int page, int size) {
+        School school = schoolService.findByUserId(userId);
+        Pageable sortedPageable =
+                PageRequest.of(page, size, Sort.by("user.username").ascending());
+        Page<CollaboratorResponse> response = collaboratorRepository.findAllBySchoolId(school.getId(), sortedPageable)
+                .map(c ->
+                        new CollaboratorResponse(c.getId(), c.getUsername(), c.getSpecialty(), c.getWorkload()));
+        return PageResponse.from(response);
     }
 
     @Override
-    public CollaboratorDetailResponse findById(UUID id) {
-        Collaborator collaborator = collaboratorRepository.findById(id).orElseThrow(
-                () -> new NotFoundObjectException("Not found Collaborator!")
-        );
-        return collaboratorMapper.toDtoDetail(collaborator);
+    public Collaborator findById(UUID collaboratorId) {
+        return collaboratorRepository.findById(collaboratorId)
+                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+    }
+
+    @Override
+    public CollaboratorDetailResponse findResponseDetailById(UUID collaboratorId) {
+        return collaboratorRepository.findById(collaboratorId)
+                .map(c -> {
+                    return new CollaboratorDetailResponse(
+                            c.getId(),
+                            c.getUser().getUsername(),
+                            c.getUser().getEmail(),
+                            c.getUser().getCpf(),
+                            c.getUser().getPhoneNumber(),
+                            c.getUser().getAddress(),
+                            c.getUser().getActive(),
+                            c.getDateOfBirth(),
+                            c.getSpecialty(),
+                            c.getWorkload()
+                    );
+                })
+                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "page_collaborators", allEntries = true)
-    public UUID saveCollaborator(User user, UUID adminId, CollaboratorRequest collaboratorRequest) {
-        user = userService.saveCollaborator(user);
-        SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
-        School school = schoolAdmin.getSchool();
+    public Collaborator save(UUID userId, UserRequest userRequest, CollaboratorRequest collaboratorRequest) {
+        School school = schoolService.findByUserId(userId);
+        User user = userService.registerUserWithRole(userRequest, Role.Values.COLLABORATOR);
         Collaborator collaborator = new Collaborator(
                 null,
                 user,
@@ -88,48 +96,53 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                 collaboratorRequest.workload()
         );
         collaborator = collaboratorRepository.save(collaborator);
-        return collaborator.getId();
+        return collaborator;
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "page_collaborators", allEntries = true)
-    public UUID updateCollaborator(UUID adminId, UUID collaboratorId, UpdateCollaboratorRequest updateCollaboratorRequest) {
-        Collaborator collaborator = validateCollaboratorBelongsToSchool(adminId, collaboratorId);
-        collaborator.getUser().setUsername(updateCollaboratorRequest.username());
-        collaborator.getUser().setEmail(updateCollaboratorRequest.email());
-        collaborator.getUser().setPhoneNumber(updateCollaboratorRequest.phoneNumber());
-        collaborator.getUser().setAddress(updateCollaboratorRequest.address());
-        collaborator.setDateOfBirth(updateCollaboratorRequest.dateOfBirth());
-        collaborator.setSpecialty(updateCollaboratorRequest.specialty());
-        collaborator.setWorkload(updateCollaboratorRequest.workload());
-        collaborator = collaboratorRepository.save(collaborator);
-        return collaborator.getId();
+    public void update(UUID userId, UUID collaboratorId, UpdateCollaboratorRequest updateRequest) {
+        School school = schoolService.findByUserId(userId);
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
+                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+        ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
+        collaborator.getUser().setUsername(updateRequest.username());
+        collaborator.getUser().setEmail(updateRequest.email());
+        collaborator.getUser().setPhoneNumber(updateRequest.phoneNumber());
+        collaborator.getUser().setAddress(updateRequest.address());
+        collaborator.getUser().setActive(updateRequest.isActive());
+        collaborator.setDateOfBirth(updateRequest.dateOfBirth());
+        collaborator.setSpecialty(updateRequest.specialty());
+        collaborator.setWorkload(updateRequest.workload());
+        collaboratorRepository.save(collaborator);
     }
 
     @Override
     @Transactional
-    public void updatePassword(UUID adminId, UUID collaboratorId, UpdateCollaboratorPasswordRequest updatePasswordRequest) {
-        Collaborator collaborator = validateCollaboratorBelongsToSchool(adminId, collaboratorId);
-        collaborator.getUser().setPassword(passwordEncoder.encode(updatePasswordRequest.newPassword()));
+    public void updatePassword(UUID userId, UUID collaboratorId, UpdateCollaboratorPasswordRequest passwordRequest) {
+        School school = schoolService.findByUserId(userId);
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
+                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+        ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
+        collaborator.getUser().setPassword(passwordEncoder.encode(passwordRequest.newPassword()));
+        collaboratorRepository.save(collaborator);
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "page_collaborators", allEntries = true)
-    public void deleteById(UUID adminId, UUID collaboratorId) {
-        validateCollaboratorBelongsToSchool(adminId, collaboratorId);
+    public void deleteById(UUID userId, UUID collaboratorId) {
+        School school = schoolService.findByUserId(userId);
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
+                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+        ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
         collaboratorRepository.deleteById(collaboratorId);
     }
 
-    private Collaborator validateCollaboratorBelongsToSchool(UUID adminId, UUID collaboratorId) {
-        UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
-        Boolean belongsToSchool = collaboratorRepository.existsByIdAndSchool_Id(collaboratorId, schoolId);
-        if (!belongsToSchool) {
-            throw new AccessDeniedException("Não pode alterar colaborador de outra instituição");
+    private void ensureCollaboratorBelongsToSchool(UUID schoolId, Collaborator collaborator) {
+        if (!collaborator.getSchool().getId().equals(schoolId)) {
+            throw new AccessDeniedException("Não pode alterar o colaborador de outra instituição");
         }
-        return collaboratorRepository.findById(collaboratorId).orElseThrow(
-                () -> new NotFoundObjectException("Not found Collaborator")
-        );
     }
 }

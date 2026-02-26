@@ -1,4 +1,4 @@
-package com.system.application.shared.email;
+package com.system.application.email;
 
 import jakarta.persistence.*;
 

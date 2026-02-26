@@ -1,4 +1,4 @@
-package com.system.application.shared.email.service;
+package com.system.application.email.service;
 
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;

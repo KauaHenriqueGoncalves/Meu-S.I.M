@@ -123,7 +123,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
         legalGuardianRepository.deleteById(legalGuardianId);
     }
 
-    public void ensureLegalGuardianBelongsToUserSchool(UUID userId, UUID legalGuardianId) {
+    private void ensureLegalGuardianBelongsToUserSchool(UUID userId, UUID legalGuardianId) {
         School school = schoolService.findByUserId(userId);
         boolean belongsToSchool =
                 legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, school.getId());

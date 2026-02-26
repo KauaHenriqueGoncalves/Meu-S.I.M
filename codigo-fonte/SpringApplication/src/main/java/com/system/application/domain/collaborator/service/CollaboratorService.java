@@ -1,17 +1,18 @@
 package com.system.application.domain.collaborator.service;
 
+import com.system.application.domain.collaborator.Collaborator;
 import com.system.application.domain.collaborator.dto.*;
-import com.system.application.domain.user.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.system.application.domain.user.dto.UserRequest;
+import com.system.application.shared.dto.PageResponse;
 
 import java.util.UUID;
 
 public interface CollaboratorService {
-    Page<CollaboratorResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable);
-    CollaboratorDetailResponse findById(UUID id);
-    UUID saveCollaborator(User user, UUID admin, CollaboratorRequest collaboratorRequest);
-    UUID updateCollaborator(UUID adminId, UUID collaboratorId, UpdateCollaboratorRequest updateCollaboratorRequest);
-    void updatePassword(UUID adminId, UUID collaboratorId, UpdateCollaboratorPasswordRequest updatePasswordRequest);
-    void deleteById(UUID adminId, UUID collaboratorId);
+    PageResponse<CollaboratorResponse> findAllResponseBySchool(UUID userId, int page, int size);
+    Collaborator findById(UUID collaboratorId);
+    CollaboratorDetailResponse findResponseDetailById(UUID collaboratorId);
+    Collaborator save(UUID userId, UserRequest userRequest, CollaboratorRequest collaboratorRequest);
+    void update(UUID userId, UUID collaboratorId, UpdateCollaboratorRequest updateRequest);
+    void updatePassword(UUID userId, UUID collaboratorId, UpdateCollaboratorPasswordRequest passwordRequest);
+    void deleteById(UUID userId, UUID collaboratorId);
 }

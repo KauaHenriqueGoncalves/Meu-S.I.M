@@ -3,11 +3,9 @@ package com.system.application.domain.user.service;
 import com.system.application.domain.role.Role;
 import com.system.application.domain.role.service.RoleService;
 import com.system.application.domain.user.User;
-import com.system.application.domain.user.dto.UserRegisteredEvent;
+import com.system.application.domain.user.event.UserRegisteredEvent;
 import com.system.application.domain.user.dto.UserRequest;
 import com.system.application.domain.user.repository.UserRepository;
-import com.system.application.shared.email.service.EmailSendService;
-import com.system.application.shared.email.service.EmailVerificationService;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.EntityAlreadyExistsException;
 import com.system.application.shared.exception.NotFoundObjectException;
@@ -25,23 +23,17 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final EmailVerificationService emailVerificationService;
-    private final EmailSendService emailSendService;
     private final RoleService roleService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
 
     public UserServiceImpl(
             UserRepository userRepository,
-            EmailVerificationService emailVerificationService,
-            EmailSendService emailSendService,
             RoleService roleService,
             BCryptPasswordEncoder passwordEncoder,
             ApplicationEventPublisher eventPublisher
     ) {
         this.userRepository = userRepository;
-        this.emailVerificationService = emailVerificationService;
-        this.emailSendService = emailSendService;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
@@ -84,98 +76,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User saveSchoolAdmin(User user) {
-        Optional<User> existingUser = userRepository.findByCpf(user.getCpf());
-        if (existingUser.isPresent()) {
-            handleExistingUser(existingUser.get());
-        }
-        Boolean conflict = userRepository.existsConflict(
-                user.getEmail(),
-                user.getCpf(),
-                user.getPhoneNumber()
-        );
-        if (conflict) {
-            throw new EntityAlreadyExistsException("User already exists");
-        }
-        Role role = roleService.findByName(Role.Values.SCHOOL_ADMIN.name());
-        user.setRole(Set.of(role));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActive(false); // TODO: Padrão é falso
-        User savedUser = userRepository.save(user);
-        sendVerificationEmail(savedUser);
-        return user;
-    }
-
-    @Override
-    @Transactional
-    public User saveSystemAdmin(User user) {
-        Optional<User> existingUser = userRepository.findByCpf(user.getCpf());
-        if (existingUser.isPresent()) {
-            handleExistingUser(existingUser.get());
-        }
-        Boolean conflict = userRepository.existsConflict(
-                user.getEmail(),
-                user.getCpf(),
-                user.getPhoneNumber()
-        );
-        if (conflict) {
-            throw new EntityAlreadyExistsException("User already exists");
-        }
-        Role role = roleService.findByName(Role.Values.SYSTEM_ADMIN.name());
-        user.setRole(Set.of(role));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActive(true); //TODO: por padrão será false
-        User savedUser = userRepository.save(user);
-        sendVerificationEmail(savedUser);
-        return user;
-    }
-
-    @Override
-    @Transactional
-    public User saveCollaborator(User user) {
-        Optional<User> existingUser = userRepository.findByCpf(user.getCpf());
-        if (existingUser.isPresent()) {
-            handleExistingUser(existingUser.get());
-        }
-        Boolean conflict = userRepository.existsConflict(
-                user.getEmail(),
-                user.getCpf(),
-                user.getPhoneNumber()
-        );
-        if (conflict) {
-            throw new EntityAlreadyExistsException("User already exists");
-        }
-        Role role = roleService.findByName(Role.Values.COLLABORATOR.name());
-        user.setRole(Set.of(role));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActive(true); //TODO: por padrão será false
-        User savedUser = userRepository.save(user);
-        sendVerificationEmail(savedUser);
-        return user;
-    }
-
-    @Override
-    @Transactional
-    public User saveLegalGuardian(User user) {
-        Optional<User> existingUser = userRepository.findByCpf(user.getCpf());
-        if (existingUser.isPresent()) {
-            handleExistingUser(existingUser.get());
-        }
-        Boolean conflict = userRepository.existsConflict(
-                user.getEmail(),
-                user.getCpf(),
-                user.getPhoneNumber()
-        );
-        if (conflict) {
-            throw new EntityAlreadyExistsException("User already exists");
-        }
-        Role role = roleService.findByName(Role.Values.LEGAL_GUARDIAN.name());
-        user.setRole(Set.of(role));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActive(true); //TODO: por padrão será false
-        User savedUser = userRepository.save(user);
-        sendVerificationEmail(savedUser);
-        return user;
+    public void activateUser(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundObjectException("Não encontrou o usuário"));
+        user.setActive(true);
+        userRepository.save(user);
     }
 
     private void checkUserAlreadyExists(UserRequest request) {
@@ -196,15 +101,5 @@ public class UserServiceImpl implements UserService {
         if (user.getActive()) throw new EntityAlreadyExistsException("Usuário já cadastrad");
         eventPublisher.publishEvent(new UserRegisteredEvent(user.getId())); // Usuário existe mas não confirmou
         throw new BusinessException("Cadastro já iniciado. Reenviamos o e-mail de confirmação.");
-    }
-
-    private void sendVerificationEmail(User user) {
-        String token = emailVerificationService.createOrRefreshToken(user.getId());
-        String link = "http://localhost:8080/auth/verify?token=" + token;
-        emailSendService.sendConfirmAccountEmail(
-                user.getEmail(),
-                user.getUsername(),
-                link
-        );
     }
 }

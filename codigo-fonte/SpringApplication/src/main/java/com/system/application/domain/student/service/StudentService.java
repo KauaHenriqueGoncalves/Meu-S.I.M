@@ -7,10 +7,12 @@ import com.system.application.domain.student.dto.StudentResponse;
 import com.system.application.domain.student.dto.UpdateStudentRequest;
 import com.system.application.shared.dto.PageResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface StudentService {
     PageResponse<StudentResponse> findAllResponseBySchool(UUID userId, int page, int size);
+    List<StudentResponse> findAllResponseByLegalGuardian(UUID userId, UUID legalGuardianId);
     Student findById(UUID studentId);
     StudentDetailResponse findResponseDetailById(UUID studentId);
     Student save(UUID userId, StudentRequest request);

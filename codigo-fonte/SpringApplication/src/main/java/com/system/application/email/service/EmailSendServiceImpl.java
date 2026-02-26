@@ -1,4 +1,4 @@
-package com.system.application.shared.email.service;
+package com.system.application.email.service;
 
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;

@@ -1,4 +1,4 @@
-package com.system.application.domain.user.dto;
+package com.system.application.domain.user.event;
 
 import java.io.Serial;
 import java.io.Serializable;

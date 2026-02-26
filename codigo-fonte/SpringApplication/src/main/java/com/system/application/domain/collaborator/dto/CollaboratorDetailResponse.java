@@ -12,6 +12,7 @@ public record CollaboratorDetailResponse(
         String cpf,
         String phoneNumber,
         String address,
+        Boolean isActive,
         LocalDate dateOfBirth,
         String specialty,
         String workload

@@ -21,8 +21,8 @@ public record UserRequest(
         @Size(max = 255, message = "Email deve ser menor que 255 caracteres")
         String email,
 
-        @NotBlank(message = "Password não pode ser vazio")
-        @Size(min = 8, max = 20, message = "Password deve ser entre 8 e 20 caracterees")
+        @NotBlank(message = "Senha não pode ser vazio")
+        @Size(min = 8, max = 20, message = "Senha deve ser entre 8 e 20 caracteres")
         @NoLeadingTrailingSpace
         String password,
 
@@ -36,7 +36,7 @@ public record UserRequest(
         @NoLeadingTrailingSpace
         String phoneNumber,
 
-        @NotNull
+        @NotNull(message = "Endereço não pode ser nulo")
         @Size(max = 100, message = "Endereço deve ser menor que 100 caracteres")
         @NoLeadingTrailingSpace
         String address

@@ -40,12 +40,14 @@ public final class Collaborator implements Serializable {
 
     public Collaborator() {}
 
-    public Collaborator(UUID id,
-                        User user,
-                        School school,
-                        LocalDate dateOfBirth,
-                        String specialty,
-                        String workload) {
+    public Collaborator(
+            UUID id,
+            User user,
+            School school,
+            LocalDate dateOfBirth,
+            String specialty,
+            String workload
+    ) {
         this.id = id;
         this.user = user;
         this.school = school;

@@ -1,6 +1,6 @@
-package com.system.application.shared.email.repository;
+package com.system.application.email.repository;
 
-import com.system.application.shared.email.EmailVerificationToken;
+import com.system.application.email.EmailVerificationToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

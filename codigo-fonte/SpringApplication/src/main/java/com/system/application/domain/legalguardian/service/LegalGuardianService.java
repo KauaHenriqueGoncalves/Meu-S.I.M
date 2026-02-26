@@ -15,5 +15,4 @@ public interface LegalGuardianService {
     void update(UUID userId, UUID legalGuardianId, UpdateLegalGuardianRequest updateRequest);
     void updatePassword(UUID userId, UUID legalGuardianId, UpdateLegalGuardianPasswordRequest updateRequest);
     void deleteById(UUID userId, UUID legalGuardianId);
-    void ensureLegalGuardianBelongsToUserSchool(UUID userId, UUID legalGuardianId); // TODO: Delete it, in the future
 }
