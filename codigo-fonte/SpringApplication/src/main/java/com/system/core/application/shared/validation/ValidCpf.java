@@ -1,0 +1,16 @@
+package com.system.core.application.shared.validation;
+
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+
+import java.lang.annotation.*;
+
+@Documented
+@Constraint(validatedBy = ValidCpfConstraintValidator.class)
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValidCpf {
+    String message() default "CPF inválido";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
