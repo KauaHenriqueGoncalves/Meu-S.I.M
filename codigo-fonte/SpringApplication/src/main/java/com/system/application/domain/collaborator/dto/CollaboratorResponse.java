@@ -1,0 +1,16 @@
+package com.system.application.domain.collaborator.dto;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.UUID;
+
+public record CollaboratorResponse(
+        UUID id,
+        String username,
+        String specialty,
+        String workload
+) implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+}
