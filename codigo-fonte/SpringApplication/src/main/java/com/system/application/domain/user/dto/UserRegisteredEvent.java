@@ -1,13 +1,11 @@
-package com.system.application.domain.legalguardian.dto;
+package com.system.application.domain.user.dto;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
-public record LegalGuardianResponse(
-        UUID id,
-        String username,
-        String degreeOfKinship
+public record UserRegisteredEvent(
+        UUID userId
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

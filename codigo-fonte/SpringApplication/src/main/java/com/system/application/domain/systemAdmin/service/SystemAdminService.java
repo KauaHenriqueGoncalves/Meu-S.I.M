@@ -1,11 +1,9 @@
-package com.system.application.domain.systemAdmin.service;
+package com.system.application.domain.systemadmin.service;
 
-import com.system.application.domain.systemAdmin.SystemAdmin;
-import com.system.application.domain.user.User;
-
-import java.util.UUID;
+import com.system.application.domain.systemadmin.SystemAdmin;
+import com.system.application.domain.user.dto.UserRequest;
 
 public interface SystemAdminService {
-    UUID saveSystemAdmin(User user);
-    SystemAdmin findByUserCpfAndUserEmail(String cpf, String email);
+    SystemAdmin findByCpfAndEmail(String cpf, String email);
+    SystemAdmin save(UserRequest request);
 }

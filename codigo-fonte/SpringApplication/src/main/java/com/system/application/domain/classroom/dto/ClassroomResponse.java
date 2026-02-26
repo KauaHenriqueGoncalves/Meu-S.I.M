@@ -1,9 +1,6 @@
 package com.system.application.domain.classroom.dto;
 
-import com.system.application.domain.classType.ClassType;
-import com.system.application.domain.student.Student;
-import com.system.application.domain.student.dto.StudentResponse;
-import com.system.application.domain.subject.Subject;
+import com.system.application.domain.classtype.ClassType;
 import com.system.application.domain.subject.dto.SubjectResponse;
 
 import java.io.Serial;

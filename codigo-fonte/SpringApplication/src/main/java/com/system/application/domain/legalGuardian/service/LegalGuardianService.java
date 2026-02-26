@@ -1,20 +1,19 @@
-package com.system.application.domain.legalGuardian.service;
+package com.system.application.domain.legalguardian.service;
 
-import com.system.application.domain.legalGuardian.LegalGuardian;
-import com.system.application.domain.legalGuardian.dto.*;
-import com.system.application.domain.user.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.system.application.domain.legalguardian.LegalGuardian;
+import com.system.application.domain.legalguardian.dto.*;
+import com.system.application.domain.user.dto.UserRequest;
+import com.system.application.shared.dto.PageResponse;
 
 import java.util.UUID;
 
 public interface LegalGuardianService {
-    Page<LegalGuardianResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable);
-    LegalGuardianDetailResponse findById(UUID id);
-    LegalGuardian findByIdEntity(UUID id);
-    UUID saveLegalGuardian(User user, UUID adminId, LegalGuardianRequest legalGuardianRequest);
-    UUID updateLegalGuardian(UUID adminId, UUID legalGuardianId, UpdateLegalGuardianRequest updateLegalGuardianRequest);
-    void updatePassword(UUID adminId, UUID legalGuardianId, UpdateLegalGuardianPasswordRequest updateLegalGuardianPassword);
-    void deleteById(UUID adminId, UUID legalGuardianId);
-    void validateLegalGuardianBelongsToSchool(UUID adminId, UUID legalGuardianId);
+    PageResponse<LegalGuardianResponse> findAllResponseBySchool(UUID userId, int page, int size);
+    LegalGuardian findById(UUID legalGuardianId);
+    LegalGuardianDetailResponse findResponseDetailById(UUID legalGuardianId);
+    LegalGuardian save(UUID userId, UserRequest userRequest, LegalGuardianRequest legalGuardianRequest);
+    void update(UUID userId, UUID legalGuardianId, UpdateLegalGuardianRequest updateRequest);
+    void updatePassword(UUID userId, UUID legalGuardianId, UpdateLegalGuardianPasswordRequest updateRequest);
+    void deleteById(UUID userId, UUID legalGuardianId);
+    void ensureLegalGuardianBelongsToUserSchool(UUID userId, UUID legalGuardianId); // TODO: Delete it, in the future
 }

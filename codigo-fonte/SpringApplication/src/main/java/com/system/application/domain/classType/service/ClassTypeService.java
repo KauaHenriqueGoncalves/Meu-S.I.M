@@ -1,6 +1,6 @@
-package com.system.application.domain.classType.service;
+package com.system.application.domain.classtype.service;
 
-import com.system.application.domain.classType.ClassType;
+import com.system.application.domain.classtype.ClassType;
 
 import java.util.Set;
 

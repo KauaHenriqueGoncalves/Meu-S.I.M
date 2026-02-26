@@ -5,7 +5,6 @@ import jakarta.validation.ConstraintValidatorContext;
 
 public class NoLeadingTrailingSpaceValidator
         implements ConstraintValidator<NoLeadingTrailingSpace, String> {
-
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null) {

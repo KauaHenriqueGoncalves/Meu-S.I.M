@@ -1,8 +1,8 @@
 package com.system.application.shared.email.service;
 
-import com.system.application.domain.user.User;
+import java.util.UUID;
 
 public interface EmailVerificationService {
-    String createToken(User user);
+    String createOrRefreshToken(UUID userId);
     void validateUser(String token);
 }

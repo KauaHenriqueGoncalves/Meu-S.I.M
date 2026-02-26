@@ -13,8 +13,10 @@ public class EmailSendServiceImpl implements EmailSendService {
     private final JavaMailSender mailSender;
     private final EmailTemplateServiceImpl templateService;
 
-    public EmailSendServiceImpl(JavaMailSender mailSender,
-                                EmailTemplateServiceImpl templateService) {
+    public EmailSendServiceImpl(
+            JavaMailSender mailSender,
+            EmailTemplateServiceImpl templateService
+    ) {
         this.mailSender = mailSender;
         this.templateService = templateService;
     }

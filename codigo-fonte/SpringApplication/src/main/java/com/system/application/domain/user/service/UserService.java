@@ -1,15 +1,16 @@
 package com.system.application.domain.user.service;
 
+import com.system.application.domain.role.Role;
 import com.system.application.domain.user.User;
-import org.springframework.data.domain.Page;
+import com.system.application.domain.user.dto.UserRequest;
 
 import java.util.UUID;
 
 public interface UserService {
-    Page<User> findAll(Integer page, Integer size);
     User findById(UUID id);
-    User findForLogin(String email, String schoolCode);
-    User save(User user);
+    User findUserForLogin(String email, String schoolCode);
+    User registerUserWithRole(UserRequest request, Role.Values role);
+
     User saveSchoolAdmin(User user);
     User saveSystemAdmin(User user);
     User saveCollaborator(User user);

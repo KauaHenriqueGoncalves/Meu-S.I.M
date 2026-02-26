@@ -1,6 +1,6 @@
 package com.system.application.domain.student;
 
-import com.system.application.domain.legalGuardian.LegalGuardian;
+import com.system.application.domain.legalguardian.LegalGuardian;
 import com.system.application.domain.school.School;
 import jakarta.persistence.*;
 
@@ -38,14 +38,17 @@ public final class Student implements Serializable {
     @JoinColumn(name = "legal_guardian_id", nullable = false)
     private LegalGuardian legalGuardian;
 
-    public Student() {}
+    public Student() {
+    }
 
-    public Student(UUID id,
-                   School school,
-                   String name,
-                   LocalDate dateOfBirth,
-                   String grade,
-                   LegalGuardian legalGuardian) {
+    public Student(
+            UUID id,
+            School school,
+            String name,
+            LocalDate dateOfBirth,
+            String grade,
+            LegalGuardian legalGuardian
+    ) {
         this.id = id;
         this.school = school;
         this.name = name;

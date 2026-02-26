@@ -1,4 +1,4 @@
-package com.system.application.domain.schoolAdmin.dto;
+package com.system.application.domain.schooladmin.dto;
 
 import com.system.application.domain.school.dto.SchoolRequest;
 import com.system.application.domain.user.dto.UserRequest;

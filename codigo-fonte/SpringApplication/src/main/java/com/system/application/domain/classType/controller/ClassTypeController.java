@@ -1,7 +1,7 @@
-package com.system.application.domain.classType.controller;
+package com.system.application.domain.classtype.controller;
 
-import com.system.application.domain.classType.ClassType;
-import com.system.application.domain.classType.service.ClassTypeService;
+import com.system.application.domain.classtype.ClassType;
+import com.system.application.domain.classtype.service.ClassTypeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -16,13 +16,15 @@ import java.util.Set;
 public class ClassTypeController {
     private final ClassTypeService classTypeService;
 
-    public ClassTypeController(ClassTypeService classTypeService) {
+    public ClassTypeController(
+            ClassTypeService classTypeService
+    ) {
         this.classTypeService = classTypeService;
     }
 
-    @PreAuthorize("hasAnyAuthority('SCOPE_school_admin', 'SCOPE_collaborator', 'SCOPE_legal_guardian')")
     @GetMapping
-    public ResponseEntity<Set<ClassType>> findAll(JwtAuthenticationToken token) {
+    @PreAuthorize("hasAnyAuthority('SCOPE_school_admin', 'SCOPE_collaborator', 'SCOPE_legal_guardian')")
+    public ResponseEntity<Set<ClassType>> findAll() {
         Set<ClassType> types = classTypeService.findAll();
         return ResponseEntity.ok(types);
     }

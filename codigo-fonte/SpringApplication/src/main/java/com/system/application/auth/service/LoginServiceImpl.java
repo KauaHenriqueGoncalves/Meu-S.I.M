@@ -4,8 +4,8 @@ import com.system.application.auth.dto.AdminLoginRequest;
 import com.system.application.auth.dto.LoginRequest;
 import com.system.application.auth.dto.LoginResponse;
 import com.system.application.domain.role.Role;
-import com.system.application.domain.systemAdmin.SystemAdmin;
-import com.system.application.domain.systemAdmin.service.SystemAdminService;
+import com.system.application.domain.systemadmin.SystemAdmin;
+import com.system.application.domain.systemadmin.service.SystemAdminService;
 import com.system.application.domain.user.User;
 import com.system.application.domain.user.service.UserService;
 import com.system.application.shared.exception.AccessDeniedException;
@@ -19,9 +19,11 @@ public final class LoginServiceImpl implements LoginService {
     private final SystemAdminService systemAdminService;
     private final PasswordEncoder passwordEncoder;
 
-    public LoginServiceImpl(UserService userService,
-                            SystemAdminService systemAdminService,
-                            PasswordEncoder passwordEncoder) {
+    public LoginServiceImpl(
+            UserService userService,
+            SystemAdminService systemAdminService,
+            PasswordEncoder passwordEncoder
+    ) {
         this.userService = userService;
         this.systemAdminService = systemAdminService;
         this.passwordEncoder = passwordEncoder;
@@ -29,12 +31,12 @@ public final class LoginServiceImpl implements LoginService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        User user = userService.findForLogin(loginRequest.email(), loginRequest.schoolCode());
+        User user = userService.findUserForLogin(loginRequest.email(), loginRequest.schoolCode());
         if (!user.getActive()) {
             throw new AccessDeniedException("A conta não está ativa!");
         }
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException("Credenciais incorretas");
         }
         return new LoginResponse(user.getId(), user.getRole());
     }
@@ -42,18 +44,18 @@ public final class LoginServiceImpl implements LoginService {
     @Override
     public LoginResponse login(AdminLoginRequest adminLoginRequest) {
         SystemAdmin systemAdmin = systemAdminService
-                .findByUserCpfAndUserEmail(adminLoginRequest.cpf(), adminLoginRequest.email());
+                .findByCpfAndEmail(adminLoginRequest.cpf(), adminLoginRequest.email());
         User user = systemAdmin.getUser();
         boolean isSystemAdmin = user.getRole().stream()
                 .anyMatch(role -> role.getId() == Role.Values.SYSTEM_ADMIN.getValue());
         if (!isSystemAdmin) {
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException("Credenciais incorretas");
         }
         if (!user.getActive()) {
             throw new AccessDeniedException("A conta não está ativa!");
         }
         if (!passwordEncoder.matches(adminLoginRequest.password(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException("Credenciais incorretas");
         }
         return new LoginResponse(user.getId(), user.getRole());
     }

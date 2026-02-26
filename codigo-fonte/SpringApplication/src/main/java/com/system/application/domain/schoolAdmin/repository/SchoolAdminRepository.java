@@ -1,7 +1,6 @@
-package com.system.application.domain.schoolAdmin.repository;
+package com.system.application.domain.schooladmin.repository;
 
-import com.system.application.domain.schoolAdmin.SchoolAdmin;
-import org.springframework.data.jpa.repository.Modifying;
+import com.system.application.domain.schooladmin.SchoolAdmin;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -14,17 +13,17 @@ import java.util.UUID;
 
 @Repository
 public interface SchoolAdminRepository extends CrudRepository<SchoolAdmin, UUID> {
-    Optional<SchoolAdmin> findByUserId_Id(UUID id);
+    Optional<SchoolAdmin> findByUserId(UUID userId);
 
-    @Query("SELECT sa.schoolId.id FROM SchoolAdmin sa WHERE sa.userId.id = :userId")
+    @Query("SELECT sa.school.id FROM SchoolAdmin sa WHERE sa.user.id = :userId")
     Optional<UUID> findSchoolIdByUserId(@Param("userId") UUID userId);
 
     @Query("""
-            SELECT sa
-            FROM SchoolAdmin sa
-            JOIN FETCH sa.userId u
-            WHERE sa.userId.isActive = false 
-                AND u.createdAt < :limit
-            """)
+    SELECT sa
+    FROM SchoolAdmin sa
+    JOIN FETCH sa.user u
+    WHERE sa.user.isActive = false 
+        AND u.createdAt < :limit
+    """)
     List<SchoolAdmin> findInactiveOlderThan(@Param("limit") Instant limit);
 }

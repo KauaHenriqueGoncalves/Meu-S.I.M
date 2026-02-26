@@ -14,8 +14,10 @@ public final class JwtServiceImpl implements JwtService {
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
-    public JwtServiceImpl(JwtEncoder jwtEncoder,
-                          JwtDecoder jwtDecoder) {
+    public JwtServiceImpl(
+            JwtEncoder jwtEncoder,
+            JwtDecoder jwtDecoder
+    ) {
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
     }

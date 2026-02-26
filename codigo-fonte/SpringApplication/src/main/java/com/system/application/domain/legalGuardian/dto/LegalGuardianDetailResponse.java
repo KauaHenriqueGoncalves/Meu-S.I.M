@@ -1,4 +1,4 @@
-package com.system.application.domain.legalGuardian.dto;
+package com.system.application.domain.legalguardian.dto;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -11,6 +11,7 @@ public record LegalGuardianDetailResponse(
         String cpf,
         String phoneNumber,
         String address,
+        Boolean isActive,
         String degreeOfKinship
 ) implements Serializable {
     @Serial

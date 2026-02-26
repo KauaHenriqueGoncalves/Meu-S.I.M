@@ -1,8 +1,7 @@
 package com.system.application.domain.user.dto;
 
-import com.system.application.shared.exception.CpfInvalidException;
-import com.system.application.shared.util.CpfValidator;
 import com.system.application.shared.validation.NoLeadingTrailingSpace;
+import com.system.application.shared.validation.ValidCpf;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,41 +11,40 @@ import java.io.Serial;
 import java.io.Serializable;
 
 public record UserRequest(
-        @NotBlank(message = "Username can't be blank")
-        @Size(max = 100, message = "Username must be lower then 100")
+        @NotBlank(message = "Nome não pode ser vazio")
+        @Size(max = 100, message = "Nome deve ser menor que 100 caracteres")
         @NoLeadingTrailingSpace
         String username,
 
-        @NotBlank(message = "Email can't be blank")
-        @Email(message = "Email format incorrect")
-        @Size(max = 255, message = "Email is up to 255")
+        @NotBlank(message = "Email não pode ser vazio")
+        @Email(message = "Formato do Email incorreto")
+        @Size(max = 255, message = "Email deve ser menor que 255 caracteres")
         String email,
 
-        @NotBlank(message = "Password can't be blank")
-        @Size(min = 8, max = 20, message = "Password must be between 8 and 20")
+        @NotBlank(message = "Password não pode ser vazio")
+        @Size(min = 8, max = 20, message = "Password deve ser entre 8 e 20 caracterees")
         @NoLeadingTrailingSpace
         String password,
 
-        @NotBlank(message = "cpf can't be blank")
-        @Size(min = 11, max = 11, message = "CPF must have 11 characters.")
+        @NotBlank(message = "Cpf não pode ser vazio")
+        @Size(min = 11, max = 11, message = "Cpf deve ter 11 caracteres")
+        @ValidCpf(message = "Cpf deve ser válido")
         String cpf,
 
-        @NotBlank(message = "phoneNumber can't be blank")
-        @Size(max = 20, message = "phoneNumber must be lower 20 characters.")
+        @NotBlank(message = "Número de telefone não pode ser vazio")
+        @Size(max = 20, message = "Número de telefone deve ser menor que 20 caracteres")
         @NoLeadingTrailingSpace
         String phoneNumber,
 
         @NotNull
-        @Size(max = 100, message = "Endereço é no maximo 100 caracteres")
+        @Size(max = 100, message = "Endereço deve ser menor que 100 caracteres")
         @NoLeadingTrailingSpace
         String address
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
     public UserRequest {
-        if (!CpfValidator.getInstance().isValid(cpf)) {
-            throw new CpfInvalidException("Cpf must be valid!");
-        }
         email = email.toLowerCase();
     }
 }

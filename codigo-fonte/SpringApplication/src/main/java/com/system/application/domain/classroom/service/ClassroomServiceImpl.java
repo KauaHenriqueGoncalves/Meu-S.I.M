@@ -1,7 +1,7 @@
 package com.system.application.domain.classroom.service;
 
-import com.system.application.domain.classType.ClassType;
-import com.system.application.domain.classType.service.ClassTypeService;
+import com.system.application.domain.classtype.ClassType;
+import com.system.application.domain.classtype.service.ClassTypeService;
 import com.system.application.domain.classroom.Classroom;
 import com.system.application.domain.classroom.dto.ClassroomRequest;
 import com.system.application.domain.classroom.dto.ClassroomResponse;
@@ -37,11 +37,13 @@ public class ClassroomServiceImpl implements ClassroomService {
     private final StudentService studentService;
     private final ClassroomRepository classroomRepository;
 
-    public ClassroomServiceImpl(SchoolService schoolService,
-                                ClassTypeService classTypeService,
-                                SubjectService subjectService,
-                                StudentService studentService,
-                                ClassroomRepository classroomRepository) {
+    public ClassroomServiceImpl(
+            SchoolService schoolService,
+            ClassTypeService classTypeService,
+            SubjectService subjectService,
+            StudentService studentService,
+            ClassroomRepository classroomRepository
+    ) {
         this.schoolService = schoolService;
         this.classTypeService = classTypeService;
         this.subjectService = subjectService;
@@ -49,9 +51,11 @@ public class ClassroomServiceImpl implements ClassroomService {
         this.classroomRepository = classroomRepository;
     }
 
+    //TODO: criar metodo para buscar as salas de aula referente ao estudante
+
     @Override
     public PageResponse<ClassroomSimpleResponse> findAllSimple(UUID userId, Pageable pageable) {
-        School school = schoolService.findByUser(userId);
+        School school = schoolService.findByUserId(userId);
         Page<ClassroomSimpleResponse> classes = classroomRepository.findAllBySchoolId(school.getId(), pageable)
                 .map(c -> new ClassroomSimpleResponse(c.getId(), c.getClassType().getName(), c.getSubject().getName(), c.getName()));
         return new PageResponse<>(
@@ -67,7 +71,7 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public ClassroomResponse findById(UUID userId, UUID classroomId) {
-        School school = schoolService.findByUser(userId);
+        School school = schoolService.findByUserId(userId);
         Classroom classroom = this.findByIdEntity(classroomId);
         if (!classroom.getSchool().equals(school)) {
             throw new AccessDeniedException("Não é possivel interagir com turma de outra escola");
@@ -94,14 +98,14 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     @Transactional
     public UUID save(UUID userId, ClassroomRequest request) {
-        School school = schoolService.findByUser(userId);
+        School school = schoolService.findByUserId(userId);
         ClassType classType = classTypeService.findById(request.classTypeId());
         boolean isIndividual = classType.getId() == ClassType.Values.INDIVIDUAL.getValue();
         if (isIndividual) {
             if (!(request.maxStudents() == 1))
                 throw new IllegalArgumentException("Turmas individuais devem ter apenas 1 estudante");
         }
-        Subject subject = subjectService.findByIdEntity(request.subjectId());
+        Subject subject = subjectService.findById(request.subjectId());
         Classroom classroom = new Classroom(null, school, classType, subject, request.name(), request.maxStudents(), null);
         classroom = classroomRepository.save(classroom);
         return classroom.getId();
@@ -110,7 +114,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     @Transactional
     public UUID update(UUID userId, UUID classroomId, ClassroomRequest request) {
-        School school = schoolService.findByUser(userId);
+        School school = schoolService.findByUserId(userId);
         Classroom classroom = this.findByIdEntity(classroomId);
         if (!classroom.getSchool().equals(school)) {
             throw new AccessDeniedException("Não é possivel interagir com turma de outra escola");
@@ -121,7 +125,7 @@ public class ClassroomServiceImpl implements ClassroomService {
             if (!(request.maxStudents() == 1))
                 throw new IllegalArgumentException("Turmas individuais devem ter apenas 1 estudante");
         }
-        Subject subject = subjectService.findByIdEntity(request.subjectId());
+        Subject subject = subjectService.findById(request.subjectId());
         classroom.setSubject(subject);
         classroom.setClassType(classType);
         classroom.setMaxStudents(request.maxStudents());
@@ -133,12 +137,12 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     @Transactional
     public void addStudent(UUID userId, UUID classroomId, UUID studentId) {
-        School school = schoolService.findByUser(userId);
+        School school = schoolService.findByUserId(userId);
         Classroom classroom = this.findByIdEntity(classroomId);
         if (!classroom.getSchool().equals(school)) {
             throw new AccessDeniedException("Não é possivel interagir com turma de outra escola");
         }
-        Student student = studentService.findByIdEntity(studentId);
+        Student student = studentService.findById(studentId);
         if (!student.getSchool().equals(school)) {
             throw new AccessDeniedException("Não é possivel interagir com estudantes de outra escola");
         }
@@ -152,12 +156,12 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     @Transactional
     public void removeStudent(UUID userId, UUID classroomId, UUID studentId) {
-        School school = schoolService.findByUser(userId);
+        School school = schoolService.findByUserId(userId);
         Classroom classroom = this.findByIdEntity(classroomId);
         if (!classroom.getSchool().equals(school)) {
             throw new AccessDeniedException("Não é possivel interagir com turma de outra escola");
         }
-        Student student = studentService.findByIdEntity(studentId);
+        Student student = studentService.findById(studentId);
         if (!student.getSchool().equals(school)) {
             throw new AccessDeniedException("Não é possivel interagir com estudantes de outra escola");
         }
@@ -171,7 +175,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     @Transactional
     public void deleteById(UUID userId, UUID classroomId) {
-        School school = schoolService.findByUser(userId);
+        School school = schoolService.findByUserId(userId);
         Classroom classroom = this.findByIdEntity(classroomId);
         if (!classroom.getSchool().equals(school)) {
             throw new AccessDeniedException("Não é possivel interagir com turma de outra escola");

@@ -1,4 +1,4 @@
-package com.system.application.domain.legalGuardian.repository.projection;
+package com.system.application.domain.legalguardian.repository.projection;
 
 import java.util.UUID;
 

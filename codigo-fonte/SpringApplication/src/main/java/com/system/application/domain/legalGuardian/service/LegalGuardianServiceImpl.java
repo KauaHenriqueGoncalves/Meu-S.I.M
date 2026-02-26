@@ -1,14 +1,15 @@
-package com.system.application.domain.legalGuardian.service;
+package com.system.application.domain.legalguardian.service;
 
-import com.system.application.domain.legalGuardian.LegalGuardian;
-import com.system.application.domain.legalGuardian.dto.*;
-import com.system.application.domain.legalGuardian.mapper.LegalGuardianMapper;
-import com.system.application.domain.legalGuardian.repository.LegalGuardianRepository;
+import com.system.application.domain.legalguardian.LegalGuardian;
+import com.system.application.domain.legalguardian.dto.*;
+import com.system.application.domain.legalguardian.repository.LegalGuardianRepository;
+import com.system.application.domain.role.Role;
 import com.system.application.domain.school.School;
-import com.system.application.domain.schoolAdmin.SchoolAdmin;
-import com.system.application.domain.schoolAdmin.service.SchoolAdminService;
+import com.system.application.domain.school.service.SchoolService;
 import com.system.application.domain.user.User;
+import com.system.application.domain.user.dto.UserRequest;
 import com.system.application.domain.user.service.UserService;
+import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
@@ -25,116 +26,107 @@ import java.util.UUID;
 
 @Service
 public class LegalGuardianServiceImpl implements LegalGuardianService {
-    private final UserService userService;
-    private final SchoolAdminService schoolAdminService;
     private final LegalGuardianRepository legalGuardianRepository;
-    private final LegalGuardianMapper legalGuardianMapper;
+    private final UserService userService;
+    private final SchoolService schoolService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public LegalGuardianServiceImpl(UserService userService,
-                                    SchoolAdminService schoolAdminService,
-                                    LegalGuardianRepository legalGuardianRepository,
-                                    LegalGuardianMapper legalGuardianMapper,
-                                    BCryptPasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.schoolAdminService = schoolAdminService;
+    public LegalGuardianServiceImpl(
+            LegalGuardianRepository legalGuardianRepository,
+            UserService userService,
+            SchoolService schoolService,
+            BCryptPasswordEncoder passwordEncoder
+    ) {
         this.legalGuardianRepository = legalGuardianRepository;
-        this.legalGuardianMapper = legalGuardianMapper;
+        this.userService = userService;
+        this.schoolService = schoolService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    @Cacheable(key = "#adminId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_legal_guardians")
-    public Page<LegalGuardianResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
-        UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
-
-        Pageable sortedPageable = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                Sort.by("user.username").ascending()
-        );
-
-        return legalGuardianRepository.findAllBySchoolId(schoolId, sortedPageable)
-                .map(l ->
-                        new LegalGuardianResponse(
-                            l.getId(),
-                            l.getUsername(),
-                            l.getDegreeOfKinship()
-                        )
-                );
+    @Cacheable(value = "page_legal_guardians", key = "#userId + ':' + #page + ':' + #size")
+    public PageResponse<LegalGuardianResponse> findAllResponseBySchool(UUID userId, int page, int size) {
+        School school = schoolService.findByUserId(userId);
+        Pageable sortedPageable =
+                PageRequest.of(page, size, Sort.by("user.username").ascending());
+        Page<LegalGuardianResponse> response = legalGuardianRepository.findAllBySchoolId(school.getId(), sortedPageable)
+                .map(l -> new LegalGuardianResponse(l.getId(), l.getUsername(), l.getDegreeOfKinship()));
+        return PageResponse.from(response);
     }
 
     @Override
-    public LegalGuardianDetailResponse findById(UUID id) {
-        LegalGuardian legalGuardian = legalGuardianRepository.findById(id).orElseThrow(
-                () -> new NotFoundObjectException("Not found Legal Guardian")
-        );
-        return legalGuardianMapper.toDtoDetail(legalGuardian);
+    public LegalGuardian findById(UUID legalGuardianId) {
+        return legalGuardianRepository.findById(legalGuardianId)
+                .orElseThrow(() -> new NotFoundObjectException("Not found legal guardian"));
     }
 
     @Override
-    public LegalGuardian findByIdEntity(UUID id) {
-        return legalGuardianRepository.findById(id).orElseThrow(
-                () -> new NotFoundObjectException("Not found legal guardian")
-        );
+    public LegalGuardianDetailResponse findResponseDetailById(UUID legalGuardianId) {
+        return legalGuardianRepository.findById(legalGuardianId)
+                .map(lg -> {
+                    return new LegalGuardianDetailResponse(
+                            lg.getId(),
+                            lg.getUser().getUsername(),
+                            lg.getUser().getEmail(),
+                            lg.getUser().getCpf(),
+                            lg.getUser().getPhoneNumber(),
+                            lg.getUser().getAddress(),
+                            lg.getUser().getActive(),
+                            lg.getDegreeOfKinship());
+                })
+                .orElseThrow(() -> new NotFoundObjectException("Não encontrou o responsável"));
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
-    public UUID saveLegalGuardian(User user, UUID adminId, LegalGuardianRequest legalGuardianRequest) {
-        user = userService.saveLegalGuardian(user);
-        SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
-        School school = schoolAdmin.getSchoolId();
-        LegalGuardian legalGuardian = new LegalGuardian(
-                null,
-                user,
-                school,
-                legalGuardianRequest.degreeOfKinship()
-        );
+    public LegalGuardian save(UUID userId, UserRequest userRequest, LegalGuardianRequest legalGuardianRequest) {
+        School school = schoolService.findByUserId(userId);
+        User user = userService.registerUserWithRole(userRequest, Role.Values.LEGAL_GUARDIAN);
+        LegalGuardian legalGuardian =
+                new LegalGuardian(null, user, school, legalGuardianRequest.degreeOfKinship());
         legalGuardian = legalGuardianRepository.save(legalGuardian);
-        return legalGuardian.getId();
+        return legalGuardian;
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
-    public UUID updateLegalGuardian(UUID adminId, UUID legalGuardianId, UpdateLegalGuardianRequest updateLegalGuardianRequest) {
-        validateLegalGuardianBelongsToSchool(adminId, legalGuardianId);
-        LegalGuardian legalGuardian = legalGuardianRepository.findById(legalGuardianId).orElseThrow(
-                () -> new NotFoundObjectException("Not found Legal Guardian")
-        );
-        legalGuardian.getUser().setUsername(updateLegalGuardianRequest.username());
-        legalGuardian.getUser().setEmail(updateLegalGuardianRequest.email());
-        legalGuardian.getUser().setPhoneNumber(updateLegalGuardianRequest.phoneNumber());
-        legalGuardian.getUser().setAddress(updateLegalGuardianRequest.address());
-        legalGuardian.setDegreeOfKinship(updateLegalGuardianRequest.degreeOfKinship());
-        legalGuardian = legalGuardianRepository.save(legalGuardian);
-        return legalGuardian.getId();
+    public void update(UUID userId, UUID legalGuardianId, UpdateLegalGuardianRequest updateRequest) {
+        ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
+        LegalGuardian legalGuardian = legalGuardianRepository.findById(legalGuardianId)
+                .orElseThrow(() -> new NotFoundObjectException("Não encontrou o responsável"));
+        legalGuardian.getUser().setUsername(updateRequest.username());
+        legalGuardian.getUser().setEmail(updateRequest.email());
+        legalGuardian.getUser().setPhoneNumber(updateRequest.phoneNumber());
+        legalGuardian.getUser().setAddress(updateRequest.address());
+        legalGuardian.getUser().setActive(updateRequest.isActive());
+        legalGuardian.setDegreeOfKinship(updateRequest.degreeOfKinship());
+        legalGuardianRepository.save(legalGuardian);
     }
 
     @Override
     @Transactional
-    public void updatePassword(UUID adminId, UUID legalGuardianId, UpdateLegalGuardianPasswordRequest updateLegalGuardianPassword) {
-        validateLegalGuardianBelongsToSchool(adminId, legalGuardianId);
-        LegalGuardian legalGuardian = legalGuardianRepository.findById(legalGuardianId).orElseThrow(
-                () -> new NotFoundObjectException("Not found Legal Guardian")
-        );
-        legalGuardian.getUser().setPassword(passwordEncoder.encode(updateLegalGuardianPassword.newPassword()));
+    public void updatePassword(UUID userId, UUID legalGuardianId, UpdateLegalGuardianPasswordRequest updateRequest) {
+        ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
+        LegalGuardian legalGuardian = legalGuardianRepository.findById(legalGuardianId)
+                .orElseThrow(() -> new NotFoundObjectException("Not found Legal Guardian"));
+        legalGuardian.getUser().setPassword(passwordEncoder.encode(updateRequest.newPassword()));
+        legalGuardianRepository.save(legalGuardian);
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
-    public void deleteById(UUID adminId, UUID legalGuardianId) {
-        validateLegalGuardianBelongsToSchool(adminId, legalGuardianId);
+    public void deleteById(UUID userId, UUID legalGuardianId) {
+        ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
         legalGuardianRepository.deleteById(legalGuardianId);
     }
 
-    @Override
-    public void validateLegalGuardianBelongsToSchool(UUID adminId, UUID legalGuardianId) {
-        UUID schoolId = schoolAdminService.findSchoolIdByUserId(adminId);
-        Boolean belongsToSchool = legalGuardianRepository.existsByIdAndSchool_Id(legalGuardianId, schoolId);
+    public void ensureLegalGuardianBelongsToUserSchool(UUID userId, UUID legalGuardianId) {
+        School school = schoolService.findByUserId(userId);
+        boolean belongsToSchool =
+                legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, school.getId());
         if (!belongsToSchool) {
             throw new AccessDeniedException("Não pode alterar o responsável de outra instituição");
         }

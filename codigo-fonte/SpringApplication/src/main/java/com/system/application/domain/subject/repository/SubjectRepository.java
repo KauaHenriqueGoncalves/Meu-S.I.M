@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, UUID> {
-    Page<Subject> findAllBySchool_Id(UUID schoolId, Pageable pageable);
+    Page<Subject> findAllBySchoolId(UUID schoolId, Pageable pageable);
 }

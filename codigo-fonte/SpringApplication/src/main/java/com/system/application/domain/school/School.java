@@ -33,12 +33,15 @@ public final class School implements Serializable {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    public School() {}
+    public School() {
+    }
 
-    public School(UUID id,
-                  String nameCode,
-                  String schoolName,
-                  String cnpj) {
+    public School(
+            UUID id,
+            String nameCode,
+            String schoolName,
+            String cnpj
+    ) {
         this.id = id;
         this.nameCode = nameCode;
         this.schoolName = schoolName;
@@ -95,16 +98,5 @@ public final class School implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "School{" +
-                "id=" + id +
-                ", nameCode='" + nameCode + '\'' +
-                ", schoolName='" + schoolName + '\'' +
-                ", cnpj='" + cnpj + '\'' +
-                ", createdAt=" + createdAt +
-                '}';
     }
 }

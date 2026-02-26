@@ -122,7 +122,6 @@ public class SecurityConfig {
                         .anyRequest().denyAll()
                 )
                 .oauth2ResourceServer(AbstractHttpConfigurer::disable);
-
         return http.build();
     }
 
@@ -138,7 +137,6 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(withDefaults()));
-
         return http.build();
     }
 

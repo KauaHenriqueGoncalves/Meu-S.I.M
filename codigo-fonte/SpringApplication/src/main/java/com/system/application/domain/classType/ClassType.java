@@ -1,4 +1,4 @@
-package com.system.application.domain.classType;
+package com.system.application.domain.classtype;
 
 import jakarta.persistence.*;
 
@@ -19,6 +19,9 @@ public final class ClassType implements Serializable {
 
     @Column(name = "name", nullable = false, unique = true, length = 30)
     private String name;
+
+    public ClassType() {
+    }
 
     public Long getId() {
         return id;

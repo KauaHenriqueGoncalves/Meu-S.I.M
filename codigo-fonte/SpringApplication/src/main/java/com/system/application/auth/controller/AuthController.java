@@ -28,10 +28,12 @@ public final class AuthController {
     private final UserService userService;
     private final CookieService cookieService;
 
-    public AuthController(LoginService loginService,
-                          JwtService jwtService,
-                          UserService userService,
-                          CookieService cookieService) {
+    public AuthController(
+            LoginService loginService,
+            JwtService jwtService,
+            UserService userService,
+            CookieService cookieService
+    ) {
         this.loginService = loginService;
         this.jwtService = jwtService;
         this.userService = userService;
@@ -39,39 +41,37 @@ public final class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest loginRequest,
-                                               HttpServletResponse response) {
+    public ResponseEntity<TokenResponse> login(
+            @RequestBody @Valid LoginRequest loginRequest,
+            HttpServletResponse response
+    ) {
         LoginResponse loginResponse = loginService.login(loginRequest);
         String accessToken = jwtService.generateAccessToken(loginResponse);
         String refreshToken = jwtService.generateRefreshToken(loginResponse);
-        ResponseCookie cookie = cookieService.createRefreshCookie(
-                "/auth/refresh",
-                "refreshToken",
-                refreshToken,
-                Duration.ofDays(7) // JWT refresh is 7 days
-        );
+        ResponseCookie cookie =
+                cookieService.createCookie("/auth/refresh", "refreshToken", refreshToken, Duration.ofDays(7));
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(new TokenResponse(accessToken));
     }
 
     @PostMapping("/login/admin")
-    public ResponseEntity<TokenResponse> loginAdmin(@RequestBody @Valid AdminLoginRequest adminLoginRequest,
-                                                    HttpServletResponse response) {
+    public ResponseEntity<TokenResponse> loginAdmin(
+            @RequestBody @Valid AdminLoginRequest adminLoginRequest,
+            HttpServletResponse response
+    ) {
         LoginResponse loginResponse = loginService.login(adminLoginRequest);
         String accessToken = jwtService.generateAccessToken(loginResponse);
         String refreshToken = jwtService.generateRefreshToken(loginResponse);
-        ResponseCookie cookie = cookieService.createRefreshCookie(
-                "/auth/refresh",
-                "refreshToken",
-                refreshToken,
-                Duration.ofDays(7) // JWT refresh is 7 days
-        );
+        ResponseCookie cookie =
+                cookieService.createCookie("/auth/refresh", "refreshToken", refreshToken, Duration.ofDays(7));
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(new TokenResponse(accessToken));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refresh(@CookieValue("refreshToken") String refreshToken) {
+    public ResponseEntity<TokenResponse> refresh(
+            @CookieValue("refreshToken") String refreshToken
+    ) {
         //TODO: implements Redis
         Jwt jwt = jwtService.decode(refreshToken);
         String id = jwt.getSubject();
@@ -81,14 +81,11 @@ public final class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
+    public ResponseEntity<Void> logout(
+            HttpServletResponse response
+    ) {
         //TODO: RefreshToken still valid, the future implements Redis
-        ResponseCookie cookie = cookieService.createRefreshCookie(
-                "/auth/refresh",
-                "refreshToken",
-                "",
-                Duration.ofDays(7) // JWT refresh is 7 days
-        );
+        ResponseCookie cookie = cookieService.createCookie("/auth/refresh", "refreshToken", "", Duration.ofDays(7));
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.noContent().build();
     }

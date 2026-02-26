@@ -5,8 +5,8 @@ import com.system.application.domain.collaborator.dto.*;
 import com.system.application.domain.collaborator.mapper.CollaboratorMapper;
 import com.system.application.domain.collaborator.repository.CollaboratorRepository;
 import com.system.application.domain.school.School;
-import com.system.application.domain.schoolAdmin.SchoolAdmin;
-import com.system.application.domain.schoolAdmin.service.SchoolAdminService;
+import com.system.application.domain.schooladmin.SchoolAdmin;
+import com.system.application.domain.schooladmin.service.SchoolAdminService;
 import com.system.application.domain.user.User;
 import com.system.application.domain.user.service.UserService;
 import com.system.application.shared.exception.AccessDeniedException;
@@ -47,7 +47,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @Cacheable(key = "#adminId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", value = "page_collaborators")
     public Page<CollaboratorResponse> findAllBySchoolAdminId(UUID adminId, Pageable pageable) {
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
-        UUID schoolId = schoolAdmin.getSchoolId().getId();
+        UUID schoolId = schoolAdmin.getSchool().getId();
 
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
@@ -78,7 +78,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     public UUID saveCollaborator(User user, UUID adminId, CollaboratorRequest collaboratorRequest) {
         user = userService.saveCollaborator(user);
         SchoolAdmin schoolAdmin = schoolAdminService.findByUserId(adminId);
-        School school = schoolAdmin.getSchoolId();
+        School school = schoolAdmin.getSchool();
         Collaborator collaborator = new Collaborator(
                 null,
                 user,

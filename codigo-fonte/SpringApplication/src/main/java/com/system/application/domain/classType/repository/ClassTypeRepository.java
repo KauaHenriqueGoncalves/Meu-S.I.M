@@ -1,10 +1,8 @@
-package com.system.application.domain.classType.repository;
+package com.system.application.domain.classtype.repository;
 
-import com.system.application.domain.classType.ClassType;
+import com.system.application.domain.classtype.ClassType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 public interface ClassTypeRepository extends JpaRepository<ClassType, Long> {

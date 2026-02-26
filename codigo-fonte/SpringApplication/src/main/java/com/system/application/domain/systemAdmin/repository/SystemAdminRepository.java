@@ -1,6 +1,6 @@
-package com.system.application.domain.systemAdmin.repository;
+package com.system.application.domain.systemadmin.repository;
 
-import com.system.application.domain.systemAdmin.SystemAdmin;
+import com.system.application.domain.systemadmin.SystemAdmin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

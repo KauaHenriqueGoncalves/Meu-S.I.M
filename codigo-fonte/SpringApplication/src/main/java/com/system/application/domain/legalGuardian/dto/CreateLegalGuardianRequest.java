@@ -1,4 +1,4 @@
-package com.system.application.domain.legalGuardian.dto;
+package com.system.application.domain.legalguardian.dto;
 
 import com.system.application.domain.user.dto.UserRequest;
 import jakarta.validation.Valid;

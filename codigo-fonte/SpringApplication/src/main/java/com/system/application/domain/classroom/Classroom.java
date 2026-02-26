@@ -1,6 +1,6 @@
 package com.system.application.domain.classroom;
 
-import com.system.application.domain.classType.ClassType;
+import com.system.application.domain.classtype.ClassType;
 import com.system.application.domain.school.School;
 import com.system.application.domain.student.Student;
 import com.system.application.domain.subject.Subject;

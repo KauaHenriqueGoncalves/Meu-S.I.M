@@ -1,4 +1,4 @@
-package com.system.application.domain.schoolAdmin;
+package com.system.application.domain.schooladmin;
 
 import com.system.application.domain.school.School;
 import com.system.application.domain.user.User;
@@ -22,20 +22,23 @@ public final class SchoolAdmin implements Serializable {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User userId;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id", nullable = false)
-    private School schoolId;
+    private School school;
 
-    public SchoolAdmin() {}
+    public SchoolAdmin() {
+    }
 
-    public SchoolAdmin(UUID id,
-                       User userId,
-                       School schoolId) {
+    public SchoolAdmin(
+            UUID id,
+            User user,
+            School school
+    ) {
         this.id = id;
-        this.userId = userId;
-        this.schoolId = schoolId;
+        this.user = user;
+        this.school = school;
     }
 
     public UUID getId() {
@@ -46,20 +49,20 @@ public final class SchoolAdmin implements Serializable {
         this.id = id;
     }
 
-    public User getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(User userId) {
-        this.userId = userId;
+    public void setUser(User userId) {
+        this.user = userId;
     }
 
-    public School getSchoolId() {
-        return schoolId;
+    public School getSchool() {
+        return school;
     }
 
-    public void setSchoolId(School schoolId) {
-        this.schoolId = schoolId;
+    public void setSchool(School schoolId) {
+        this.school = schoolId;
     }
 
     @Override
@@ -72,14 +75,5 @@ public final class SchoolAdmin implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "SchoolAdmin{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", schoolId=" + schoolId +
-                '}';
     }
 }

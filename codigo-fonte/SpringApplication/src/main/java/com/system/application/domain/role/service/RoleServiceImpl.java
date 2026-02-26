@@ -10,23 +10,16 @@ import org.springframework.stereotype.Service;
 public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
 
-    public RoleServiceImpl(RoleRepository roleRepository) {
+    public RoleServiceImpl(
+            RoleRepository roleRepository
+    ) {
         this.roleRepository = roleRepository;
-    }
-
-    @Override
-    @Cacheable(key = "#id", value = "role_id")
-    public Role findByIdRole(Long id) {
-        return roleRepository.findById(id).orElseThrow(
-                () -> new NotFoundObjectException("Not found Role")
-        );
     }
 
     @Override
     @Cacheable(key = "#name", value = "role_name")
     public Role findByName(String name) {
-        return roleRepository.findByName(name.toLowerCase()).orElseThrow(
-                () -> new NotFoundObjectException("Not found Role")
-        );
+        return roleRepository.findByName(name.toLowerCase())
+                .orElseThrow(() -> new NotFoundObjectException("Not found Role"));
     }
 }

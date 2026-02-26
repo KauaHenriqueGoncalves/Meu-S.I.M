@@ -20,6 +20,9 @@ public final class Role implements Serializable {
     @Column(name = "name", nullable = false, unique = true, length = 30)
     private String name;
 
+    public Role() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -46,14 +49,6 @@ public final class Role implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
     }
 
     public enum Values {

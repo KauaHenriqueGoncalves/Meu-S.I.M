@@ -1,4 +1,4 @@
-package com.system.application.domain.legalGuardian.dto;
+package com.system.application.domain.legalguardian.dto;
 
 import com.system.application.shared.validation.NoLeadingTrailingSpace;
 import jakarta.validation.constraints.NotBlank;

@@ -5,5 +5,5 @@ import org.springframework.http.ResponseCookie;
 import java.time.Duration;
 
 public interface CookieService {
-    ResponseCookie createRefreshCookie(String path, String key, String value, Duration duration);
+    ResponseCookie createCookie(String path, String key, String value, Duration duration);
 }

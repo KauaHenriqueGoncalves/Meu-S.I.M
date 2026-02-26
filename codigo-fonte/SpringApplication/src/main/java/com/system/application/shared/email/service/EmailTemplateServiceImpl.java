@@ -10,7 +10,9 @@ import java.util.Map;
 public class EmailTemplateServiceImpl implements EmailTemplateService {
     private final TemplateEngine templateEngine;
 
-    public EmailTemplateServiceImpl(TemplateEngine templateEngine) {
+    public EmailTemplateServiceImpl(
+            TemplateEngine templateEngine
+    ) {
         this.templateEngine = templateEngine;
     }
 

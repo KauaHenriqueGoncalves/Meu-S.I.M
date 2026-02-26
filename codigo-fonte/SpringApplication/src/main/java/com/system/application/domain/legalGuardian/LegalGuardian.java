@@ -1,4 +1,4 @@
-package com.system.application.domain.legalGuardian;
+package com.system.application.domain.legalguardian;
 
 import com.system.application.domain.school.School;
 import com.system.application.domain.user.User;
@@ -31,12 +31,15 @@ public final class LegalGuardian implements Serializable {
     @Column(name = "degree_of_kinship", length = 30, nullable = false)
     private String degreeOfKinship;
 
-    public LegalGuardian() {}
+    public LegalGuardian() {
+    }
 
-    public LegalGuardian(UUID id,
-                         User user,
-                         School school,
-                         String degreeOfKinship) {
+    public LegalGuardian(
+            UUID id,
+            User user,
+            School school,
+            String degreeOfKinship
+    ) {
         this.id = id;
         this.user = user;
         this.school = school;

@@ -14,17 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailVerificationController {
     private final EmailVerificationService emailVerificationService;
 
-    public EmailVerificationController(EmailVerificationService emailVerificationService) {
+    public EmailVerificationController(
+            EmailVerificationService emailVerificationService
+    ) {
         this.emailVerificationService = emailVerificationService;
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<String> verify(@RequestParam("token") String token) {
+    public ResponseEntity<String> verify(
+            @RequestParam("token") String token
+    ) {
         try {
+            System.out.println(token);
             emailVerificationService.validateUser(token);
         }
         catch (NotFoundObjectException | AccessDeniedException e) {
-            return ResponseEntity.ok("Token Invalid!"); // Redirecionar para uma pagina de invalid
+            return ResponseEntity.ok("Token Invalido!"); // Redirecionar para uma pagina de invalid
         }
         return ResponseEntity.ok("Perfil validado com sucesso!"); // Redirecionar para uma pagina de sucesso
     }

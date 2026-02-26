@@ -1,4 +1,4 @@
-package com.system.application.domain.systemAdmin;
+package com.system.application.domain.systemadmin;
 
 import com.system.application.domain.user.User;
 import jakarta.persistence.*;
@@ -23,10 +23,13 @@ public final class SystemAdmin implements Serializable {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    public SystemAdmin() {}
+    public SystemAdmin() {
+    }
 
-    public SystemAdmin(UUID id,
-                       User user) {
+    public SystemAdmin(
+            UUID id,
+            User user
+    ) {
         this.id = id;
         this.user = user;
     }

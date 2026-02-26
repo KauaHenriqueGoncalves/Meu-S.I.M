@@ -11,18 +11,14 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    Optional<User> findById(UUID id);
-    Optional<User> findByEmail(String email);
     Optional<User> findByCpf(String cpf);
-    Optional<User> findByPhoneNumber(String phoneNumber);
 
-    @Query(
-            """
-            SELECT COUNT(u) > 0 FROM User u
-            WHERE u.email = :email
-            OR u.cpf = :cpf
-            OR u.phoneNumber = :phone
-            """)
+    @Query("""
+    SELECT COUNT(u) > 0 FROM User u
+    WHERE u.email = :email
+    OR u.cpf = :cpf
+    OR u.phoneNumber = :phone
+    """)
     Boolean existsConflict(@Param("email") String email, @Param("cpf") String cpf, @Param("phone") String phone);
 
     @Query("""
@@ -34,8 +30,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
              r.name = 'SYSTEM_ADMIN'
              or exists (
                  select 1 from SchoolAdmin sa
-                 join sa.schoolId s
-                 where sa.userId = u
+                 join sa.school s
+                 where sa.user = u
                    and s.nameCode = :schoolCode
              )
              or exists (

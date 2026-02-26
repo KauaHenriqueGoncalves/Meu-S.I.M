@@ -28,12 +28,15 @@ public final class EmailVerificationToken implements Serializable {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    public EmailVerificationToken() {}
+    public EmailVerificationToken() {
+    }
 
-    public EmailVerificationToken(UUID id,
-                                  String token,
-                                  Instant expiresAt,
-                                  UUID userId) {
+    public EmailVerificationToken(
+            UUID id,
+            String token,
+            Instant expiresAt,
+            UUID userId
+    ) {
         this.id = id;
         this.token = token;
         this.expiresAt = expiresAt;

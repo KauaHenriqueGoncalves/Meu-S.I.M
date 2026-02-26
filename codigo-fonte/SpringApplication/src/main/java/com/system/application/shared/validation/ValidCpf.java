@@ -6,11 +6,11 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = NoLeadingTrailingSpaceValidator.class)
+@Constraint(validatedBy = ValidCpfConstraintValidator.class)
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NoLeadingTrailingSpace {
-    String message() default "Must not contain leading or trailing spaces";
+public @interface ValidCpf {
+    String message() default "CPF inválido";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

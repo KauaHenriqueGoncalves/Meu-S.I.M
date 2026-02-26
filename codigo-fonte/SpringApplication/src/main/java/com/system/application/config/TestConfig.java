@@ -1,14 +1,15 @@
 package com.system.application.config;
 
-import com.system.application.domain.legalGuardian.LegalGuardian;
-import com.system.application.domain.legalGuardian.repository.LegalGuardianRepository;
+import com.system.application.domain.legalguardian.LegalGuardian;
+import com.system.application.domain.legalguardian.repository.LegalGuardianRepository;
 import com.system.application.domain.role.Role;
 import com.system.application.domain.role.service.RoleService;
 import com.system.application.domain.school.School;
+import com.system.application.domain.school.dto.SchoolRequest;
 import com.system.application.domain.school.service.SchoolService;
 import com.system.application.domain.student.Student;
 import com.system.application.domain.student.repository.StudentRepository;
-import com.system.application.domain.systemAdmin.service.SystemAdminService;
+import com.system.application.domain.systemadmin.service.SystemAdminService;
 import com.system.application.domain.user.User;
 import com.system.application.domain.user.repository.UserRepository;
 import com.system.application.shared.email.service.EmailSendServiceImpl;
@@ -51,7 +52,7 @@ public class TestConfig implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        School school = schoolService.save(new School(null, "school_code_test", "School_Test", "11111111111111"));
+        School school = schoolService.save(new SchoolRequest("school_code_test", "School_Test", "11111111111111"));
         User user = userRepository.save(
                 new User(
                         null,
@@ -67,7 +68,7 @@ public class TestConfig implements CommandLineRunner {
                 )
         );
 
-        String token = emailVerificationService.createToken(user);
+        String token = emailVerificationService.createOrRefreshToken(user.getId());
         String link = "http://localhost:8080/auth/verify?token=" + token;
         emailServiceImpl.sendConfirmAccountEmail(user.getEmail(), user.getUsername(), link);
 

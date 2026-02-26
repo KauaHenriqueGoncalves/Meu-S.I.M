@@ -25,10 +25,10 @@ public final class User implements Serializable {
     @Column(name = "username", length = 100, nullable = false)
     private String username;
 
-    @Column(name = "email", length = 255, nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password_hash", length = 255, nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password;
 
     @Column(name = "cpf", length = 11, nullable = false, unique = true)
@@ -55,18 +55,21 @@ public final class User implements Serializable {
     )
     private Set<Role> role;
 
-    public User() {}
+    public User() {
+    }
 
-    public User(UUID id,
-                String username,
-                String email,
-                String password,
-                String cpf,
-                String phoneNumber,
-                String address,
-                Boolean isActive,
-                Instant createdAt,
-                Set<Role> role) {
+    public User(
+            UUID id,
+            String username,
+            String email,
+            String password,
+            String cpf,
+            String phoneNumber,
+            String address,
+            Boolean isActive,
+            Instant createdAt,
+            Set<Role> role
+    ) {
         this.id = id;
         this.username = username;
         this.email = email;

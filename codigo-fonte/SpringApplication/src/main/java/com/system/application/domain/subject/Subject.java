@@ -29,9 +29,11 @@ public final class Subject implements Serializable {
     public Subject() {
     }
 
-    public Subject(UUID id,
-                   School school,
-                   String name) {
+    public Subject(
+            UUID id,
+            School school,
+            String name
+    ) {
         this.id = id;
         this.school = school;
         this.name = name;

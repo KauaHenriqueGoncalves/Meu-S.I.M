@@ -1,4 +1,4 @@
-package com.system.application.domain.legalGuardian.dto;
+package com.system.application.domain.legalguardian.dto;
 
 import com.system.application.shared.validation.NoLeadingTrailingSpace;
 import jakarta.validation.constraints.Email;
@@ -29,6 +29,9 @@ public record UpdateLegalGuardianRequest(
         @Size(max = 100, message = "Address must be lower then 100")
         @NoLeadingTrailingSpace
         String address,
+
+        @NotNull(message = "Campo de status deve ser informado")
+        Boolean isActive,
 
         @NotBlank(message = "Address can't be blank")
         @Size(max = 30, message = "Degree of Kinship must be lower then 30")
