@@ -1,7 +1,7 @@
 package com.system.application.auth.service;
 
 import com.system.application.auth.dto.LoginResponse;
-import com.system.application.domain.role.Role;
+import com.system.application.core.role.Role;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 

@@ -1,12 +1,10 @@
 package com.system.application.email.listener;
 
-import com.system.application.domain.user.User;
-import com.system.application.domain.user.event.UserRegisteredEvent;
-import com.system.application.domain.user.repository.UserRepository;
-import com.system.application.domain.user.service.UserService;
+import com.system.application.core.user.User;
+import com.system.application.core.user.event.UserRegisteredEvent;
+import com.system.application.core.user.service.UserService;
 import com.system.application.email.service.EmailSendService;
-import com.system.application.email.service.EmailVerificationService;
-import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.auth.emailverification.service.EmailVerificationService;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 

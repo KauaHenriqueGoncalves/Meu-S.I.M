@@ -11,11 +11,11 @@ import java.util.Map;
 @Service
 public class EmailSendServiceImpl implements EmailSendService {
     private final JavaMailSender mailSender;
-    private final EmailTemplateServiceImpl templateService;
+    private final EmailTemplateService templateService;
 
     public EmailSendServiceImpl(
             JavaMailSender mailSender,
-            EmailTemplateServiceImpl templateService
+            EmailTemplateService templateService
     ) {
         this.mailSender = mailSender;
         this.templateService = templateService;
