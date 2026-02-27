@@ -1,0 +1,1 @@
+Explicação sobre cada diretorio e sua responsabilidade
