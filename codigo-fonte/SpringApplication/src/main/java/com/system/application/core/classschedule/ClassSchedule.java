@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "class_schedule")
-public class ClassSchedule implements Serializable {
+public final class ClassSchedule implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

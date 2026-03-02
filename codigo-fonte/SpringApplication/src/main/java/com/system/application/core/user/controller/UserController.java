@@ -28,8 +28,8 @@ public class UserController {
 
     @GetMapping("/test-system-admin-authorize")
     @PreAuthorize("hasAuthority('SCOPE_system_admin')")
-    public ResponseEntity<String> testSystemAdmin() {
-        return ResponseEntity.ok("System Admin access ok!");
+    public ResponseEntity<User> testSystemAdmin(JwtAuthenticationToken jwtToken) {
+        return ResponseEntity.ok(userService.findById(UUID.fromString(jwtToken.getName())));
     }
 
     @GetMapping("/test-colaborator-authorize")

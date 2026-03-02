@@ -1,5 +1,8 @@
 package com.system.application.config;
 
+import com.system.application.core.billingdiscount.dto.BillingDiscountRequest;
+import com.system.application.core.billingdiscount.repository.BillingDiscountRepository;
+import com.system.application.core.billingdiscount.service.BillingDiscountService;
 import com.system.application.core.legalguardian.LegalGuardian;
 import com.system.application.core.legalguardian.repository.LegalGuardianRepository;
 import com.system.application.core.role.Role;
@@ -13,12 +16,13 @@ import com.system.application.core.systemadmin.service.SystemAdminService;
 import com.system.application.core.user.User;
 import com.system.application.core.user.repository.UserRepository;
 import com.system.application.email.service.EmailSendServiceImpl;
-import com.system.application.auth.emailverification.service.EmailVerificationService;
+import com.system.application.auth.verification.service.EmailVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
@@ -49,6 +53,9 @@ public class TestConfig implements CommandLineRunner {
 
     @Autowired
     private EmailVerificationService emailVerificationService;
+
+    @Autowired
+    private BillingDiscountService billingDiscountService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -81,6 +88,9 @@ public class TestConfig implements CommandLineRunner {
                 )
         );
         studentRepository.save(new Student(null, school, "Rogerinho estudante", LocalDate.parse("2003-02-03"), "5 ANO", legalGuardian));
+
+        billingDiscountService.save(
+                new BillingDiscountRequest(2, BigDecimal.valueOf(5.0)));
 
         System.out.println("Console-H2: http://localhost:8080/console-h2");
         System.out.println("MailHog: http://localhost:8025");

@@ -1,4 +1,4 @@
-package com.system.application.auth.emailverification.service;
+package com.system.application.auth.verification.service;
 
 import java.util.UUID;
 

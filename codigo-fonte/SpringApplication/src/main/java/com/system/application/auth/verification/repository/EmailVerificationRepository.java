@@ -1,6 +1,6 @@
-package com.system.application.auth.emailverification.repository;
+package com.system.application.auth.verification.repository;
 
-import com.system.application.auth.emailverification.EmailVerificationToken;
+import com.system.application.auth.verification.EmailVerificationToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

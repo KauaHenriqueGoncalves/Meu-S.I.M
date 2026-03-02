@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkUserConflict(UserRequest request) {
-        Boolean conflict = userRepository.existsConflict(request.email(), request.cpf(), request.phoneNumber());
+        boolean conflict = userRepository.existsConflict(request.email(), request.cpf(), request.phoneNumber());
         if (conflict) {
             throw new EntityAlreadyExistsException("Usuário já cadastrado");
         }

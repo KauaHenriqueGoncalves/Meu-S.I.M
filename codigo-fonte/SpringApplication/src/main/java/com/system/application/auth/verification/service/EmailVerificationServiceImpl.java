@@ -1,8 +1,8 @@
-package com.system.application.auth.emailverification.service;
+package com.system.application.auth.verification.service;
 
 import com.system.application.core.user.service.UserService;
-import com.system.application.auth.emailverification.EmailVerificationToken;
-import com.system.application.auth.emailverification.repository.EmailVerificationRepository;
+import com.system.application.auth.verification.EmailVerificationToken;
+import com.system.application.auth.verification.repository.EmailVerificationRepository;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;

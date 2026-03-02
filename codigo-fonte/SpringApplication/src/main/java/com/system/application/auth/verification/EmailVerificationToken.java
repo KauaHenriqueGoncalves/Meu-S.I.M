@@ -1,4 +1,4 @@
-package com.system.application.auth.emailverification;
+package com.system.application.auth.verification;
 
 import jakarta.persistence.*;
 
