@@ -11,10 +11,10 @@ import java.time.Instant;
 import java.util.List;
 
 @Component
-public class SchoolAdminSchedule {
+public class SchoolAdminScheduler {
     private final SchoolAdminRepository schoolAdminRepository;
 
-    public SchoolAdminSchedule(
+    public SchoolAdminScheduler(
             SchoolAdminRepository schoolAdminRepository
     ) {
         this.schoolAdminRepository = schoolAdminRepository;

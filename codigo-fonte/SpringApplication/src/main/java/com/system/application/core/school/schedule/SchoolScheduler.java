@@ -11,10 +11,10 @@ import java.time.Instant;
 import java.util.List;
 
 @Component
-public class SchoolSchedule {
+public class SchoolScheduler {
     private final SchoolRepository schoolRepository;
 
-    public SchoolSchedule(
+    public SchoolScheduler(
             SchoolRepository schoolRepository
     ) {
         this.schoolRepository = schoolRepository;

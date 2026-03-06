@@ -138,4 +138,18 @@ public final class SchoolPlan implements Serializable {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    @Override
+    public String toString() {
+        return "SchoolPlan{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", monthlyPrice=" + monthlyPrice +
+                ", maxStudents=" + maxStudents +
+                ", maxCollaborators=" + maxCollaborators +
+                ", maxLegalGuardian=" + maxLegalGuardian +
+                ", maxSchoolAdmin=" + maxSchoolAdmin +
+                ", isActive=" + isActive +
+                '}';
+    }
 }

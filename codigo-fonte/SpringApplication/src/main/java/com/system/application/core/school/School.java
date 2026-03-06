@@ -99,4 +99,15 @@ public final class School implements Serializable {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    @Override
+    public String toString() {
+        return "School{" +
+                "id=" + id +
+                ", nameCode='" + nameCode + '\'' +
+                ", schoolName='" + schoolName + '\'' +
+                ", cnpj='" + cnpj + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }
