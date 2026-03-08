@@ -1,7 +1,7 @@
 package com.system.application.core.schoolsubscription.schedule;
 
 import com.system.application.core.schoolsubscription.SchoolSubscription;
-import com.system.application.core.schoolsubscription.enums.SchoolSubscriptionStatus;
+import com.system.application.core.schoolsubscription.enums.SubscriptionStatus;
 import com.system.application.core.schoolsubscription.repository.SchoolSubscriptionRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -22,9 +22,9 @@ public class SchoolSubscriptionScheduler {
     @Scheduled(cron = "0 0 0 * * *")
     public void expireSubscriptions() {
         List<SchoolSubscription> expired = schoolSubscriptionRepository
-                .findAllByStatusAndEndDateBefore(SchoolSubscriptionStatus.ACTIVE, LocalDate.now());
+                .findAllByStatusAndEndDateBefore(SubscriptionStatus.ACTIVE, LocalDate.now());
         expired.forEach(sub ->
-                sub.setStatus(SchoolSubscriptionStatus.CANCELED));
+                sub.setStatus(SubscriptionStatus.EXPIRED));
         schoolSubscriptionRepository.saveAll(expired);
     }
 }

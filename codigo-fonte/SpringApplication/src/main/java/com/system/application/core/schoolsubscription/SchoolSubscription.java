@@ -2,12 +2,13 @@ package com.system.application.core.schoolsubscription;
 
 import com.system.application.core.school.School;
 import com.system.application.core.schoolplan.SchoolPlan;
-import com.system.application.core.schoolsubscription.enums.SchoolSubscriptionStatus;
+import com.system.application.core.schoolsubscription.enums.SubscriptionStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -35,6 +36,24 @@ public final class SchoolSubscription implements Serializable {
     @Column(name = "months", nullable = false)
     private Integer months;
 
+    @Column(name = "plan_name", length = 50, nullable = false)
+    private String planName;
+
+    @Column(name = "plan_price", precision = 6, scale = 2, nullable = false)
+    private BigDecimal planPrice;
+
+    @Column(name = "max_students", nullable = false)
+    private Integer maxStudents;
+
+    @Column(name = "max_collaborators", nullable = false)
+    private Integer maxCollaborators;
+
+    @Column(name = "max_legal_guardian", nullable = false)
+    private Integer maxLegalGuardian;
+
+    @Column(name = "max_school_admin", nullable = false)
+    private Integer maxSchoolAdmin;
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
@@ -43,10 +62,10 @@ public final class SchoolSubscription implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private SchoolSubscriptionStatus status;
+    private SubscriptionStatus status;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
     public SchoolSubscription() {
@@ -57,17 +76,54 @@ public final class SchoolSubscription implements Serializable {
             School school,
             SchoolPlan schoolPlan,
             Integer months,
+            String planName,
+            BigDecimal planPrice,
+            Integer maxStudents,
+            Integer maxCollaborators,
+            Integer maxLegalGuardian,
+            Integer maxSchoolAdmin,
             LocalDate startDate,
             LocalDate endDate,
-            SchoolSubscriptionStatus status
+            SubscriptionStatus status
     ) {
         this.id = id;
         this.school = school;
         this.schoolPlan = schoolPlan;
         this.months = months;
+        this.planName = planName;
+        this.planPrice = planPrice;
+        this.maxStudents = maxStudents;
+        this.maxCollaborators = maxCollaborators;
+        this.maxLegalGuardian = maxLegalGuardian;
+        this.maxSchoolAdmin = maxSchoolAdmin;
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
+    }
+
+    public static SchoolSubscription create(
+            School school,
+            SchoolPlan schoolPlan,
+            int months,
+            BigDecimal finalPrice,
+            SubscriptionStatus status
+    ) {
+        LocalDate startDate = LocalDate.now();
+        return new SchoolSubscription(
+                null,
+                school,
+                schoolPlan,
+                months,
+                schoolPlan.getName(),
+                finalPrice,
+                schoolPlan.getMaxStudents(),
+                schoolPlan.getMaxCollaborators(),
+                schoolPlan.getMaxLegalGuardian(),
+                schoolPlan.getMaxSchoolAdmin(),
+                startDate,
+                startDate.plusMonths(months),
+                status
+        );
     }
 
     public UUID getId() {
@@ -102,6 +158,54 @@ public final class SchoolSubscription implements Serializable {
         this.months = months;
     }
 
+    public String getPlanName() {
+        return planName;
+    }
+
+    public void setPlanName(String planName) {
+        this.planName = planName;
+    }
+
+    public BigDecimal getPlanPrice() {
+        return planPrice;
+    }
+
+    public void setPlanPrice(BigDecimal planPrice) {
+        this.planPrice = planPrice;
+    }
+
+    public Integer getMaxStudents() {
+        return maxStudents;
+    }
+
+    public void setMaxStudents(Integer maxStudents) {
+        this.maxStudents = maxStudents;
+    }
+
+    public Integer getMaxCollaborators() {
+        return maxCollaborators;
+    }
+
+    public void setMaxCollaborators(Integer maxCollaborators) {
+        this.maxCollaborators = maxCollaborators;
+    }
+
+    public Integer getMaxLegalGuardian() {
+        return maxLegalGuardian;
+    }
+
+    public void setMaxLegalGuardian(Integer maxLegalGuardian) {
+        this.maxLegalGuardian = maxLegalGuardian;
+    }
+
+    public Integer getMaxSchoolAdmin() {
+        return maxSchoolAdmin;
+    }
+
+    public void setMaxSchoolAdmin(Integer maxSchoolAdmin) {
+        this.maxSchoolAdmin = maxSchoolAdmin;
+    }
+
     public LocalDate getStartDate() {
         return startDate;
     }
@@ -118,11 +222,11 @@ public final class SchoolSubscription implements Serializable {
         this.endDate = endDate;
     }
 
-    public SchoolSubscriptionStatus getStatus() {
+    public SubscriptionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(SchoolSubscriptionStatus status) {
+    public void setStatus(SubscriptionStatus status) {
         this.status = status;
     }
 

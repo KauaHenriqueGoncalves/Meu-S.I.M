@@ -1,7 +1,10 @@
 package com.system.application.core.schoolsubscription.controller;
 
+import com.system.application.core.schoolsubscription.dto.SchoolSubscriptionDetailResponse;
 import com.system.application.core.schoolsubscription.dto.SchoolSubscriptionRequest;
+import com.system.application.core.schoolsubscription.dto.SchoolSubscriptionResponse;
 import com.system.application.core.schoolsubscription.service.SchoolSubscriptionService;
+import com.system.application.shared.dto.PageResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +24,31 @@ public class SchoolSubscriptionController {
         this.schoolSubscriptionService = schoolSubscriptionService;
     }
 
+    @GetMapping
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<PageResponse<SchoolSubscriptionResponse>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "3") int size,
+            JwtAuthenticationToken token
+    ) {
+        UUID userId = UUID.fromString(token.getName());
+        PageResponse<SchoolSubscriptionResponse> response =
+                schoolSubscriptionService.findAllResponseBySchoolId(userId, page, size);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<SchoolSubscriptionDetailResponse> findDetailById(
+            @PathVariable("id") UUID subscriptionId,
+            JwtAuthenticationToken token
+    ) {
+        UUID userId = UUID.fromString(token.getName());
+        SchoolSubscriptionDetailResponse response =
+                schoolSubscriptionService.findDetailById(userId, subscriptionId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")
     public ResponseEntity<Void> paySubscription(
@@ -30,7 +58,21 @@ public class SchoolSubscriptionController {
         // TODO: Teste
 
         UUID user = UUID.fromString(token.getName());
-        schoolSubscriptionService.save(user, request);
+        schoolSubscriptionService.create(user, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/active/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<Void> activeSubscription(
+            @PathVariable("id") UUID subscriptionId,
+            JwtAuthenticationToken token
+    ) {
+
+        //TODO: Teste
+
+        UUID userId = UUID.fromString(token.getName());
+        schoolSubscriptionService.ActiveById(userId, subscriptionId);
         return ResponseEntity.ok().build();
     }
 
@@ -40,6 +82,9 @@ public class SchoolSubscriptionController {
             @PathVariable("id") UUID subscriptionId,
             JwtAuthenticationToken token
     ) {
+
+        //TODO: Teste
+
         UUID userId = UUID.fromString(token.getName());
         schoolSubscriptionService.cancelById(userId, subscriptionId);
         return ResponseEntity.ok().build();

@@ -1,7 +1,8 @@
 package com.system.application.core.schoolsubscription.enums;
 
-public enum SchoolSubscriptionStatus {
+public enum SubscriptionStatus {
+    PENDING_PAYMENT,
     ACTIVE,
-    SUSPENDED,
+    EXPIRED,
     CANCELED;
 }
