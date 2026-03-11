@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -18,6 +19,11 @@ public class ProcessPaymentNotificationService {
     private final MercadoPagoClient mercadoPagoClient;
     private final SchoolSubscriptionService schoolSubscriptionService;
 
+    private static final Set<String> ACCEPTED_TYPES = Set.of(
+            "payment.created",
+            "payment.updated"
+    );
+
     public ProcessPaymentNotificationService(
             MercadoPagoClient mercadoPagoClient,
             SchoolSubscriptionService schoolSubscriptionService
@@ -27,8 +33,8 @@ public class ProcessPaymentNotificationService {
     }
 
     public void processPayment(Long id, String type) {
-        if (!"payment".equals(type)) {
-            log.debug("Notification type {} ignored, expected 'payment'", type);
+        if (!ACCEPTED_TYPES.contains(type)) {
+            log.debug("Notification type '{}' ignored", type);
             return;
         }
 

@@ -173,10 +173,11 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         }
 
         subscription.setStatus(SubscriptionStatus.ACTIVE);
-        payment.setPaymentMethod(mapPaymentMethod(paymentResult.paymentMethodId()));
+        payment.setPaymentMethod(mapPaymentMethod(paymentResult.paymentTypeId()));
         payment.setPaymentType(paymentResult.paymentTypeId());
         payment.setInstallments(paymentResult.installments());
         payment.setOrderId(paymentResult.orderId());
+        payment.setStatus(PaymentStatus.PAID);
         payment.setPaidAt(paymentResult.paidAt().toInstant());
 
         log.info("Subscription {} activated. Payment {} confirmed.", subscription.getId(), payment.getId());
@@ -198,7 +199,9 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
     private PaymentMethod mapPaymentMethod(String paymentTypeId) {
         return switch (paymentTypeId) {
             case "pix", "bank_transfer" -> PaymentMethod.PIX;
-            case "credit_card", "debit_card" -> PaymentMethod.CARD;
+            case "credit_card"          -> PaymentMethod.CREDIT_CARD;
+            case "debit_card"           -> PaymentMethod.DEBIT_CARD;
+            case "ticket"               -> PaymentMethod.BOLETO;
             default -> throw new BusinessException(
                     "Método de pagamento não suportado: " + paymentTypeId);
         };

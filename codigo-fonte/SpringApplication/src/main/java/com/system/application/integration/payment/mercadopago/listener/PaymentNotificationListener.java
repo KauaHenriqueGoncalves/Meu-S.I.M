@@ -5,6 +5,7 @@ import com.system.application.integration.payment.mercadopago.service.ProcessPay
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,13 +21,15 @@ public class PaymentNotificationListener {
         this.service = service;
     }
 
+    @Async
     @EventListener
     public void handle(PaymentNotificationEvent event) {
-        service.processPayment(event.resourceId(), event.resourceType());
-
-        // TODO: apartir daqui não roda
-
-        log.info("PaymentNotificationEvent published: dataId={}, action={}",
-                event.resourceId(),  event.resourceType());
+        try {
+            service.processPayment(event.resourceId(), event.resourceType());
+            log.info("PaymentNotificationEvent processed successfully: dataId={}", event.resourceId());
+        } catch (Exception ex) {
+            log.error("Failed to process PaymentNotificationEvent: dataId={}, error={}",
+                    event.resourceId(), ex.getMessage(), ex);
+        }
     }
 }

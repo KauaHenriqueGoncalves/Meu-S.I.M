@@ -2,6 +2,7 @@ package com.system.application.core.schoolpayment.enums;
 
 public enum PaymentMethod {
     PIX,
-    CARD,
-    CREDIT_CARD
+    CREDIT_CARD,
+    DEBIT_CARD,
+    BOLETO
 }
