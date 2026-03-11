@@ -1,6 +1,5 @@
 package com.system.application.core.schoolpayment.dto;
 
-import com.system.application.core.schoolpayment.enums.PaymentMethod;
 import com.system.application.core.schoolpayment.enums.PaymentStatus;
 import com.system.application.core.schoolsubscription.SchoolSubscription;
 
@@ -13,11 +12,10 @@ public record SchoolPaymentRequest(
         BigDecimal discountAmount,
         BigDecimal originalAmount,
         BigDecimal amount,
-        PaymentMethod paymentMethod,
-        PaymentStatus status
+        PaymentStatus status,
+        String providerPaymentId
 ) implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
 }

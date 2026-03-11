@@ -1,5 +1,6 @@
 package com.system.application.core.schoolpayment;
 
+import com.system.application.core.schoolpayment.dto.SchoolPaymentRequest;
 import com.system.application.core.schoolpayment.enums.PaymentMethod;
 import com.system.application.core.schoolpayment.enums.PaymentStatus;
 import com.system.application.core.schoolsubscription.SchoolSubscription;
@@ -40,8 +41,17 @@ public class SchoolPayment implements Serializable {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false)
+    @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
+
+    @Column(name = "installments")
+    private Integer installments;
+
+    @Column(name = "payment_type")
+    private String paymentType;
+
+    @Column(name = "order_id")
+    private String orderId;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
@@ -67,6 +77,10 @@ public class SchoolPayment implements Serializable {
             BigDecimal originalAmount,
             BigDecimal amount,
             PaymentMethod paymentMethod,
+            Integer installments,
+            String paymentType,
+            String orderId,
+            Instant paidAt,
             PaymentStatus status,
             String providerPaymentId
     ) {
@@ -76,8 +90,29 @@ public class SchoolPayment implements Serializable {
         this.originalAmount = originalAmount;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
+        this.installments = installments;
+        this.paymentType = paymentType;
+        this.orderId = orderId;
+        this.paidAt = paidAt;
         this.status = status;
         this.providerPaymentId = providerPaymentId;
+    }
+
+    public static SchoolPayment createInit(SchoolPaymentRequest request) {
+        return new SchoolPayment(
+                null,
+                request.schoolSubscription(),
+                request.discountAmount(),
+                request.originalAmount(),
+                request.amount(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                request.status(),
+                request.providerPaymentId()
+        );
     }
 
     public UUID getId() {
@@ -128,6 +163,30 @@ public class SchoolPayment implements Serializable {
         this.paymentMethod = paymentMethod;
     }
 
+    public Integer getInstallments() {
+        return installments;
+    }
+
+    public void setInstallments(Integer installments) {
+        this.installments = installments;
+    }
+
+    public String getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -136,20 +195,20 @@ public class SchoolPayment implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public Instant getPaidAt() {
-        return paidAt;
-    }
-
-    public void setPaidAt(Instant paidAt) {
-        this.paidAt = paidAt;
-    }
-
     public PaymentStatus getStatus() {
         return status;
     }
 
     public void setStatus(PaymentStatus status) {
         this.status = status;
+    }
+
+    public Instant getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(Instant paidAt) {
+        this.paidAt = paidAt;
     }
 
     public String getProviderPaymentId() {

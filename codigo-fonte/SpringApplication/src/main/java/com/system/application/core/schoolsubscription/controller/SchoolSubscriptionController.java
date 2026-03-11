@@ -1,5 +1,6 @@
 package com.system.application.core.schoolsubscription.controller;
 
+import com.system.application.core.schoolsubscription.dto.SchoolSubscriptionCheckoutResponse;
 import com.system.application.core.schoolsubscription.dto.SchoolSubscriptionDetailResponse;
 import com.system.application.core.schoolsubscription.dto.SchoolSubscriptionRequest;
 import com.system.application.core.schoolsubscription.dto.SchoolSubscriptionResponse;
@@ -51,40 +52,22 @@ public class SchoolSubscriptionController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")
-    public ResponseEntity<Void> paySubscription(
+    public ResponseEntity<SchoolSubscriptionCheckoutResponse> paySubscription(
             @RequestBody @Valid SchoolSubscriptionRequest request,
             JwtAuthenticationToken token
     ) {
-        // TODO: Teste
-
         UUID user = UUID.fromString(token.getName());
-        schoolSubscriptionService.create(user, request);
-        return ResponseEntity.ok().build();
+        SchoolSubscriptionCheckoutResponse checkout =
+                schoolSubscriptionService.create(user, request);
+        return ResponseEntity.ok(checkout);
     }
 
-    @PutMapping("/active/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
-    public ResponseEntity<Void> activeSubscription(
-            @PathVariable("id") UUID subscriptionId,
-            JwtAuthenticationToken token
-    ) {
-
-        //TODO: Teste
-
-        UUID userId = UUID.fromString(token.getName());
-        schoolSubscriptionService.ActiveById(userId, subscriptionId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}")
+    @PutMapping("/cancel/{id}")
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")
     public ResponseEntity<Void> cancelSubscription(
             @PathVariable("id") UUID subscriptionId,
             JwtAuthenticationToken token
     ) {
-
-        //TODO: Teste
-
         UUID userId = UUID.fromString(token.getName());
         schoolSubscriptionService.cancelById(userId, subscriptionId);
         return ResponseEntity.ok().build();

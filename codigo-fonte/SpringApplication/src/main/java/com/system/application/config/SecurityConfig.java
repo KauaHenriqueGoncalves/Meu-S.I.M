@@ -64,7 +64,10 @@ public class SecurityConfig {
                         "/auth/refresh",
                         "/auth/logout",
                         "/auth/login/admin",
-                        "/auth/verify"
+                        "/auth/verify",
+                        "/auth/payment/success", // TESTE
+                        "/auth/payment/pending", // TESTE
+                        "/auth/payment/failure"  // TESTE
                 )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -101,7 +104,8 @@ public class SecurityConfig {
         http
                 .securityMatcher(
                         "/auth/**",
-                        "/users/school-admin"
+                        "/users/school-admin",
+                        "/api/v1/webhooks/mercado-pago"
                 )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -114,10 +118,14 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/auth/refresh",
                                 "/auth/logout",
-                                "/auth/login/admin"
+                                "/auth/login/admin",
+                                "/api/v1/webhooks/mercado-pago"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/auth/verify"
+                                "/auth/verify",
+                                "/auth/payment/success",  // TESTE
+                                "/auth/payment/pending",  // TESTE
+                                "/auth/payment/failure"   // TESTE
                         ).permitAll()
                         .anyRequest().denyAll()
                 )

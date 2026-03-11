@@ -29,6 +29,8 @@ public record SchoolSubscriptionDetailResponse(
         BigDecimal originalAmount,
         BigDecimal amount,
         PaymentMethod paymentMethod,
+        Integer installments,
+        String paymentType,
         Instant paidAt,
         PaymentStatus paymentStatus,
         String providerPaymentId
@@ -57,11 +59,11 @@ public record SchoolSubscriptionDetailResponse(
                 payment.getOriginalAmount(),
                 payment.getAmount(),
                 payment.getPaymentMethod(),
+                payment.getInstallments(),
+                payment.getPaymentType(),
                 payment.getPaidAt(),
                 payment.getStatus(),
                 payment.getProviderPaymentId()
         );
     }
-
-
 }

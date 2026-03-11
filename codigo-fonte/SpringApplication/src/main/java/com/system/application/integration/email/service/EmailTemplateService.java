@@ -1,4 +1,4 @@
-package com.system.application.email.service;
+package com.system.application.integration.email.service;
 
 import java.util.Map;
 

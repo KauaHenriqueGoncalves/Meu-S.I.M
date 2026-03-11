@@ -1,7 +1,6 @@
 package com.system.application.config;
 
 import com.system.application.core.billingdiscount.dto.BillingDiscountRequest;
-import com.system.application.core.billingdiscount.repository.BillingDiscountRepository;
 import com.system.application.core.billingdiscount.service.BillingDiscountService;
 import com.system.application.core.legalguardian.LegalGuardian;
 import com.system.application.core.legalguardian.repository.LegalGuardianRepository;
@@ -15,7 +14,7 @@ import com.system.application.core.student.repository.StudentRepository;
 import com.system.application.core.systemadmin.service.SystemAdminService;
 import com.system.application.core.user.User;
 import com.system.application.core.user.repository.UserRepository;
-import com.system.application.email.service.EmailSendServiceImpl;
+import com.system.application.integration.email.service.EmailSendServiceImpl;
 import com.system.application.auth.verification.service.EmailVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

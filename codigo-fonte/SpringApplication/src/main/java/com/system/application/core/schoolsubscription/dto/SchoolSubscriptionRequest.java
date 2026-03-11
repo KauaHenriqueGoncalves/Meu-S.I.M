@@ -20,5 +20,4 @@ public record SchoolSubscriptionRequest(
 
     @Serial
     private static final long serialVersionUID = 1L;
-
 }
