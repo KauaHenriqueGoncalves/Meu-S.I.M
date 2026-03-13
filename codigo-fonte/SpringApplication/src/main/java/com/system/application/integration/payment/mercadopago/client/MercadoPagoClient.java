@@ -10,6 +10,7 @@ import com.mercadopago.resources.preference.Preference;
 import com.system.application.integration.payment.gateway.dto.CheckoutRequest;
 import com.system.application.integration.payment.gateway.dto.CheckoutResponse;
 import com.system.application.integration.payment.mercadopago.dto.MercadoPagoPaymentResult;
+import com.system.application.shared.exception.PaymentGatewayException;
 import jakarta.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -34,13 +35,18 @@ public class MercadoPagoClient {
     @PostConstruct
     public void init() {
         MercadoPagoConfig.setAccessToken(accessToken);
-        log.info("MercadoPagoClient init");
+        log.info("MercadoPagoClient inicializado com sucesso.");
     }
 
     public CheckoutResponse createPreference(CheckoutRequest request) {
-        try {
-            String subscriptionId = request.referenceId().toString();
+        String subscriptionId = request.referenceId().toString();
 
+        log.info("Criando preferencia no MercadoPago. [referenceId={}] [pagador={}] [valor={}]",
+                request.referenceId(),
+                request.payer() != null ? request.payer().email() : "não informado",
+                request.amount());
+
+        try {
             PreferenceClient preferenceClient = new PreferenceClient();
 
             PreferenceItemRequest item = PreferenceItemRequest.builder()
@@ -57,9 +63,9 @@ public class MercadoPagoClient {
                     .build();
 
             PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                    .success("https://overderisive-klara-punctually.ngrok-free.dev/auth/payment/success")
-                    .pending("https://overderisive-klara-punctually.ngrok-free.dev/auth/payment/pending")
-                    .failure("https://overderisive-klara-punctually.ngrok-free.dev/auth/payment/failure")
+                    .success("https://overderisive-klara-punctually.ngrok-free.dev/api/v1/auth/payment/success")
+                    .pending("https://overderisive-klara-punctually.ngrok-free.dev/api/v1/auth/payment/pending")
+                    .failure("https://overderisive-klara-punctually.ngrok-free.dev/api/v1/auth/payment/failure")
                     .build();
 
             PreferencePaymentMethodsRequest paymentMethods = PreferencePaymentMethodsRequest.builder()
@@ -88,36 +94,78 @@ public class MercadoPagoClient {
 
             Preference preference = preferenceClient.create(preferenceRequest);
 
-            return new CheckoutResponse(preference.getId(), preference.getInitPoint());
+            log.info("Preferencia criada com sucesso no MercadoPago. [referenceId={}] [preferenceId={}]",
+                    request.referenceId(), preference.getId());
 
+            return new CheckoutResponse(preference.getId(), preference.getInitPoint());
         }
         catch (MPApiException e) {
-            System.out.println("Status: " + e.getStatusCode());
-            System.out.println("Response: " + e.getApiResponse().getContent());
+            log.error("Erro na API do MercadoPago ao criar preferência. [referenceId={}] [httpStatus={}] [resposta={}]",
+                    request.referenceId(), e.getStatusCode(), e.getApiResponse().getContent(), e);
+
+            throw new PaymentGatewayException(
+                    "Erro retornado pela API do MercadoPago ao criar preferência. [referenceId=" + request.referenceId() + "]");
         }
         catch (MPException e) {
-            System.out.println("Erro de criar: "  + e.getMessage());
+            log.error("Erro interno do SDK do MercadoPago ao criar preferência. [referenceId={}] [motivo={}]",
+                    request.referenceId(), e.getMessage(), e);
+
+            throw new PaymentGatewayException(
+                    "Falha no SDK do MercadoPago ao criar preferencia. [referenceId=" + request.referenceId() + "]");
         }
-        catch (RuntimeException e) {
-            System.out.println("Erro: "  + e.getMessage());
-        }
-        return null;
     }
 
-    public MercadoPagoPaymentResult getPaymentStatus(long id) {
-        PaymentClient paymentClient = new PaymentClient();
+    public MercadoPagoPaymentResult getPaymentStatus(long paymentId) {
+        log.info("Consultando status do pagamento no MercadoPago. [paymentId={}]", paymentId);
 
         try {
-            Payment paymentMercadoPago = paymentClient.get(id);
+            PaymentClient paymentClient = new PaymentClient();
+            Payment paymentMercadoPago = paymentClient.get(paymentId);
 
             if (paymentMercadoPago == null) {
-                throw new MPException("Payment not found");
+                log.warn("Pagamento não encontrado no MercadoPago. [paymentId={}]", paymentId);
+
+                throw new PaymentGatewayException(
+                        "Pagamento não encontrado no MercadoPago. [paymentId=" + paymentId + "]");
             }
 
             return getPaymentResponse(paymentMercadoPago);
         }
-        catch (MPException | MPApiException ex) {
-            throw new RuntimeException(ex);
+        catch (MPApiException e) {
+            log.error("Erro na API do MercadoPago ao consultar pagamento. [paymentId={}] [httpStatus={}] [resposta={}]",
+                    paymentId, e.getStatusCode(), e.getApiResponse().getContent(), e);
+
+            throw new PaymentGatewayException(
+                    "Erro retornado pela API do MercadoPago ao consultar pagamento. [paymentId=" + paymentId + "]");
+        }
+        catch (MPException e) {
+            log.error("Erro interno do SDK do MercadoPago ao consultar pagamento. [paymentId={}] [motivo={}]",
+                    paymentId, e.getMessage(), e);
+
+            throw new PaymentGatewayException(
+                    "Falha no SDK do MercadoPago ao consultar pagamento. [paymentId=" + paymentId + "]");
+        }
+    }
+
+    public void expirePreference(String preferenceId) {
+        log.info("Expirando preferencia no MercadoPago. [preferenceId={}]", preferenceId);
+
+        try {
+            PreferenceClient preferenceClient = new PreferenceClient();
+            preferenceClient.update(
+                    preferenceId,
+                    PreferenceRequest.builder()
+                            .expires(true)
+                            .expirationDateTo(OffsetDateTime.now())
+                            .build()
+            );
+
+            log.info("Preferência expirada com sucesso. [preferenceId={}]", preferenceId);
+        }
+        catch (MPException | MPApiException e) {
+            // Loga mas não lança, o pagamento já foi confirmado
+            // A expiração é uma proteção extra, não crítica
+            log.warn("Failed to expire preference {}: {}", preferenceId, e.getMessage());
         }
     }
 

@@ -1,0 +1,55 @@
+package com.system.application.modules.identity.schooladmin.service;
+
+import com.system.application.modules.identity.role.Role;
+import com.system.application.modules.school.School;
+import com.system.application.modules.school.dto.SchoolRequest;
+import com.system.application.modules.school.service.SchoolService;
+import com.system.application.modules.identity.schooladmin.SchoolAdmin;
+import com.system.application.modules.identity.schooladmin.repository.SchoolAdminRepository;
+import com.system.application.modules.identity.user.User;
+import com.system.application.modules.identity.user.dto.UserRequest;
+import com.system.application.modules.identity.user.service.UserService;
+import jakarta.transaction.Transactional;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+@Service
+public class SchoolAdminServiceImpl implements SchoolAdminService {
+    private final SchoolAdminRepository schoolAdminRepository;
+    private final UserService userService;
+    private final SchoolService schoolService;
+
+    public SchoolAdminServiceImpl(
+            SchoolAdminRepository schoolAdminRepository,
+            UserService userService,
+            SchoolService schoolService
+    ) {
+        this.schoolAdminRepository = schoolAdminRepository;
+        this.userService = userService;
+        this.schoolService = schoolService;
+    }
+
+    @Override
+    public SchoolAdmin findById(UUID id) {
+        return schoolAdminRepository.findById(id)
+                .orElseThrow(() -> new BadCredentialsException("Bad credentials"));
+    }
+
+    @Override
+    public SchoolAdmin findByUserId(UUID userId) {
+        return schoolAdminRepository.findByUserId(userId)
+                .orElseThrow(() -> new BadCredentialsException("Bad credentials"));
+    }
+
+    @Override
+    @Transactional
+    public SchoolAdmin save(UserRequest userRequest, SchoolRequest schoolRequest) {
+        User user = userService.registerUserWithRole(userRequest, Role.Values.SCHOOL_ADMIN);
+        School school = schoolService.save(schoolRequest);
+        SchoolAdmin schoolAdmin = new SchoolAdmin(null, user, school);
+        schoolAdmin = schoolAdminRepository.save(schoolAdmin);
+        return schoolAdmin;
+    }
+}

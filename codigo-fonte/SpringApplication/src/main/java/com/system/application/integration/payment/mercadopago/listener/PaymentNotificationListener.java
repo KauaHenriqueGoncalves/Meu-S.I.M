@@ -21,11 +21,12 @@ public class PaymentNotificationListener {
         this.service = service;
     }
 
-    @Async
     @EventListener
+    @Async("taskExecutor")
     public void handle(PaymentNotificationEvent event) {
         try {
             service.processPayment(event.resourceId(), event.resourceType());
+
             log.info("PaymentNotificationEvent processed successfully: dataId={}", event.resourceId());
         } catch (Exception ex) {
             log.error("Failed to process PaymentNotificationEvent: dataId={}, error={}",

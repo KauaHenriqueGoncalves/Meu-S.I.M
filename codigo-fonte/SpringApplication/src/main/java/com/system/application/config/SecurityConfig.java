@@ -36,6 +36,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
     @Value("${jwt.public.key}")
     private Resource publicKeyResource;
 
@@ -59,7 +60,7 @@ public class SecurityConfig {
         http
                 .securityMatcher(
                         "/console-h2/**",
-                        "/users/school-admin",
+                        "/school-admins",
                         "/auth/login",
                         "/auth/refresh",
                         "/auth/logout",
@@ -104,8 +105,8 @@ public class SecurityConfig {
         http
                 .securityMatcher(
                         "/auth/**",
-                        "/users/school-admin",
-                        "/api/v1/webhooks/mercado-pago"
+                        "/school-admins",
+                        "/webhooks/mercado-pago"
                 )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -114,12 +115,12 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,
-                                "/users/school-admin",
+                                "/school-admins",
                                 "/auth/login",
                                 "/auth/refresh",
                                 "/auth/logout",
                                 "/auth/login/admin",
-                                "/api/v1/webhooks/mercado-pago"
+                                "/webhooks/mercado-pago"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/auth/verify",

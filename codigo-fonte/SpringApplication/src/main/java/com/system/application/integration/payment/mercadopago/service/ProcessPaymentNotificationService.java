@@ -1,9 +1,10 @@
 package com.system.application.integration.payment.mercadopago.service;
 
-import com.system.application.core.schoolsubscription.dto.PaymentResult;
-import com.system.application.core.schoolsubscription.service.SchoolSubscriptionService;
+import com.system.application.modules.licensing.schoolsubscription.dto.PaymentResult;
+import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.integration.payment.mercadopago.client.MercadoPagoClient;
 import com.system.application.integration.payment.mercadopago.dto.MercadoPagoPaymentResult;
+import com.system.application.shared.exception.PaymentGatewayException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,6 @@ public class ProcessPaymentNotificationService {
     private final MercadoPagoClient mercadoPagoClient;
     private final SchoolSubscriptionService schoolSubscriptionService;
 
-    private static final Set<String> ACCEPTED_TYPES = Set.of(
-            "payment.created",
-            "payment.updated"
-    );
-
     public ProcessPaymentNotificationService(
             MercadoPagoClient mercadoPagoClient,
             SchoolSubscriptionService schoolSubscriptionService
@@ -32,25 +28,44 @@ public class ProcessPaymentNotificationService {
         this.schoolSubscriptionService = schoolSubscriptionService;
     }
 
+    private static final Set<String> ACCEPTED_TYPES =
+            Set.of("payment.created", "payment.updated");
+
     public void processPayment(Long id, String type) {
         if (!ACCEPTED_TYPES.contains(type)) {
-            log.debug("Notification type '{}' ignored", type);
+            log.debug("Notificacao do tipo '{}' ignorada. [paymentId={}]", type, id);
             return;
         }
+
+        log.info("Processando notificacao de pagamento. [paymentId={}] [tipo={}]", id, type);
 
         MercadoPagoPaymentResult payment = mercadoPagoClient.getPaymentStatus(id);
 
-        log.info("Payment received: id={}, status={}, externalReference={}",
-                payment.id(), payment.status(), payment.externalReference());
+        log.info("Status do pagamento obtido. [paymentId={}] [status={}] [detalhe={}] [referenceId={}]",
+                payment.id(), payment.status(), payment.statusDetail(), payment.externalReference());
 
         if (!"approved".equals(payment.status())) {
-            log.info("Payment {} not approved, status={}. Ignoring.", payment.id(), payment.status());
+            log.info("Pagamento não aprovado, nenhuma acao realizada. [paymentId={}] [status={}] [detalhe={}]",
+                    payment.id(), payment.status(), payment.statusDetail());
             return;
         }
 
-        UUID subscriptionId = UUID.fromString(payment.externalReference());
+        UUID subscriptionId;
 
-        schoolSubscriptionService.activeById(
+        try {
+            subscriptionId = UUID.fromString(payment.externalReference());
+        }
+        catch (IllegalArgumentException e) {
+            log.error("Referência externa inválida, não é um UUID. [paymentId={}] [externalReference={}]",
+                    payment.id(), payment.externalReference(), e);
+
+            throw new PaymentGatewayException(
+                    "Referência externa inválida recebida do MercadoPago. [paymentId=" + payment.id() + "]");
+        }
+
+        log.info("Ativando assinatura. [subscriptionId={}] [paymentId={}]", subscriptionId, payment.id());
+
+        String preferenceId = schoolSubscriptionService.activeById(
                 subscriptionId,
                 new PaymentResult(
                         payment.paymentMethod(),
@@ -61,6 +76,8 @@ public class ProcessPaymentNotificationService {
                 )
         );
 
-        log.info("Subscription {} activated successfully for payment {}", subscriptionId, payment.id());
+        log.info("Assinatura ativada com sucesso. [subscriptionId={}] [paymentId={}]", subscriptionId, payment.id());
+
+        mercadoPagoClient.expirePreference(preferenceId);
     }
 }

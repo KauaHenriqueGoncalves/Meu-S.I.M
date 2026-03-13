@@ -1,8 +1,8 @@
 package com.system.application.integration.email.listener;
 
-import com.system.application.core.user.User;
-import com.system.application.core.user.event.UserRegisteredEvent;
-import com.system.application.core.user.service.UserService;
+import com.system.application.modules.identity.user.User;
+import com.system.application.modules.identity.user.event.UserRegisteredEvent;
+import com.system.application.modules.identity.user.service.UserService;
 import com.system.application.integration.email.service.EmailSendService;
 import com.system.application.auth.verification.service.EmailVerificationService;
 import org.springframework.context.event.EventListener;
@@ -28,7 +28,7 @@ public class UserListener {
     public void handleUserRegistered(UserRegisteredEvent event) {
         User user = userService.findById(event.userId());
         String token = emailVerificationService.createOrRefreshToken(user.getId());
-        String link = "http://localhost:8080/auth/verify?token=" + token;
+        String link = "http://localhost:8080/api/v1/auth/verify?token=" + token;
         emailSendService.sendConfirmAccountEmail(user.getEmail(), user.getUsername(), link);
     }
 }

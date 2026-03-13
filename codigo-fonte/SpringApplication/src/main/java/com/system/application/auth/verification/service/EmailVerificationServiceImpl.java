@@ -1,6 +1,6 @@
 package com.system.application.auth.verification.service;
 
-import com.system.application.core.user.service.UserService;
+import com.system.application.modules.identity.user.service.UserService;
 import com.system.application.auth.verification.EmailVerificationToken;
 import com.system.application.auth.verification.repository.EmailVerificationRepository;
 import com.system.application.shared.exception.AccessDeniedException;

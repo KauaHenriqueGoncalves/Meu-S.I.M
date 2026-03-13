@@ -3,11 +3,11 @@ package com.system.application.auth.service;
 import com.system.application.auth.dto.AdminLoginRequest;
 import com.system.application.auth.dto.LoginRequest;
 import com.system.application.auth.dto.LoginResponse;
-import com.system.application.core.role.Role;
-import com.system.application.core.systemadmin.SystemAdmin;
-import com.system.application.core.systemadmin.service.SystemAdminService;
-import com.system.application.core.user.User;
-import com.system.application.core.user.service.UserService;
+import com.system.application.modules.identity.role.Role;
+import com.system.application.modules.identity.systemadmin.SystemAdmin;
+import com.system.application.modules.identity.systemadmin.service.SystemAdminService;
+import com.system.application.modules.identity.user.User;
+import com.system.application.modules.identity.user.service.UserService;
 import com.system.application.shared.exception.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +35,9 @@ public final class LoginServiceImpl implements LoginService {
         if (!user.getActive()) {
             throw new AccessDeniedException("A conta não está ativa!");
         }
+
+        // TODO: verificar se a escola tem uma licenca ativa para collaborator e
+
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new BadCredentialsException("Credenciais incorretas");
         }

@@ -22,6 +22,7 @@ public record LoginRequest(
         @NotNull
         @Size(min = 8, max = 20)
         String password
+
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
