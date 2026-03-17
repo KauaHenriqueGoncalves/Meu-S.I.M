@@ -13,4 +13,5 @@ import java.util.UUID;
 public interface StudentRepository extends JpaRepository<Student, UUID> {
     Page<Student> findAllBySchoolId(UUID schoolId, Pageable pageable);
     List<Student> findAllByLegalGuardianId(UUID legalGuardianId);
+    long countBySchoolId(UUID schoolId);
 }

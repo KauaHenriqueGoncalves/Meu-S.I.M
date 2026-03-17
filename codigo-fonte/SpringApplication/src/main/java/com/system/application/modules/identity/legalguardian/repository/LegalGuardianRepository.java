@@ -14,6 +14,7 @@ import java.util.UUID;
 @Repository
 public interface LegalGuardianRepository extends JpaRepository<LegalGuardian, UUID> {
     boolean existsByIdAndSchoolId(UUID legalGuardianId, UUID schoolId);
+    long countBySchoolId(UUID schoolId);
 
     @Query("""
     SELECT

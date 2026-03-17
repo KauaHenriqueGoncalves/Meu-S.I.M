@@ -175,6 +175,23 @@ public final class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(SubscriptionException.class)
+    public ResponseEntity<StandardError> handlerSubscriptionException(
+            SubscriptionException ex,
+            HttpServletRequest request
+    ) {
+        String message = "Subscription Exeception";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError error = new StandardError(
+                Instant.now(),
+                status.value(),
+                message,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(PaymentGatewayException.class)
     public ResponseEntity<StandardError> handlerPaymentGatewayException(
             PaymentGatewayException e,

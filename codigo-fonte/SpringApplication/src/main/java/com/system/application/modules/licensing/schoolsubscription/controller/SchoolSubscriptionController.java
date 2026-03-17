@@ -1,9 +1,6 @@
 package com.system.application.modules.licensing.schoolsubscription.controller;
 
-import com.system.application.modules.licensing.schoolsubscription.dto.SchoolSubscriptionCheckoutResponse;
-import com.system.application.modules.licensing.schoolsubscription.dto.SchoolSubscriptionDetailResponse;
-import com.system.application.modules.licensing.schoolsubscription.dto.SchoolSubscriptionRequest;
-import com.system.application.modules.licensing.schoolsubscription.dto.SchoolSubscriptionResponse;
+import com.system.application.modules.licensing.schoolsubscription.dto.*;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.shared.dto.PageResponse;
 import jakarta.validation.Valid;
@@ -48,6 +45,17 @@ public class SchoolSubscriptionController {
         SchoolSubscriptionDetailResponse response =
                 schoolSubscriptionService.findDetailById(userId, subscriptionId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/active")
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<SubscriptionInfoResponse> findActiveSubscription(
+            JwtAuthenticationToken token
+    ) {
+        UUID userId = UUID.fromString(token.getName());
+        SubscriptionInfoResponse subscription =
+                schoolSubscriptionService.findActiveSubscription(userId);
+        return ResponseEntity.ok(subscription);
     }
 
     @PostMapping

@@ -13,6 +13,8 @@ import java.util.UUID;
 
 @Repository
 public interface CollaboratorRepository extends JpaRepository<Collaborator, UUID> {
+    long countBySchoolId(UUID schoolId);
+
     @Query("""
     SELECT
         c.id AS id,

@@ -3,6 +3,8 @@ package com.system.application.modules.academic.student.service;
 import com.system.application.modules.identity.legalguardian.LegalGuardian;
 import com.system.application.modules.identity.legalguardian.dto.LegalGuardianResponse;
 import com.system.application.modules.identity.legalguardian.service.LegalGuardianService;
+import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
+import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.service.SchoolService;
 import com.system.application.modules.academic.student.Student;
@@ -13,7 +15,9 @@ import com.system.application.modules.academic.student.dto.UpdateStudentRequest;
 import com.system.application.modules.academic.student.repository.StudentRepository;
 import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
+import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.shared.exception.SubscriptionException;
 import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,15 +33,18 @@ import java.util.UUID;
 @Service
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
+    private final SchoolSubscriptionService schoolSubscriptionService;
     private final SchoolService schoolService;
     private final LegalGuardianService legalGuardianService;
 
     public StudentServiceImpl(
             StudentRepository studentRepository,
+            SchoolSubscriptionService schoolSubscriptionService,
             SchoolService schoolService,
             LegalGuardianService legalGuardianService
     ) {
         this.studentRepository = studentRepository;
+        this.schoolSubscriptionService = schoolSubscriptionService;
         this.schoolService = schoolService;
         this.legalGuardianService = legalGuardianService;
     }
@@ -59,13 +66,14 @@ public class StudentServiceImpl implements StudentService {
         ensureLegalGuardianBelongsToUserSchool(school.getId(), legalGuardian);
         return studentRepository.findAllByLegalGuardianId(legalGuardian.getId())
                 .stream()
-                .map(s -> {
-                    return new StudentResponse(
+                .map(s ->
+                        new StudentResponse(
                             s.getId(),
                             s.getName(),
                             s.getDateOfBirth(),
-                            s.getGrade());
-                })
+                            s.getGrade()
+                        )
+                )
                 .toList();
     }
 
@@ -78,18 +86,17 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentDetailResponse findResponseDetailById(UUID studentId) {
         return studentRepository.findById(studentId)
-                .map(s -> {
-                    return new StudentDetailResponse(
-                            s.getId(),
-                            s.getName(),
-                            s.getDateOfBirth(),
-                            s.getGrade(),
-                            new LegalGuardianResponse(
-                                    s.getLegalGuardian().getId(),
-                                    s.getLegalGuardian().getUser().getUsername(),
-                                    s.getLegalGuardian().getDegreeOfKinship()
-                            ));
-                })
+                .map(s -> new StudentDetailResponse(
+                        s.getId(),
+                        s.getName(),
+                        s.getDateOfBirth(),
+                        s.getGrade(),
+                        new LegalGuardianResponse(
+                                s.getLegalGuardian().getId(),
+                                s.getLegalGuardian().getUser().getUsername(),
+                                s.getLegalGuardian().getDegreeOfKinship()
+                        ))
+                )
                 .orElseThrow(() -> new NotFoundObjectException("Não encontrou estudante"));
     }
 
@@ -98,6 +105,7 @@ public class StudentServiceImpl implements StudentService {
     @CacheEvict(value = "page_students", allEntries = true)
     public Student save(UUID userId, StudentRequest request) {
         School school = schoolService.findByUserId(userId);
+        ensureSubscriptionSupportsStudentCount(school.getId());
         LegalGuardian legalGuardian = legalGuardianService.findById(request.legalGuardianId());
         ensureLegalGuardianBelongsToUserSchool(school.getId(), legalGuardian);
         Student student = new Student(
@@ -108,8 +116,7 @@ public class StudentServiceImpl implements StudentService {
                 request.grade(),
                 legalGuardian
         );
-        student = studentRepository.save(student);
-        return student;
+        return studentRepository.save(student);
     }
 
     @Override
@@ -117,16 +124,15 @@ public class StudentServiceImpl implements StudentService {
     @CacheEvict(value = "page_students", allEntries = true)
     public void update(UUID userId, UUID studentId, UpdateStudentRequest updateRequest) {
         School school = schoolService.findByUserId(userId);
+        ensureSchoolHasActiveSubscription(school.getId());
         LegalGuardian legalGuardian = legalGuardianService.findById(updateRequest.legalGuardianId());
         ensureLegalGuardianBelongsToUserSchool(school.getId(), legalGuardian);
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou estudante"));
+        Student student = findById(studentId);
         ensureStudentBelongsToUserSchool(school.getId(), student);
         student.setName(updateRequest.name());
         student.setDateOfBirth(updateRequest.dateOfBirth());
         student.setGrade(updateRequest.grade());
         student.setLegalGuardian(legalGuardian);
-        studentRepository.save(student);
     }
 
     @Override
@@ -134,8 +140,8 @@ public class StudentServiceImpl implements StudentService {
     @CacheEvict(value = "page_students", allEntries = true)
     public void deleteById(UUID userId, UUID studentId) {
         School school = schoolService.findByUserId(userId);
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou estudante"));
+        ensureSchoolHasActiveSubscription(school.getId());
+        Student student = findById(studentId);
         ensureStudentBelongsToUserSchool(school.getId(), student);
         studentRepository.deleteById(student.getId());
     }
@@ -149,6 +155,25 @@ public class StudentServiceImpl implements StudentService {
     private void ensureStudentBelongsToUserSchool(UUID schoolId, Student student) {
         if (!student.getSchool().getId().equals(schoolId)) {
             throw new AccessDeniedException("Não pode alterar o estudante de outra instituição");
+        }
+    }
+
+    private void ensureSubscriptionSupportsStudentCount(UUID schoolId) {
+        SchoolSubscription sub =
+                schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
+        long current = studentRepository.countBySchoolId(schoolId);
+        System.out.println("total de estudante: " + current);
+        if (current >= sub.getMaxStudents()) {
+            throw new BusinessException("A licença não suporta o número de estudante");
+        }
+    }
+
+    private void ensureSchoolHasActiveSubscription(UUID schoolId) {
+        try {
+            schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
+        }
+        catch (SubscriptionException e) {
+            throw new SubscriptionException("A escola não possui licença ativa.");
         }
     }
 }

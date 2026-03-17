@@ -8,6 +8,7 @@ import com.system.application.modules.academic.classroom.dto.ClassroomDetailResp
 import com.system.application.modules.academic.classroom.dto.ClassroomResponse;
 import com.system.application.modules.academic.classroom.dto.ClassroomViewStudentResponse;
 import com.system.application.modules.academic.classroom.repository.ClassroomRepository;
+import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.service.SchoolService;
 import com.system.application.modules.academic.student.Student;
@@ -19,6 +20,7 @@ import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.shared.exception.SubscriptionException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 @Service
 public class ClassroomServiceImpl implements ClassroomService {
     private final ClassroomRepository classroomRepository;
+    private final SchoolSubscriptionService schoolSubscriptionService;
     private final SchoolService schoolService;
     private final ClassTypeService classTypeService;
     private final SubjectService subjectService;
@@ -41,12 +44,14 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     public ClassroomServiceImpl(
             ClassroomRepository classroomRepository,
+            SchoolSubscriptionService schoolSubscriptionService,
             SchoolService schoolService,
             ClassTypeService classTypeService,
             SubjectService subjectService,
             StudentService studentService
     ) {
         this.classroomRepository = classroomRepository;
+        this.schoolSubscriptionService = schoolSubscriptionService;
         this.schoolService = schoolService;
         this.classTypeService = classTypeService;
         this.subjectService = subjectService;
@@ -117,6 +122,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Transactional
     public Classroom save(UUID userId, ClassroomRequest request) {
         School school = schoolService.findByUserId(userId);
+        ensureSchoolHasActiveSubscription(school.getId());
         ClassType classType = classTypeService.findById(request.classTypeId());
         ensureIsIndividual(classType, request);
         Subject subject = subjectService.findById(request.subjectId());
@@ -131,6 +137,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Transactional
     public void update(UUID userId, UUID classroomId, ClassroomRequest request) {
         School school = schoolService.findByUserId(userId);
+        ensureSchoolHasActiveSubscription(school.getId());
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new NotFoundObjectException("Não encontrou a classe"));
         ensureClassroomBelongsToSchool(school.getId(), classroom);
@@ -149,6 +156,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Transactional
     public void addStudent(UUID userId, UUID classroomId, UUID studentId) {
         School school = schoolService.findByUserId(userId);
+        ensureSchoolHasActiveSubscription(school.getId());
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new NotFoundObjectException("Não encontrou a classe"));
         ensureClassroomBelongsToSchool(school.getId(), classroom);
@@ -163,6 +171,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Transactional
     public void removeStudent(UUID userId, UUID classroomId, UUID studentId) {
         School school = schoolService.findByUserId(userId);
+        ensureSchoolHasActiveSubscription(school.getId());
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new NotFoundObjectException("Não encontrou a classe"));
         ensureClassroomBelongsToSchool(school.getId(), classroom);
@@ -177,6 +186,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Transactional
     public void deleteById(UUID userId, UUID classroomId) {
         School school = schoolService.findByUserId(userId);
+        ensureSchoolHasActiveSubscription(school.getId());
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new NotFoundObjectException("Não encontrou a classe"));
         ensureClassroomBelongsToSchool(school.getId(), classroom);
@@ -227,6 +237,15 @@ public class ClassroomServiceImpl implements ClassroomService {
     private void ensureStudentBelongsToSchool(UUID schoolId, Student student) {
         if (!student.getSchool().getId().equals(schoolId)) {
             throw new AccessDeniedException("Não é possivel interagir com estudantes de outra escola");
+        }
+    }
+
+    private void ensureSchoolHasActiveSubscription(UUID schoolId) {
+        try {
+            schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
+        }
+        catch (SubscriptionException e) {
+            throw new SubscriptionException("A escola não possui licença ativa.");
         }
     }
 }

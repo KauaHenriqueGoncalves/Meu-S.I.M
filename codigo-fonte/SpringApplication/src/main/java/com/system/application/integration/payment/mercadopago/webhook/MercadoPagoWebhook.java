@@ -36,10 +36,10 @@ public class MercadoPagoWebhook {
             @RequestBody @Valid MercadoPagoNotification notification,
             HttpServletRequest request
     ) {
-        log.info("Webhook received: action={}, dataId={}", notification.action(), notification.data().id());
+        log.info("Webhook recebido: action={}, dataId={}", notification.action(), notification.data().id());
 
         if (!webhookValidator.isValid(request, notification.data().id())) {
-            log.warn("Invalid webhook signature: dataId={}", notification.data().id());
+            log.warn("Webhook assinatura invalida: dataId={}", notification.data().id());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 

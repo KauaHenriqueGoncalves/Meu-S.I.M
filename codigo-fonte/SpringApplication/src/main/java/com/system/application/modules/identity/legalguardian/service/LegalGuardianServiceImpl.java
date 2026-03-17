@@ -5,6 +5,8 @@ import com.system.application.modules.identity.legalguardian.dto.*;
 import com.system.application.modules.identity.legalguardian.repository.LegalGuardianRepository;
 import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.user.dto.PasswordRequest;
+import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
+import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.service.SchoolService;
 import com.system.application.modules.identity.user.User;
@@ -12,7 +14,9 @@ import com.system.application.modules.identity.user.dto.UserRequest;
 import com.system.application.modules.identity.user.service.UserService;
 import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
+import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.shared.exception.SubscriptionException;
 import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,17 +32,20 @@ import java.util.UUID;
 @Service
 public class LegalGuardianServiceImpl implements LegalGuardianService {
     private final LegalGuardianRepository legalGuardianRepository;
+    private final SchoolSubscriptionService schoolSubscriptionService;
     private final UserService userService;
     private final SchoolService schoolService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public LegalGuardianServiceImpl(
             LegalGuardianRepository legalGuardianRepository,
+            SchoolSubscriptionService schoolSubscriptionService,
             UserService userService,
             SchoolService schoolService,
             BCryptPasswordEncoder passwordEncoder
     ) {
         this.legalGuardianRepository = legalGuardianRepository;
+        this.schoolSubscriptionService = schoolSubscriptionService;
         this.userService = userService;
         this.schoolService = schoolService;
         this.passwordEncoder = passwordEncoder;
@@ -83,6 +90,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public LegalGuardian save(UUID userId, UserRequest userRequest, LegalGuardianRequest legalGuardianRequest) {
         School school = schoolService.findByUserId(userId);
+        ensureSubscriptionSupportsLegalGuardianCount(school.getId());
         User user = userService.registerUserWithRole(userRequest, Role.Values.LEGAL_GUARDIAN);
         LegalGuardian legalGuardian =
                 new LegalGuardian(null, user, school, legalGuardianRequest.degreeOfKinship());
@@ -95,8 +103,9 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public void update(UUID userId, UUID legalGuardianId, UpdateLegalGuardianRequest updateRequest) {
         ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
-        LegalGuardian legalGuardian = legalGuardianRepository.findById(legalGuardianId)
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou o responsável"));
+        LegalGuardian legalGuardian = findById(legalGuardianId);
+        UUID schoolId = legalGuardian.getSchool().getId();
+        ensureSchoolHasActiveSubscription(schoolId);
         legalGuardian.getUser().setUsername(updateRequest.username());
         legalGuardian.getUser().setEmail(updateRequest.email());
         legalGuardian.getUser().setPhoneNumber(updateRequest.phoneNumber());
@@ -120,6 +129,8 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     @Transactional
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public void deleteById(UUID userId, UUID legalGuardianId) {
+        School school = schoolService.findByUserId(userId);
+        ensureSchoolHasActiveSubscription(school.getId());
         ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
         legalGuardianRepository.deleteById(legalGuardianId);
     }
@@ -130,6 +141,24 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
                 legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, school.getId());
         if (!belongsToSchool) {
             throw new AccessDeniedException("Não pode alterar o responsável de outra instituição");
+        }
+    }
+
+    private void ensureSubscriptionSupportsLegalGuardianCount(UUID schoolId) {
+        SchoolSubscription sub =
+                schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
+        long current = legalGuardianRepository.countBySchoolId(schoolId);
+        if (current >= sub.getMaxLegalGuardian()) {
+            throw new BusinessException("A licença não suporta o número de reponsáveis");
+        }
+    }
+
+    private void ensureSchoolHasActiveSubscription(UUID schoolId) {
+        try {
+            schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
+        }
+        catch (SubscriptionException e) {
+            throw new SubscriptionException("A escola não possui licença ativa.");
         }
     }
 }

@@ -38,7 +38,8 @@ public final class Collaborator implements Serializable {
     @Column(name = "workload", length = 10)
     private String workload;
 
-    public Collaborator() {}
+    public Collaborator() {
+    }
 
     public Collaborator(
             UUID id,

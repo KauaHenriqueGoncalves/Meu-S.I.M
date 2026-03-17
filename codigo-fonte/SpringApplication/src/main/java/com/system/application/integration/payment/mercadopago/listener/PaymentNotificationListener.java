@@ -27,9 +27,9 @@ public class PaymentNotificationListener {
         try {
             service.processPayment(event.resourceId(), event.resourceType());
 
-            log.info("PaymentNotificationEvent processed successfully: dataId={}", event.resourceId());
+            log.info("PaymentNotificationEvent processado com sucesso: dataId={}", event.resourceId());
         } catch (Exception ex) {
-            log.error("Failed to process PaymentNotificationEvent: dataId={}, error={}",
+            log.error("Falha ao processar o PaymentNotificationEvent: dataId={}, error={}",
                     event.resourceId(), ex.getMessage(), ex);
         }
     }

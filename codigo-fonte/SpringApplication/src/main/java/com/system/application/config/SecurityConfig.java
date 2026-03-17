@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .securityMatcher(
                         "/console-h2/**",
                         "/school-admins",
+                        "/actuator",
                         "/auth/login",
                         "/auth/refresh",
                         "/auth/logout",

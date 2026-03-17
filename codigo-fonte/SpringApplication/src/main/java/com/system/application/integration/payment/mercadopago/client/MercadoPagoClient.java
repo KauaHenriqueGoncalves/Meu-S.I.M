@@ -100,14 +100,14 @@ public class MercadoPagoClient {
             return new CheckoutResponse(preference.getId(), preference.getInitPoint());
         }
         catch (MPApiException e) {
-            log.error("Erro na API do MercadoPago ao criar preferência. [referenceId={}] [httpStatus={}] [resposta={}]",
+            log.error("Erro na API do MercadoPago ao criar preferencia. [referenceId={}] [httpStatus={}] [resposta={}]",
                     request.referenceId(), e.getStatusCode(), e.getApiResponse().getContent(), e);
 
             throw new PaymentGatewayException(
-                    "Erro retornado pela API do MercadoPago ao criar preferência. [referenceId=" + request.referenceId() + "]");
+                    "Erro retornado pela API do MercadoPago ao criar preferencia. [referenceId=" + request.referenceId() + "]");
         }
         catch (MPException e) {
-            log.error("Erro interno do SDK do MercadoPago ao criar preferência. [referenceId={}] [motivo={}]",
+            log.error("Erro interno do SDK do MercadoPago ao criar preferencia. [referenceId={}] [motivo={}]",
                     request.referenceId(), e.getMessage(), e);
 
             throw new PaymentGatewayException(
@@ -123,10 +123,10 @@ public class MercadoPagoClient {
             Payment paymentMercadoPago = paymentClient.get(paymentId);
 
             if (paymentMercadoPago == null) {
-                log.warn("Pagamento não encontrado no MercadoPago. [paymentId={}]", paymentId);
+                log.warn("Pagamento nao encontrado no MercadoPago. [paymentId={}]", paymentId);
 
                 throw new PaymentGatewayException(
-                        "Pagamento não encontrado no MercadoPago. [paymentId=" + paymentId + "]");
+                        "Pagamento nao encontrado no MercadoPago. [paymentId=" + paymentId + "]");
             }
 
             return getPaymentResponse(paymentMercadoPago);
@@ -160,12 +160,12 @@ public class MercadoPagoClient {
                             .build()
             );
 
-            log.info("Preferência expirada com sucesso. [preferenceId={}]", preferenceId);
+            log.info("Preferencia expirada com sucesso. [preferenceId={}]", preferenceId);
         }
         catch (MPException | MPApiException e) {
             // Loga mas não lança, o pagamento já foi confirmado
             // A expiração é uma proteção extra, não crítica
-            log.warn("Failed to expire preference {}: {}", preferenceId, e.getMessage());
+            log.warn("Falha para expirar a Preferencia {}: {}", preferenceId, e.getMessage());
         }
     }
 

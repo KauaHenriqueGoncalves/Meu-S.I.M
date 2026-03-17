@@ -9,11 +9,13 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface SchoolSubscriptionRepository extends JpaRepository<SchoolSubscription, UUID> {
     Page<SchoolSubscription> findBySchoolId(UUID schoolId, Pageable pageable);
-    boolean existsBySchoolIdAndStatus(UUID schoolId, SubscriptionStatus status);
     List<SchoolSubscription> findAllByStatusAndEndDateBefore(SubscriptionStatus status, LocalDate date);
+    boolean existsBySchoolIdAndStatus(UUID schoolId, SubscriptionStatus status);
+    Optional<SchoolSubscription> findBySchoolIdAndStatus(UUID schoolId, SubscriptionStatus status);
 }

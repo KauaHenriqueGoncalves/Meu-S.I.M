@@ -5,6 +5,9 @@ import com.system.application.modules.identity.collaborator.dto.*;
 import com.system.application.modules.identity.collaborator.repository.CollaboratorRepository;
 import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.user.dto.PasswordRequest;
+import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
+import com.system.application.modules.licensing.schoolsubscription.dto.SubscriptionInfoResponse;
+import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.service.SchoolService;
 import com.system.application.modules.identity.user.User;
@@ -12,7 +15,9 @@ import com.system.application.modules.identity.user.dto.UserRequest;
 import com.system.application.modules.identity.user.service.UserService;
 import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
+import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.shared.exception.SubscriptionException;
 import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,17 +33,20 @@ import java.util.UUID;
 @Service
 public class CollaboratorServiceImpl implements CollaboratorService {
     private final CollaboratorRepository collaboratorRepository;
+    private final SchoolSubscriptionService schoolSubscriptionService;
     private final UserService userService;
     private final SchoolService schoolService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public CollaboratorServiceImpl(
             CollaboratorRepository collaboratorRepository,
+            SchoolSubscriptionService schoolSubscriptionService,
             UserService userService,
             SchoolService schoolService,
             BCryptPasswordEncoder passwordEncoder
     ) {
         this.collaboratorRepository = collaboratorRepository;
+        this.schoolSubscriptionService = schoolSubscriptionService;
         this.userService = userService;
         this.schoolService = schoolService;
         this.passwordEncoder = passwordEncoder;
@@ -87,6 +95,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @CacheEvict(value = "page_collaborators", allEntries = true)
     public Collaborator save(UUID userId, UserRequest userRequest, CollaboratorRequest collaboratorRequest) {
         School school = schoolService.findByUserId(userId);
+        ensureSubscriptionSupportsCollaboratorCount(school.getId());
         User user = userService.registerUserWithRole(userRequest, Role.Values.COLLABORATOR);
         Collaborator collaborator = new Collaborator(
                 null,
@@ -105,8 +114,8 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @CacheEvict(value = "page_collaborators", allEntries = true)
     public void update(UUID userId, UUID collaboratorId, UpdateCollaboratorRequest updateRequest) {
         School school = schoolService.findByUserId(userId);
-        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+        ensureSchoolHasActiveSubscription(school.getId());
+        Collaborator collaborator = findById(collaboratorId);
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
         collaborator.getUser().setUsername(updateRequest.username());
         collaborator.getUser().setEmail(updateRequest.email());
@@ -123,8 +132,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @Transactional
     public void updatePassword(UUID userId, UUID collaboratorId, PasswordRequest passwordRequest) {
         School school = schoolService.findByUserId(userId);
-        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+        Collaborator collaborator = findById(collaboratorId);
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
         collaborator.getUser().setPassword(passwordEncoder.encode(passwordRequest.newPassword()));
         collaboratorRepository.save(collaborator);
@@ -135,8 +143,8 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @CacheEvict(value = "page_collaborators", allEntries = true)
     public void deleteById(UUID userId, UUID collaboratorId) {
         School school = schoolService.findByUserId(userId);
-        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+        ensureSchoolHasActiveSubscription(school.getId());
+        Collaborator collaborator = findById(collaboratorId);
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
         collaboratorRepository.deleteById(collaboratorId);
     }
@@ -144,6 +152,24 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     private void ensureCollaboratorBelongsToSchool(UUID schoolId, Collaborator collaborator) {
         if (!collaborator.getSchool().getId().equals(schoolId)) {
             throw new AccessDeniedException("Não pode alterar o colaborador de outra instituição");
+        }
+    }
+
+    private void ensureSubscriptionSupportsCollaboratorCount(UUID schoolId) {
+        SchoolSubscription sub =
+                schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
+        long current = collaboratorRepository.countBySchoolId(schoolId);
+        if (current >= sub.getMaxCollaborators()) {
+            throw new BusinessException("A licença não suporta o número de colaboradores");
+        }
+    }
+
+    private void ensureSchoolHasActiveSubscription(UUID schoolId) {
+        try {
+            schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
+        }
+        catch (SubscriptionException e) {
+            throw new SubscriptionException("A escola não possui licença ativa.");
         }
     }
 }

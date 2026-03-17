@@ -45,7 +45,7 @@ public class ProcessPaymentNotificationService {
                 payment.id(), payment.status(), payment.statusDetail(), payment.externalReference());
 
         if (!"approved".equals(payment.status())) {
-            log.info("Pagamento não aprovado, nenhuma acao realizada. [paymentId={}] [status={}] [detalhe={}]",
+            log.info("Pagamento nao aprovado, nenhuma acao realizada. [paymentId={}] [status={}] [detalhe={}]",
                     payment.id(), payment.status(), payment.statusDetail());
             return;
         }
@@ -56,14 +56,15 @@ public class ProcessPaymentNotificationService {
             subscriptionId = UUID.fromString(payment.externalReference());
         }
         catch (IllegalArgumentException e) {
-            log.error("Referência externa inválida, não é um UUID. [paymentId={}] [externalReference={}]",
+            log.error("Referencia externa invalida, não é um UUID. [paymentId={}] [externalReference={}]",
                     payment.id(), payment.externalReference(), e);
 
             throw new PaymentGatewayException(
-                    "Referência externa inválida recebida do MercadoPago. [paymentId=" + payment.id() + "]");
+                    "Referencia externa invalida recebida do MercadoPago. [paymentId=" + payment.id() + "]");
         }
 
-        log.info("Ativando assinatura. [subscriptionId={}] [paymentId={}]", subscriptionId, payment.id());
+        log.info("Ativando assinatura. [subscriptionId={}] [paymentId={}]",
+                subscriptionId, payment.id());
 
         String preferenceId = schoolSubscriptionService.activeById(
                 subscriptionId,
@@ -76,7 +77,8 @@ public class ProcessPaymentNotificationService {
                 )
         );
 
-        log.info("Assinatura ativada com sucesso. [subscriptionId={}] [paymentId={}]", subscriptionId, payment.id());
+        log.info("Assinatura ativada com sucesso. [subscriptionId={}] [paymentId={}]",
+                subscriptionId, payment.id());
 
         mercadoPagoClient.expirePreference(preferenceId);
     }

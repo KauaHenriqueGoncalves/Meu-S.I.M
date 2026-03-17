@@ -9,7 +9,9 @@ import java.util.UUID;
 public interface SchoolSubscriptionService {
     PageResponse<SchoolSubscriptionResponse> findAllResponseBySchoolId(UUID userId, int page, int size);
     SchoolSubscription findById(UUID schoolSubscriptionId);
+    SchoolSubscription findActiveSubscriptionBySchoolId(UUID schoolId);
     SchoolSubscriptionDetailResponse findDetailById(UUID userId, UUID schoolSubscriptionId);
+    SubscriptionInfoResponse findActiveSubscription(UUID userId);
     SchoolSubscriptionCheckoutResponse create(UUID userId, SchoolSubscriptionRequest request);
     String activeById(UUID schoolSubscriptionId, PaymentResult paymentResult);
     void cancelById(UUID userId, UUID schoolSubscriptionId);

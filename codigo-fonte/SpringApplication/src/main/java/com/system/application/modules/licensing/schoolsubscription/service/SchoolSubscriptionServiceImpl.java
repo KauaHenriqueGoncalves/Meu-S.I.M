@@ -24,6 +24,7 @@ import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.shared.exception.SubscriptionException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,12 +93,36 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
     }
 
     @Override
+    public SchoolSubscription findActiveSubscriptionBySchoolId(UUID schoolId) {
+        return schoolSubscriptionRepository
+                .findBySchoolIdAndStatus(schoolId, SubscriptionStatus.ACTIVE)
+                .orElseThrow(() ->
+                        new SubscriptionException("A escola não possui uma licença ativa."));
+    }
+
+    @Override
     public SchoolSubscriptionDetailResponse findDetailById(UUID userId, UUID schoolSubscriptionId) {
         School school = schoolService.findByUserId(userId);
         SchoolSubscription subscription = findById(schoolSubscriptionId);
         ensureSubscriptionBelongsToSchool(school, subscription);
         SchoolPayment payment = schoolPaymentService.findBySchoolSubscriptionId(subscription.getId());
         return SchoolSubscriptionDetailResponse.from(subscription, payment);
+    }
+
+    @Override
+    public SubscriptionInfoResponse findActiveSubscription(UUID userId) {
+        School school = schoolService.findByUserId(userId);
+        return schoolSubscriptionRepository
+                .findBySchoolIdAndStatus(school.getId(), SubscriptionStatus.ACTIVE)
+                .map(s -> new SubscriptionInfoResponse(
+                        s.getPlanName(),
+                        s.getMaxStudents(),
+                        s.getMaxCollaborators(),
+                        s.getMaxLegalGuardian(),
+                        s.getMaxSchoolAdmin()
+                ))
+                .orElseThrow(() ->
+                        new SubscriptionException("A escola não possui uma licença ativa."));
     }
 
     @Override
@@ -167,7 +192,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         SchoolPayment payment = schoolPaymentService.findBySchoolSubscriptionId(subscription.getId());
 
         if (payment.getStatus().equals(PaymentStatus.PAID)) {
-            log.warn("Pagamento duplicado detectado: orderId={}, paymentId={}. Passível de reembolso.",
+            log.warn("Pagamento duplicado detectado. [orderId={}], [paymentId={}]. PASSIVEL DE REEMBOLSO.",
                     paymentResult.orderId(), payment.getId());
             return null;
         }
@@ -180,7 +205,8 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         payment.setStatus(PaymentStatus.PAID);
         payment.setPaidAt(paymentResult.paidAt().toInstant());
 
-        log.info("Subscription {} activated. Payment {} confirmed.", subscription.getId(), payment.getId());
+        log.info("Subscription ativado e Pagamento confirmado. [subscriptionId={}] [paymentId={}]",
+                subscription.getId(), payment.getId());
 
         return payment.getProviderPaymentId();
     }
