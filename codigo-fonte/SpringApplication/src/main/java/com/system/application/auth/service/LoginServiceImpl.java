@@ -36,7 +36,7 @@ public final class LoginServiceImpl implements LoginService {
             throw new AccessDeniedException("A conta não está ativa!");
         }
 
-        // TODO: verificar se a escola tem uma licenca ativa para collaborator e
+        // TODO: verificar se a escola tem uma licenca ativa para collaborator e responsavel
 
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new BadCredentialsException("Credenciais incorretas");
