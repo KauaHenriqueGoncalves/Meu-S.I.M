@@ -6,12 +6,17 @@ import com.system.application.modules.school.repository.SchoolRepository;
 import com.system.application.shared.exception.EntityAlreadyExistsException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class SchoolServiceImpl implements SchoolService {
+    private static final Logger log =
+            LoggerFactory.getLogger(SchoolServiceImpl.class);
+
     private final SchoolRepository schoolRepository;
 
     public SchoolServiceImpl(

@@ -9,12 +9,12 @@ import java.io.Serializable;
 import java.util.UUID;
 
 public record SchoolSubscriptionRequest(
-        @NotNull
+        @NotNull(message = "O plano escolar é obrigatório")
         UUID schoolPlanId,
 
-        @NotNull
-        @Min(1)
-        @Max(12)
+        @NotNull(message = "O número de meses é obrigatório")
+        @Min(value = 1, message = "O número de meses deve ser no mínimo 1")
+        @Max(value = 12, message = "O número de meses deve ser no máximo 12")
         Integer months
 ) implements Serializable {
 

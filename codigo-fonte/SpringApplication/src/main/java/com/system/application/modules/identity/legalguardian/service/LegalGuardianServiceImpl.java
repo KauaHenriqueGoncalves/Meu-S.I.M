@@ -18,6 +18,8 @@ import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -31,6 +33,9 @@ import java.util.UUID;
 
 @Service
 public class LegalGuardianServiceImpl implements LegalGuardianService {
+    private static final Logger log =
+            LoggerFactory.getLogger(LegalGuardianServiceImpl.class);
+
     private final LegalGuardianRepository legalGuardianRepository;
     private final SchoolSubscriptionService schoolSubscriptionService;
     private final UserService userService;
@@ -55,17 +60,28 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     @Cacheable(value = "page_legal_guardians", key = "#userId + ':' + #page + ':' + #size")
     public PageResponse<LegalGuardianResponse> findAllResponseBySchool(UUID userId, int page, int size) {
         School school = schoolService.findByUserId(userId);
+
+        log.info("Buscando responsáveis da escola. [schoolId={}] [page={}] [size={}]",
+                school.getId(), page, size);
+
         Pageable sortedPageable =
                 PageRequest.of(page, size, Sort.by("user.username").ascending());
         Page<LegalGuardianResponse> response = legalGuardianRepository.findAllBySchoolId(school.getId(), sortedPageable)
                 .map(l -> new LegalGuardianResponse(l.getId(), l.getUsername(), l.getDegreeOfKinship()));
+
+        log.info("Responsáveis encontrados. [schoolId={}] [total={}] [totalPages={}]",
+                school.getId(), response.getTotalElements(), response.getTotalPages());
+
         return PageResponse.from(response);
     }
 
     @Override
     public LegalGuardian findById(UUID legalGuardianId) {
         return legalGuardianRepository.findById(legalGuardianId)
-                .orElseThrow(() -> new NotFoundObjectException("Not found legal guardian"));
+                .orElseThrow(() -> {
+                    log.warn("Responsável não encontrado. [legalGuardianId={}]", legalGuardianId);
+                    return new NotFoundObjectException("Não encontrou o responsável");
+                });
     }
 
     @Override
@@ -82,7 +98,11 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
                             lg.getUser().getActive(),
                             lg.getDegreeOfKinship());
                 })
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou o responsável"));
+                .orElseThrow(() -> {
+                    log.warn("Responsável não encontrado ao buscar detalhes. [legalGuardianId={}]",
+                            legalGuardianId);
+                    return new NotFoundObjectException("Não encontrou o responsável");
+                });
     }
 
     @Override
@@ -90,11 +110,21 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public LegalGuardian save(UUID userId, UserRequest userRequest, LegalGuardianRequest legalGuardianRequest) {
         School school = schoolService.findByUserId(userId);
+
+        log.info("Iniciando cadastro de responsável. [requisitanteId={}] [schoolId={}] [email={}]",
+                userId, school.getId(), userRequest.email());
+
         ensureSubscriptionSupportsLegalGuardianCount(school.getId());
+
         User user = userService.registerUserWithRole(userRequest, Role.Values.LEGAL_GUARDIAN);
+
         LegalGuardian legalGuardian =
                 new LegalGuardian(null, user, school, legalGuardianRequest.degreeOfKinship());
         legalGuardian = legalGuardianRepository.save(legalGuardian);
+
+        log.info("Responsável cadastrado com sucesso. [legalGuardianId={}] [userId={}] [schoolId={}]",
+                legalGuardian.getId(), user.getId(), school.getId());
+
         return legalGuardian;
     }
 
@@ -102,10 +132,16 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
     @Transactional
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public void update(UUID userId, UUID legalGuardianId, UpdateLegalGuardianRequest updateRequest) {
+        log.info("Iniciando atualização de responsável. [requisitanteId={}] [legalGuardianId={}]",
+                userId, legalGuardianId);
+
         ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
+
         LegalGuardian legalGuardian = findById(legalGuardianId);
         UUID schoolId = legalGuardian.getSchool().getId();
+
         ensureSchoolHasActiveSubscription(schoolId);
+
         legalGuardian.getUser().setUsername(updateRequest.username());
         legalGuardian.getUser().setEmail(updateRequest.email());
         legalGuardian.getUser().setPhoneNumber(updateRequest.phoneNumber());
@@ -113,33 +149,53 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
         legalGuardian.getUser().setActive(updateRequest.isActive());
         legalGuardian.setDegreeOfKinship(updateRequest.degreeOfKinship());
         legalGuardianRepository.save(legalGuardian);
+
+        log.info("Responsável atualizado com sucesso. [legalGuardianId={}] [schoolId={}]",
+                legalGuardianId, schoolId);
     }
 
     @Override
     @Transactional
     public void updatePassword(UUID userId, UUID legalGuardianId, PasswordRequest updateRequest) {
+        log.info("Iniciando atualização de senha do responsável. [requisitanteId={}] [legalGuardianId={}]",
+                userId, legalGuardianId);
+
         ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
-        LegalGuardian legalGuardian = legalGuardianRepository.findById(legalGuardianId)
-                .orElseThrow(() -> new NotFoundObjectException("Not found Legal Guardian"));
+
+        LegalGuardian legalGuardian = findById(legalGuardianId);
+
         legalGuardian.getUser().setPassword(passwordEncoder.encode(updateRequest.newPassword()));
         legalGuardianRepository.save(legalGuardian);
+
+        log.info("Senha do responsável atualizada com sucesso. [legalGuardianId={}]", legalGuardianId);
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "page_legal_guardians", allEntries = true)
     public void deleteById(UUID userId, UUID legalGuardianId) {
+        log.info("Iniciando exclusão de responsável. [requisitanteId={}] [legalGuardianId={}]",
+                userId, legalGuardianId);
+
         School school = schoolService.findByUserId(userId);
+
         ensureSchoolHasActiveSubscription(school.getId());
         ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
+
         legalGuardianRepository.deleteById(legalGuardianId);
+
+        log.info("Responsável excluído com sucesso. [legalGuardianId={}] [schoolId={}]",
+                legalGuardianId, school.getId());
     }
 
     private void ensureLegalGuardianBelongsToUserSchool(UUID userId, UUID legalGuardianId) {
         School school = schoolService.findByUserId(userId);
         boolean belongsToSchool =
                 legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, school.getId());
+
         if (!belongsToSchool) {
+            log.warn("Tentativa de acesso a responsável de outra instituição. [requisitanteId={}] [legalGuardianId={}] [schoolId={}]",
+                    userId, legalGuardianId, school.getId());
             throw new AccessDeniedException("Não pode alterar o responsável de outra instituição");
         }
     }
@@ -149,6 +205,8 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
                 schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
         long current = legalGuardianRepository.countBySchoolId(schoolId);
         if (current >= sub.getMaxLegalGuardian()) {
+            log.warn("Limite de responsáveis atingido para a licença ativa. [schoolId={}] [atual={}] [limite={}]",
+                    schoolId, current, sub.getMaxLegalGuardian());
             throw new BusinessException("A licença não suporta o número de reponsáveis");
         }
     }
@@ -158,6 +216,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
             schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
         }
         catch (SubscriptionException e) {
+            log.warn("Operação bloqueada: escola sem licença ativa. [schoolId={}]", schoolId);
             throw new SubscriptionException("A escola não possui licença ativa.");
         }
     }

@@ -36,10 +36,12 @@ public class MercadoPagoWebhook {
             @RequestBody @Valid MercadoPagoNotification notification,
             HttpServletRequest request
     ) {
-        log.info("Webhook recebido: action={}, dataId={}", notification.action(), notification.data().id());
+        log.info("Webhook do MercadoPago recebido. [action={}] [dataId={}]",
+                notification.action(), notification.data().id());
 
         if (!webhookValidator.isValid(request, notification.data().id())) {
-            log.warn("Webhook assinatura invalida: dataId={}", notification.data().id());
+            log.warn("Webhook rejeitado: assinatura invalida. [dataId={}] [ip={}]",
+                    notification.data().id(), request.getRemoteAddr());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -49,6 +51,9 @@ public class MercadoPagoWebhook {
                         notification.action()
                 )
         );
+
+        log.info("Evento de notificacao de pagamento publicado com sucesso. [action={}] [dataId={}]",
+                notification.action(), notification.data().id());
 
         return ResponseEntity.ok().build();
     }

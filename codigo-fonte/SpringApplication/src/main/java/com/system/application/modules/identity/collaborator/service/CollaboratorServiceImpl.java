@@ -19,6 +19,8 @@ import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -32,6 +34,9 @@ import java.util.UUID;
 
 @Service
 public class CollaboratorServiceImpl implements CollaboratorService {
+    private static final Logger log =
+            LoggerFactory.getLogger(CollaboratorServiceImpl.class);
+
     private final CollaboratorRepository collaboratorRepository;
     private final SchoolSubscriptionService schoolSubscriptionService;
     private final UserService userService;
@@ -56,18 +61,29 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @Cacheable(value = "page_collaborators", key = "#userId + ':' + #page + ':' + #size")
     public PageResponse<CollaboratorResponse> findAllResponseBySchool(UUID userId, int page, int size) {
         School school = schoolService.findByUserId(userId);
+
+        log.info("Buscando colaboradores da escola. [schoolId={}] [page={}] [size={}]",
+                school.getId(), page, size);
+
         Pageable sortedPageable =
                 PageRequest.of(page, size, Sort.by("user.username").ascending());
         Page<CollaboratorResponse> response = collaboratorRepository.findAllBySchoolId(school.getId(), sortedPageable)
                 .map(c ->
                         new CollaboratorResponse(c.getId(), c.getUsername(), c.getSpecialty(), c.getWorkload()));
+
+        log.info("Colaboradores encontrados. [schoolId={}] [total={}] [totalPages={}]",
+                school.getId(), response.getTotalElements(), response.getTotalPages());
+
         return PageResponse.from(response);
     }
 
     @Override
     public Collaborator findById(UUID collaboratorId) {
         return collaboratorRepository.findById(collaboratorId)
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+                .orElseThrow(() -> {
+                    log.warn("Colaborador não encontrado. [collaboratorId={}]", collaboratorId);
+                    return new NotFoundObjectException("Não encontrou colaborador");
+                });
     }
 
     @Override
@@ -87,7 +103,10 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                             c.getWorkload()
                     );
                 })
-                .orElseThrow(() -> new NotFoundObjectException("Não encontrou colaborador"));
+                .orElseThrow(() -> {
+                    log.warn("Colaborador não encontrado ao buscar detalhes. [collaboratorId={}]", collaboratorId);
+                    return new NotFoundObjectException("Não encontrou colaborador");
+                });
     }
 
     @Override
@@ -95,8 +114,14 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @CacheEvict(value = "page_collaborators", allEntries = true)
     public Collaborator save(UUID userId, UserRequest userRequest, CollaboratorRequest collaboratorRequest) {
         School school = schoolService.findByUserId(userId);
+
+        log.info("Iniciando cadastro de colaborador. [requisitanteId={}] [schoolId={}] [email={}]",
+                userId, school.getId(), userRequest.email());
+
         ensureSubscriptionSupportsCollaboratorCount(school.getId());
+
         User user = userService.registerUserWithRole(userRequest, Role.Values.COLLABORATOR);
+
         Collaborator collaborator = new Collaborator(
                 null,
                 user,
@@ -106,6 +131,10 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                 collaboratorRequest.workload()
         );
         collaborator = collaboratorRepository.save(collaborator);
+
+        log.info("Colaborador cadastrado com sucesso. [collaboratorId={}] [userId={}] [schoolId={}]",
+                collaborator.getId(), user.getId(), school.getId());
+
         return collaborator;
     }
 
@@ -113,10 +142,15 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @Transactional
     @CacheEvict(value = "page_collaborators", allEntries = true)
     public void update(UUID userId, UUID collaboratorId, UpdateCollaboratorRequest updateRequest) {
+        log.info("Iniciando atualização de colaborador. [requisitanteId={}] [collaboratorId={}]",
+                userId, collaboratorId);
+
         School school = schoolService.findByUserId(userId);
         ensureSchoolHasActiveSubscription(school.getId());
+
         Collaborator collaborator = findById(collaboratorId);
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
+
         collaborator.getUser().setUsername(updateRequest.username());
         collaborator.getUser().setEmail(updateRequest.email());
         collaborator.getUser().setPhoneNumber(updateRequest.phoneNumber());
@@ -126,31 +160,51 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         collaborator.setSpecialty(updateRequest.specialty());
         collaborator.setWorkload(updateRequest.workload());
         collaboratorRepository.save(collaborator);
+
+        log.info("Colaborador atualizado com sucesso. [collaboratorId={}] [schoolId={}]",
+                collaboratorId, school.getId());
     }
 
     @Override
     @Transactional
     public void updatePassword(UUID userId, UUID collaboratorId, PasswordRequest passwordRequest) {
+        log.info("Iniciando atualização de senha do colaborador. [requisitanteId={}] [collaboratorId={}]",
+                userId, collaboratorId);
+
         School school = schoolService.findByUserId(userId);
         Collaborator collaborator = findById(collaboratorId);
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
+
         collaborator.getUser().setPassword(passwordEncoder.encode(passwordRequest.newPassword()));
         collaboratorRepository.save(collaborator);
+
+        log.info("Senha do colaborador atualizada com sucesso. [collaboratorId={}] [schoolId={}]",
+                collaboratorId, school.getId());
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "page_collaborators", allEntries = true)
     public void deleteById(UUID userId, UUID collaboratorId) {
+        log.info("Iniciando exclusão de colaborador. [requisitanteId={}] [collaboratorId={}]",
+                userId, collaboratorId);
+
         School school = schoolService.findByUserId(userId);
         ensureSchoolHasActiveSubscription(school.getId());
+
         Collaborator collaborator = findById(collaboratorId);
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
+
         collaboratorRepository.deleteById(collaboratorId);
+
+        log.info("Colaborador excluído com sucesso. [collaboratorId={}] [schoolId={}]",
+                collaboratorId, school.getId());
     }
 
     private void ensureCollaboratorBelongsToSchool(UUID schoolId, Collaborator collaborator) {
         if (!collaborator.getSchool().getId().equals(schoolId)) {
+            log.warn("Tentativa de acesso a colaborador de outra instituição. [collaboratorId={}] [schoolId={}]",
+                    collaborator.getId(), schoolId);
             throw new AccessDeniedException("Não pode alterar o colaborador de outra instituição");
         }
     }
@@ -159,7 +213,10 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         SchoolSubscription sub =
                 schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
         long current = collaboratorRepository.countBySchoolId(schoolId);
+
         if (current >= sub.getMaxCollaborators()) {
+            log.warn("Limite de colaboradores atingido para a licença ativa. [schoolId={}] [atual={}] [limite={}]",
+                    schoolId, current, sub.getMaxCollaborators());
             throw new BusinessException("A licença não suporta o número de colaboradores");
         }
     }
@@ -169,6 +226,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
             schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId);
         }
         catch (SubscriptionException e) {
+            log.warn("Operação bloqueada: escola sem licença ativa. [schoolId={}]", schoolId);
             throw new SubscriptionException("A escola não possui licença ativa.");
         }
     }

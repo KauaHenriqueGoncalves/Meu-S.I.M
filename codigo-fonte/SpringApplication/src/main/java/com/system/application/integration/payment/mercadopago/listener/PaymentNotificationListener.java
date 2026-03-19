@@ -22,15 +22,20 @@ public class PaymentNotificationListener {
     }
 
     @EventListener
-    @Async("taskExecutor")
+    @Async("paymentExecutor")
     public void handle(PaymentNotificationEvent event) {
+        log.info("Evento de notificacao de pagamento recebido. [resourceId={}] [resourceType={}]",
+                event.resourceId(), event.resourceType());
+
         try {
             service.processPayment(event.resourceId(), event.resourceType());
 
-            log.info("PaymentNotificationEvent processado com sucesso: dataId={}", event.resourceId());
-        } catch (Exception ex) {
-            log.error("Falha ao processar o PaymentNotificationEvent: dataId={}, error={}",
-                    event.resourceId(), ex.getMessage(), ex);
+            log.info("Evento de notificacao de pagamento processado com sucesso. [resourceId={}] [resourceType={}]",
+                    event.resourceId(), event.resourceType());
+        }
+        catch (Exception e) {
+            log.error("Falha ao processar evento de notificacao de pagamento. [resourceId={}] [resourceType={}] [motivo={}]",
+                    event.resourceId(), event.resourceType(), e.getMessage(), e);
         }
     }
 }

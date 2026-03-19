@@ -12,8 +12,8 @@ import java.util.UUID;
 public interface ClassroomService {
     PageResponse<ClassroomResponse> findAllResponseBySchool(UUID userId, int page, int size);
     List<ClassroomResponse> findAllResponseByStudentId(UUID userId, UUID studentId);
-    ClassroomDetailResponse findDetailResponseById(UUID userId, UUID classroomId);
     Classroom findById(UUID classroomId);
+    ClassroomDetailResponse findDetailResponseById(UUID userId, UUID classroomId);
     Classroom save(UUID userId, ClassroomRequest request);
     void update(UUID userId, UUID classroomId, ClassroomRequest request);
     void addStudent(UUID userId, UUID classroomId, UUID studentId);

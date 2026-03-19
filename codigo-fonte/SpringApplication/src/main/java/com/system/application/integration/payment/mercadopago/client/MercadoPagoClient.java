@@ -42,8 +42,8 @@ public class MercadoPagoClient {
         String subscriptionId = request.referenceId().toString();
 
         log.info("Criando preferencia no MercadoPago. [referenceId={}] [pagador={}] [valor={}]",
-                request.referenceId(),
-                request.payer() != null ? request.payer().email() : "não informado",
+                subscriptionId,
+                request.payer() != null ? request.payer().email() : "nao informado",
                 request.amount());
 
         try {
@@ -102,14 +102,12 @@ public class MercadoPagoClient {
         catch (MPApiException e) {
             log.error("Erro na API do MercadoPago ao criar preferencia. [referenceId={}] [httpStatus={}] [resposta={}]",
                     request.referenceId(), e.getStatusCode(), e.getApiResponse().getContent(), e);
-
             throw new PaymentGatewayException(
                     "Erro retornado pela API do MercadoPago ao criar preferencia. [referenceId=" + request.referenceId() + "]");
         }
         catch (MPException e) {
             log.error("Erro interno do SDK do MercadoPago ao criar preferencia. [referenceId={}] [motivo={}]",
                     request.referenceId(), e.getMessage(), e);
-
             throw new PaymentGatewayException(
                     "Falha no SDK do MercadoPago ao criar preferencia. [referenceId=" + request.referenceId() + "]");
         }
@@ -120,28 +118,28 @@ public class MercadoPagoClient {
 
         try {
             PaymentClient paymentClient = new PaymentClient();
-            Payment paymentMercadoPago = paymentClient.get(paymentId);
+            Payment payment = paymentClient.get(paymentId);
 
-            if (paymentMercadoPago == null) {
+            if (payment == null) {
                 log.warn("Pagamento nao encontrado no MercadoPago. [paymentId={}]", paymentId);
-
                 throw new PaymentGatewayException(
                         "Pagamento nao encontrado no MercadoPago. [paymentId=" + paymentId + "]");
             }
 
-            return getPaymentResponse(paymentMercadoPago);
+            log.info("Status do pagamento obtido com sucesso. [paymentId={}] [status={}] [detalhe={}]",
+                    paymentId, payment.getStatus(), payment.getStatusDetail());
+
+            return getPaymentResponse(payment);
         }
         catch (MPApiException e) {
             log.error("Erro na API do MercadoPago ao consultar pagamento. [paymentId={}] [httpStatus={}] [resposta={}]",
                     paymentId, e.getStatusCode(), e.getApiResponse().getContent(), e);
-
             throw new PaymentGatewayException(
                     "Erro retornado pela API do MercadoPago ao consultar pagamento. [paymentId=" + paymentId + "]");
         }
         catch (MPException e) {
             log.error("Erro interno do SDK do MercadoPago ao consultar pagamento. [paymentId={}] [motivo={}]",
                     paymentId, e.getMessage(), e);
-
             throw new PaymentGatewayException(
                     "Falha no SDK do MercadoPago ao consultar pagamento. [paymentId=" + paymentId + "]");
         }
@@ -165,7 +163,8 @@ public class MercadoPagoClient {
         catch (MPException | MPApiException e) {
             // Loga mas não lança, o pagamento já foi confirmado
             // A expiração é uma proteção extra, não crítica
-            log.warn("Falha para expirar a Preferencia {}: {}", preferenceId, e.getMessage());
+            log.warn("Falha ao expirar preferencia no MercadoPago (nao critico). [preferenceId={}] [motivo={}]",
+                    preferenceId, e.getMessage());
         }
     }
 

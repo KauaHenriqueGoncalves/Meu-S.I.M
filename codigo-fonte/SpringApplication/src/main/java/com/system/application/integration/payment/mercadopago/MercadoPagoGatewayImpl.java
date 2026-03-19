@@ -28,24 +28,21 @@ public class MercadoPagoGatewayImpl implements PaymentGateway {
     public CheckoutResponse createCheckout(CheckoutRequest request) {
         log.info("Iniciando criacao de preferencia no MercadoPago. [referenceId={}] [pagador={}] [valor={}]",
                 request.referenceId(),
-                request.payer() != null ? request.payer().email() : "não informado",
+                request.payer() != null ? request.payer().email() : "nao informado",
                 request.amount());
 
         try {
             CheckoutResponse response = mercadoPagoClient.createPreference(request);
 
-            log.info("Preferência criada com sucesso no MercadoPago. [referenceId={}]",
-                    request.referenceId());
+            log.info("Preferencia criada com sucesso no MercadoPago. [referenceId={}] [preferenceId={}]",
+                    request.referenceId(), response.preferenceId());
 
             return response;
         }
         catch (Exception e) {
-            log.error("Falha ao criar preferência no MercadoPago. [referenceId={}] [motivo={}]",
+            log.error("Falha ao criar preferencia no MercadoPago. [referenceId={}] [motivo={}]",
                     request.referenceId(), e.getMessage(), e);
-
-            throw new PaymentGatewayException(
-                    "Não foi possível criar o checkout no MercadoPago para a referência: " + request.referenceId()
-                            + ", Error: " + e);
+            throw new PaymentGatewayException("Não foi possível criar o checkout no MercadoPago para a referência: " + request.referenceId() + ", Error: " + e);
         }
     }
 }

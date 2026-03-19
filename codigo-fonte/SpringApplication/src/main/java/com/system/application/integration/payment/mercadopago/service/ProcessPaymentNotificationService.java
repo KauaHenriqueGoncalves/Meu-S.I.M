@@ -33,7 +33,7 @@ public class ProcessPaymentNotificationService {
 
     public void processPayment(Long id, String type) {
         if (!ACCEPTED_TYPES.contains(type)) {
-            log.debug("Notificacao do tipo '{}' ignorada. [paymentId={}]", type, id);
+            log.debug("Notificacao do tipo ignorada. [tipo={}] [paymentId={}]", type, id);
             return;
         }
 
@@ -51,16 +51,13 @@ public class ProcessPaymentNotificationService {
         }
 
         UUID subscriptionId;
-
         try {
             subscriptionId = UUID.fromString(payment.externalReference());
         }
         catch (IllegalArgumentException e) {
-            log.error("Referencia externa invalida, não é um UUID. [paymentId={}] [externalReference={}]",
+            log.error("Referencia externa invalida, nao e um UUID. [paymentId={}] [externalReference={}]",
                     payment.id(), payment.externalReference(), e);
-
-            throw new PaymentGatewayException(
-                    "Referencia externa invalida recebida do MercadoPago. [paymentId=" + payment.id() + "]");
+            throw new PaymentGatewayException("Referencia externa invalida recebida do MercadoPago. [paymentId=" + payment.id() + "] - " + e);
         }
 
         log.info("Ativando assinatura. [subscriptionId={}] [paymentId={}]",

@@ -21,7 +21,7 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private final UserService userService;
     private final SchoolService schoolService;
 
-    // TODO: implementar limite da licença
+    // TODO: implementar limite da licença e funcionalidades
 
     public SchoolAdminServiceImpl(
             SchoolAdminRepository schoolAdminRepository,
