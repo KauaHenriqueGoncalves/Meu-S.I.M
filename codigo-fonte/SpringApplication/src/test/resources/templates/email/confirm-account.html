@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmação de Conta - Meu S.I.M</title>
+</head>
+    <body style="margin:0; padding:0; background-color:#F5F7F5; font-family:Arial, Helvetica, sans-serif; color:#0D3311;">
+        <!-- Wrapper -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding:30px 0;">
+            <tr>
+                <td align="center">
+                    <!-- Caixa do email -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px; background:#FFFFFF; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:30px;">
+                        <!-- Header com a logo -->
+                        <tr style="display: block;  max-width: 26.5rem; background: #58855C; margin-bottom: 2rem; padding: 1.5rem; border-radius: 10px">
+                            <td>
+                                <h1 style="margin: 0; color: #F2FBF3">Meu S.I.M</h1>
+                            </td>
+                        </tr>
+                        <!-- Título -->
+                        <tr>
+                            <td style="padding-bottom:20px;">
+                                <h2 style="margin:0; color:#133f17; font-size:22px;">
+                                    Olá, <span th:text="${name}" style="color:#58855C;">Usuário</span>
+                                </h2>
+                            </td>
+                        </tr>
+                        <!-- Texto -->
+                        <tr>
+                            <td style="padding-bottom:16px; color:#58855C; font-size:15px; line-height:1.6;">
+                                Obrigado por criar sua conta no <strong>Meu S.I.M</strong>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-bottom:24px; color:#58855C; font-size:15px; line-height:1.6;">
+                                Para começar a usar a plataforma, confirme sua conta clicando no botão abaixo:
+                            </td>
+                        </tr>
+                        <!-- Botão -->
+                        <tr>
+                            <td align="center" style="padding-bottom:30px;">
+                                <a th:href="${confirmationLink}"
+                                   style="display:inline-block; padding:12px 24px; background:#58855C; color:#FFFFFF; text-decoration:none; font-weight:bold; border-radius:8px; font-size:15px;">
+                                    Confirmar conta
+                                </a>
+                            </td>
+                        </tr>
+                        <!-- Aviso -->
+                        <tr>
+                            <td style="color:#9EB8A0; font-size:13px; line-height:1.5;">
+                                Se você não criou essa conta, pode ignorar este e-mail com segurança.
+                            </td>
+                        </tr>
+                    </table>
+                    <!-- Rodapé -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px; margin-top:16px;">
+                        <tr>
+                            <td align="center" style="color:#9EB8A0; font-size:12px;">
+                                © 2026 Meu S.I.M · Todos os direitos reservados
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>
