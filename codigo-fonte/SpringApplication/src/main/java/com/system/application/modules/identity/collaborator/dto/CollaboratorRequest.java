@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 public record CollaboratorRequest(
+
         @NotNull(message = "Data de nascimento é necessário informar")
         @Past(message = "Data de nascimento deve ser no passado")
         LocalDate dateOfBirth,
@@ -21,7 +22,9 @@ public record CollaboratorRequest(
         @Pattern(regexp = "^(\\d{1,2})h$", message = "Carga horária deve estar no formato '8h', '12h', etc.")
         @NoLeadingTrailingSpace
         String workload
+
 ) implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 public record UpdateLegalGuardianRequest(
 
-        @NotBlank(message = "Nome não pode ser vazi")
+        @NotBlank(message = "Nome não pode ser vazio")
         @Size(max = 100, message = "Nome deve ser menor que 100 caracteres")
         @NoLeadingTrailingSpace
         String username,
