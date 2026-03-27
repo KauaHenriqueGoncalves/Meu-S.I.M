@@ -4,7 +4,7 @@ import com.system.application.shared.util.CpfValidator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class ValidCpfConstraintValidator
+public final class ValidCpfConstraintValidator
         implements ConstraintValidator<ValidCpf, String> {
     @Override
     public boolean isValid(String cpf, ConstraintValidatorContext context) {

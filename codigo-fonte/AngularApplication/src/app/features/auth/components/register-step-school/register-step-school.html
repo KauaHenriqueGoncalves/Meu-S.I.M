@@ -1,0 +1,58 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="form">
+  <h2>Criar conta</h2>
+  <p class="subtitle">Continue criando seu Reforço Escolar</p>
+
+  <div class="form-group">
+    <label>Nome do Reforço Escolar*</label>
+    <input type="text" maxlength="60" formControlName="schoolName" placeholder="Digite o nome do reforço (ex: Reforço da Maria)" />
+  
+    @if (isInvalid('schoolName') && form.get('schoolName')?.errors?.['minlength']) {
+      <span class="input-message-error">Mínimo de 5 caracteres</span>
+    }
+
+    @if (isInvalid('schoolName') && form.get('schoolName')?.errors?.['maxlength']) {
+      <span class="input-message-error">Mínimo de 50 caracteres</span>
+    }
+  </div>
+
+  <div class="form-group">
+    <label>Código do Reforço Escolar*</label>
+    <input type="text" formControlName="nameCode" maxlength="60" placeholder="Digite o código da escola (Ex: reforco-maria-123)" />
+
+    @if (isInvalid('nameCode') && form.get('nameCode')?.errors?.['minlength']) {
+      <span class="input-message-error">Mínimo de 5 caracteres</span>
+    }
+
+    @if (isInvalid('nameCode') && form.get('nameCode')?.errors?.['maxlength']) {
+      <span class="input-message-error">Mínimo de 50 caracteres</span>
+    }
+  </div>
+
+  <div class="form-group">
+    <label>CNPJ*</label>
+
+    <input type="text" formControlName="cnpj" maxlength="14" placeholder="Digite seu CNPJ (apenas números)"
+      numbersOnly />
+
+    @if (isInvalid('cnpj') && form.get('cnpj')?.errors?.['invalidCnpj'] && !form.get('cnpj')?.errors?.['exactLength']) {
+    <span class="input-message-error">CNPJ inválido</span>
+    }
+  </div>
+
+  <div class="button-group">
+    <button type="button" class="btn-back" (click)="cancelForm()">
+      Voltar
+    </button>
+
+    @if (!form.invalid) {
+      <button type="submit" class="btn-primary">
+        Finalizar
+      </button>
+    }
+    @else {
+      <button type="button" class="btn-primary-disable" (click)="inputsEmpty()">
+        Finalizar
+      </button>
+    }
+  </div>
+</form>

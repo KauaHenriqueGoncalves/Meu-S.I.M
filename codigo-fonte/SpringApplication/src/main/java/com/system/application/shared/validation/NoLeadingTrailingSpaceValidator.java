@@ -3,7 +3,7 @@ package com.system.application.shared.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class NoLeadingTrailingSpaceValidator
+public final class NoLeadingTrailingSpaceValidator
         implements ConstraintValidator<NoLeadingTrailingSpace, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {

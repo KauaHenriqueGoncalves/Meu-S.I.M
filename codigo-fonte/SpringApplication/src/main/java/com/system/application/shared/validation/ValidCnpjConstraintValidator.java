@@ -4,7 +4,7 @@ import com.system.application.shared.util.CnpjValidator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class ValidCnpjConstraintValidator
+public final class ValidCnpjConstraintValidator
         implements ConstraintValidator<ValidCnpj, String> {
     @Override
     public boolean isValid(String cnpj, ConstraintValidatorContext context) {
