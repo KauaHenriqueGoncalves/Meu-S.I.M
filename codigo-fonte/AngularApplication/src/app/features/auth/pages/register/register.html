@@ -1,0 +1,31 @@
+<div class="register-container">
+  <aside class="sidebar">
+    <h2>Meu S.I.M</h2>
+    <p>Crie sua conta</p>
+    <div class="circle-bottom"></div>
+  </aside>
+  
+  <main class="content">
+    <button class="btn-back" (click)="backToHome()">
+      <app-icon-arrow-left />
+      Voltar ao início
+    </button>
+
+    <div class="form-box">
+      @switch (step) {
+        @case (0) {
+          <app-register-step-user 
+            (next)="nextStep($event)">
+          </app-register-step-user>
+        }
+
+        @case (1) { 
+          <app-register-step-school
+            (cancel)="backStep()"
+            (next)="finish($event)"> 
+          </app-register-step-school>
+        }
+      }
+    </div>
+  </main>
+</div>

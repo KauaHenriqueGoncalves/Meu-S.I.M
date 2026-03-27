@@ -36,6 +36,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
     @Value("${jwt.public.key}")
     private Resource publicKeyResource;
 
@@ -59,12 +60,16 @@ public class SecurityConfig {
         http
                 .securityMatcher(
                         "/console-h2/**",
-                        "/users/school-admin",
+                        "/school-admins",
+                        "/actuator",
                         "/auth/login",
                         "/auth/refresh",
                         "/auth/logout",
                         "/auth/login/admin",
-                        "/auth/verify"
+                        "/auth/verify",
+                        "/auth/payment/success", // TESTE
+                        "/auth/payment/pending", // TESTE
+                        "/auth/payment/failure"  // TESTE
                 )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -101,7 +106,8 @@ public class SecurityConfig {
         http
                 .securityMatcher(
                         "/auth/**",
-                        "/users/school-admin"
+                        "/school-admins",
+                        "/webhooks/mercado-pago"
                 )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -110,14 +116,18 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,
-                                "/users/school-admin",
+                                "/school-admins",
                                 "/auth/login",
                                 "/auth/refresh",
                                 "/auth/logout",
-                                "/auth/login/admin"
+                                "/auth/login/admin",
+                                "/webhooks/mercado-pago"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/auth/verify"
+                                "/auth/verify",
+                                "/auth/payment/success",  // TESTE
+                                "/auth/payment/pending",  // TESTE
+                                "/auth/payment/failure"   // TESTE
                         ).permitAll()
                         .anyRequest().denyAll()
                 )

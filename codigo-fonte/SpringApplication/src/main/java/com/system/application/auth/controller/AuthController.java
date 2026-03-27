@@ -7,8 +7,8 @@ import com.system.application.auth.service.CookieService;
 import com.system.application.auth.service.JwtService;
 import com.system.application.auth.service.LoginService;
 import com.system.application.auth.token.TokenResponse;
-import com.system.application.core.user.User;
-import com.system.application.core.user.service.UserService;
+import com.system.application.modules.identity.user.User;
+import com.system.application.modules.identity.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -49,7 +49,7 @@ public final class AuthController {
         String accessToken = jwtService.generateAccessToken(loginResponse);
         String refreshToken = jwtService.generateRefreshToken(loginResponse);
         ResponseCookie cookie =
-                cookieService.createCookie("/auth/refresh", "refreshToken", refreshToken, Duration.ofDays(7));
+                cookieService.createCookie("/api/v1/auth/refresh", "refreshToken", refreshToken, Duration.ofDays(7));
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(new TokenResponse(accessToken));
     }
@@ -63,7 +63,7 @@ public final class AuthController {
         String accessToken = jwtService.generateAccessToken(loginResponse);
         String refreshToken = jwtService.generateRefreshToken(loginResponse);
         ResponseCookie cookie =
-                cookieService.createCookie("/auth/refresh", "refreshToken", refreshToken, Duration.ofDays(7));
+                cookieService.createCookie("/api/v1/auth/refresh", "refreshToken", refreshToken, Duration.ofDays(7));
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(new TokenResponse(accessToken));
     }
@@ -73,6 +73,11 @@ public final class AuthController {
             @CookieValue("refreshToken") String refreshToken
     ) {
         //TODO: implements Redis
+
+        // TODO: Criar serviço para refresh
+
+        // TODO: Refresh vazio, retorne um erro no body
+
         Jwt jwt = jwtService.decode(refreshToken);
         String id = jwt.getSubject();
         User user = userService.findById(UUID.fromString(id));
@@ -85,7 +90,8 @@ public final class AuthController {
             HttpServletResponse response
     ) {
         //TODO: RefreshToken still valid, the future implements Redis
-        ResponseCookie cookie = cookieService.createCookie("/auth/refresh", "refreshToken", "", Duration.ofDays(7));
+        ResponseCookie cookie =
+                cookieService.createCookie("/api/v1/auth/refresh", "refreshToken", "", Duration.ofDays(7));
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.noContent().build();
     }

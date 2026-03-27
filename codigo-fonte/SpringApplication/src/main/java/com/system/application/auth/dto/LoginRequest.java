@@ -1,5 +1,6 @@
 package com.system.application.auth.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,20 +9,19 @@ import java.io.Serial;
 import java.io.Serializable;
 
 public record LoginRequest(
-        @NotBlank
-        @NotNull
-        @Size(max = 50)
+        @NotBlank(message = "O código da escola é obrigatório")
+        @Size(max = 50, message = "O código da escola deve ter no máximo 50 caracteres")
         String schoolCode,
 
-        @NotBlank
-        @NotNull
-        @Size(max = 255)
+        @NotBlank(message = "O e-mail é obrigatório")
+        @Size(max = 255, message = "O e-mail deve ter no máximo 255 caracteres")
+        @Email(message = "Informe um e-mail válido")
         String email,
 
-        @NotBlank
-        @NotNull
-        @Size(min = 8, max = 20)
+        @NotBlank(message = "A senha é obrigatória")
+        @Size(min = 8, max = 20, message = "A senha deve ter entre 8 e 20 caracteres")
         String password
+
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

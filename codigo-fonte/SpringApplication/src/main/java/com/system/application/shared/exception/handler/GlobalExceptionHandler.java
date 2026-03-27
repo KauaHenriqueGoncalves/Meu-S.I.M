@@ -18,8 +18,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public final class GlobalExceptionHandler {
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex
+    ) {
         Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -34,7 +37,9 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CpfInvalidException.class)
-    public ResponseEntity<Map<String, String>> handleCpfInvalidException(CpfInvalidException ex) {
+    public ResponseEntity<Map<String, String>> handleCpfInvalidException(
+            CpfInvalidException ex
+    ) {
         Map<String, String> errors = new HashMap<>();
         errors.put("cpf", ex.getMessage());
         HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -42,8 +47,10 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundObjectException.class)
-    public ResponseEntity<StandardError> handleNotFoundException(NotFoundObjectException ex,
-                                                                 HttpServletRequest request) {
+    public ResponseEntity<StandardError> handleNotFoundException(
+            NotFoundObjectException ex,
+            HttpServletRequest request
+    ) {
         String message = "Not found";
         HttpStatus status = HttpStatus.NOT_FOUND;
         StandardError standardError = new StandardError(
@@ -57,8 +64,10 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EntityAlreadyExistsException.class)
-    public ResponseEntity<StandardError> handleEntityAlreadyExistsException(EntityAlreadyExistsException ex,
-                                                                            HttpServletRequest request) {
+    public ResponseEntity<StandardError> handleEntityAlreadyExistsException(
+            EntityAlreadyExistsException ex,
+            HttpServletRequest request
+    ) {
         String message = "Conflicting Entity";
         HttpStatus status = HttpStatus.CONFLICT;
         StandardError standardError = new StandardError(
@@ -72,7 +81,9 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CnpjInvalidException.class)
-    public ResponseEntity<Map<String, String>> handleCnpjInvalidException(CnpjInvalidException ex) {
+    public ResponseEntity<Map<String, String>> handleCnpjInvalidException(
+            CnpjInvalidException ex
+    ) {
         Map<String, String> errors = new HashMap<>();
         errors.put("cnpj", ex.getMessage());
         HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -80,8 +91,10 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<StandardError> handleBadCredentialsException(BadCredentialsException ex,
-                                                                       HttpServletRequest request) {
+    public ResponseEntity<StandardError> handleBadCredentialsException(
+            BadCredentialsException ex,
+            HttpServletRequest request
+    ) {
         String message = "Bad credentials";
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         StandardError standardError = new StandardError(
@@ -95,8 +108,10 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DateTimeException.class)
-    public ResponseEntity<StandardError> handleDateTimeException(DateTimeException ex,
-                                                                 HttpServletRequest request) {
+    public ResponseEntity<StandardError> handleDateTimeException(
+            DateTimeException ex,
+            HttpServletRequest request
+    ) {
         String message = "DateTime is wrong!";
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError error = new StandardError(
@@ -110,8 +125,10 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<StandardError> handlerIllegalArgumentException(IllegalArgumentException ex,
-                                                                         HttpServletRequest request) {
+    public ResponseEntity<StandardError> handlerIllegalArgumentException(
+            IllegalArgumentException ex,
+            HttpServletRequest request
+    ) {
         String message = "Argument is wrong!";
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError error = new StandardError(
@@ -125,8 +142,10 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<StandardError> handlerAccessDeniedException(AccessDeniedException ex,
-                                                                      HttpServletRequest request) {
+    public ResponseEntity<StandardError> handlerAccessDeniedException(
+            AccessDeniedException ex,
+            HttpServletRequest request
+    ) {
         String message = "Access denied!";
         HttpStatus status = HttpStatus.FORBIDDEN;
         StandardError error = new StandardError(
@@ -140,8 +159,10 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<StandardError> handlerBusinessException(BusinessException e,
-                                                                  HttpServletRequest request) {
+    public ResponseEntity<StandardError> handlerBusinessException(
+            BusinessException e,
+            HttpServletRequest request
+    ) {
         String message = "Business Exeception";
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError error = new StandardError(
@@ -154,9 +175,45 @@ public final class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(SubscriptionException.class)
+    public ResponseEntity<StandardError> handlerSubscriptionException(
+            SubscriptionException ex,
+            HttpServletRequest request
+    ) {
+        String message = "Subscription Exeception";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError error = new StandardError(
+                Instant.now(),
+                status.value(),
+                message,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(PaymentGatewayException.class)
+    public ResponseEntity<StandardError> handlerPaymentGatewayException(
+            PaymentGatewayException e,
+            HttpServletRequest request
+    ) {
+        String message = "Payment Gateway Exeception";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError error = new StandardError(
+                Instant.now(),
+                status.value(),
+                message,
+                e.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<StandardError> handleDataIntegrityViolation(DataIntegrityViolationException ex,
-                                                                      HttpServletRequest request) {
+    public ResponseEntity<StandardError> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request
+    ) {
         HttpStatus status = HttpStatus.CONFLICT;
         String errorMessage = "Violação de integridade de dados";
         // Extrair a mensagem da exceção
