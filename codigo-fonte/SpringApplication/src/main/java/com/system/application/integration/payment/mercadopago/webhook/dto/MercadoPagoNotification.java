@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record MercadoPagoNotification(
+
         @NotBlank(message = "Action is required")
         String action,
 
@@ -29,7 +30,9 @@ public record MercadoPagoNotification(
 
         @JsonProperty("user_id")
         Long userId
+
 ) {
+
     public record DataDto(
             @NotBlank(message = "Data ID is required")
             String id

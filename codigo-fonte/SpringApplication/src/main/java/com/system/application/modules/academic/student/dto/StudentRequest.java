@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record StudentRequest(
+
         @NotBlank(message = "Nome não pode ser vazio")
         @Size(max = 100, message = "Nome deve ser menor que 100 caracteres")
         @NoLeadingTrailingSpace
@@ -28,7 +29,9 @@ public record StudentRequest(
 
         @NotNull(message = "Selecione um responsável para o estudante")
         UUID legalGuardianId
+
 ) implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

@@ -2,10 +2,49 @@
 # Sendo possivel, testar ferramentas externas no ambiente de desenvolvimento
 
 services:
+  spring_api:
+    container_name: spring_api
+    mem_limit: 1g
+    cpus: 1
+    build:
+      context: ./../SpringApplication
+      dockerfile: Dockerfile
+    ports:
+        - "8080:8080"
+    env_file:
+        - .env
+    environment:
+        SPRING_SERVER_PORT: ${SPRING_SERVER_PORT}
+        SPRING_PROFILE: ${SPRING_PROFILE}
+        REDIS_HOST: ${REDIS_HOST}
+        EMAIL_HOST_TEST: ${EMAIL_HOST_TEST}
+        EMAIL_PORT_TEST: ${EMAIL_PORT_TEST}
+        DATABASE_URL_TEST: ${DATABASE_URL_TEST}
+        DATABASE_USERNAME_TEST: ${DATABASE_USERNAME_TEST}
+        DATABASE_PASSWORD_TEST: ${DATABASE_PASSWORD_TEST}
+        FRONT_END_URL: ${FRONT_END_URL}
+        MERCADO_PAGO_ACCESS_TOKEN_TEST: ${MERCADO_PAGO_ACCESS_TOKEN_TEST}
+        MERCADO_PAGO_NOTIFICATION_TEST: ${MERCADO_PAGO_NOTIFICATION_TEST}
+        MERCADO_PAGO_WEBHOOK_SECRET_TEST: ${MERCADO_PAGO_WEBHOOK_SECRET_TEST}
+    depends_on:
+        postgres:
+          condition: service_healthy
+        redis:
+            condition: service_started
+        mailhog:
+          condition: service_started
+        minio:
+          condition: service_started
+    networks:
+        - app_net
+    restart: unless-stopped
+
   postgres:
     container_name: system_management_postgres_test
     image: postgres:15.14-alpine3.21
     restart: unless-stopped
+    mem_limit: 1g
+    cpus: 1
     shm_size: 64mb
     environment:
       POSTGRES_USER: postgres
@@ -16,7 +55,7 @@ services:
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
     networks:
-      - pg_net
+      - app_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d system_management"]
       interval: 10s
@@ -26,22 +65,32 @@ services:
   redis:
     container_name: redis-local
     image: redis:7-alpine
+    command: redis-server --appendonly yes
+    mem_limit: 256m
+    cpus: 0.3
     ports:
       - "6379:6379"
-    command: redis-server --appendonly yes
+    networks:
+      - app_net
 
   # Container para teste de servidor de email
   mailhog:
     container_name: mailhog
     image: mailhog/mailhog:latest
+    mem_limit: 128m
+    cpus: 0.2
     ports:
       - "1025:1025"   # SMTP
       - "8025:8025"   # Interface web
+    networks:
+      - app_net
 
   # Container para teste de servidor de arquivo S3
   minio:
     container_name: minio-S3
     image: minio/minio
+    mem_limit: 512m
+    cpus: 0.5
     ports:
       - "9000:9000" # API S3
       - "9001:9001" # Interface web
@@ -51,23 +100,31 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    networks:
+      - app_net
 
   # Container para teste de servidor proxy
   ngrok:
     image: ngrok/ngrok:latest
     restart: unless-stopped
-    command: http host.docker.internal:8080
+    command: start --all --config /etc/ngrok/ngrok.yml
+    mem_limit: 128m
+    cpus: 0.2
     environment:
-      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN} 
+    volumes:
+      - ./ngrok.yml:/etc/ngrok/ngrok.yml
     ports:
-      - "4040:4040"  # painel web do ngrok
-    extra_hosts:
-      - "host.docker.internal:host-gateway" 
+      - "4040:4040" # painel web do ngrok
+    networks:
+      - app_net
+    depends_on:
+      - spring_api
 
 volumes:
   postgres_test_data:
   minio_data:
 
 networks:
-  pg_net:
+  app_net:
     driver: bridge

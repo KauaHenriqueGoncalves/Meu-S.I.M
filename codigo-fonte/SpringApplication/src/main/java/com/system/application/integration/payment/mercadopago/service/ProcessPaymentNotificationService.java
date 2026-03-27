@@ -32,6 +32,11 @@ public class ProcessPaymentNotificationService {
             Set.of("payment.created", "payment.updated");
 
     public void processPayment(Long id, String type) {
+        if (type == null || id == null) {
+            log.debug("Notificacao do tipo ignorada. [tipo={}] [paymentId={}]", type, id);
+            return;
+        }
+
         if (!ACCEPTED_TYPES.contains(type)) {
             log.debug("Notificacao do tipo ignorada. [tipo={}] [paymentId={}]", type, id);
             return;

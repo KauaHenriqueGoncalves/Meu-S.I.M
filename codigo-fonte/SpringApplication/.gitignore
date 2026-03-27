@@ -35,3 +35,7 @@ build/
 
 ### Keys ###
 src/main/resources/key/*
+
+### SECRET ###
+.env
+env.properties

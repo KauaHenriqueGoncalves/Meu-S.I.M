@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 public record ClassScheduleResponse(
+
         UUID id,
         String weekday,
 
@@ -16,7 +17,9 @@ public record ClassScheduleResponse(
 
         @JsonFormat(pattern = "HH:mm")
         LocalTime endTime
+
 ) implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 public record ClassroomRequest(
+
         @NotNull(message = "Selecione o tipo da classe")
         Long classTypeId,
 
@@ -22,7 +23,9 @@ public record ClassroomRequest(
         @Size(max = 60, message = "Nome da turma deve ter no máximo 30 caracteres")
         @NoLeadingTrailingSpace
         String name
+
 ) implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

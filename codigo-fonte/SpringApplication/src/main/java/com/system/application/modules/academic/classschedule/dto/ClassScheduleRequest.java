@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalTime;
 
 public record ClassScheduleRequest(
+
         @NotNull(message = "Informe o dia da semana")
         Weekday weekday,
 
@@ -20,7 +21,9 @@ public record ClassScheduleRequest(
         @NotNull(message = "Informe o horário de fim")
         @JsonFormat(pattern = "HH:mm")
         LocalTime endTime
+
 ) implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 

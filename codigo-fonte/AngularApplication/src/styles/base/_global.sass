@@ -1,0 +1,74 @@
+@use './../themes/light'
+
+html,
+body
+    height: 100%
+    width: 100%
+    font-family: 'Plus Jakarta Sans', 'Noto Sans', sans-serif
+    -webkit-font-smoothing: antialiased
+    -moz-osx-font-smoothing: grayscale
+    scroll-behavior: smooth
+
+body
+    background-color: var(--background)
+
+.layout
+    max-width: 2048px
+    margin: 0 auto
+
+.container
+    padding: 0 1rem
+
+h1, h2, h3, h4, h5, h6, p
+    margin-bottom: 0
+
+ul, ol
+    list-style: none
+
+a
+    text-decoration: none
+    color: inherit
+
+button,
+input,
+textarea,
+select
+    font: inherit
+    border: none
+    outline: none
+    background: transparent
+
+button
+    cursor: pointer
+    &:disabled
+        cursor: not-allowed
+
+input[type="number"]
+    -moz-appearance: textfield
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button
+        -webkit-appearance: none
+        margin: 0
+
+img,
+picture,
+video,
+canvas,
+svg
+    display: block
+    max-width: 100%
+    height: auto
+
+::-webkit-scrollbar
+    width: 5px
+
+::-webkit-scrollbar-track
+    background: var(--background)
+
+::-webkit-scrollbar-thumb
+    background: var(--color-primary-600)
+    border-radius: 20px
+    border: 1px solid var(--background)
+
+    &:hover
+        background: var(--color-primary-700)
