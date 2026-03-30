@@ -40,8 +40,7 @@ public class SchoolServiceImpl implements SchoolService {
     @Override
     @Transactional
     public School save(SchoolRequest request) {
-        boolean existConflict = schoolRepository.existsConflict(request.nameCode(), request.cnpj());
-        if (existConflict) throw new EntityAlreadyExistsException("Escola já existente");
+        checkSchoolConflict(request);
         School school = new School(
                 null,
                 request.nameCode(),
@@ -50,5 +49,17 @@ public class SchoolServiceImpl implements SchoolService {
         );
         school = schoolRepository.save(school);
         return school;
+    }
+
+    private void checkSchoolConflict(SchoolRequest request) {
+        if (schoolRepository.existsByNameCode(request.nameCode())) {
+            log.warn("Tentativa de cadastro com Codigo do reforco ja cadastrado. [nameCode={}]", request.nameCode());
+            throw new EntityAlreadyExistsException("Código do reforço já cadastrado");
+        }
+
+        if (schoolRepository.existsByCnpj(request.cnpj())) {
+            log.warn("Tentativa de cadastro com CNPJ já cadastrado. [cnpj={}]", request.cnpj());
+            throw new EntityAlreadyExistsException("Cnpj já cadastrado");
+        }
     }
 }

@@ -38,6 +38,67 @@ input::placeholder
     font-size: 12px
     color: #e40d0d
 
+.form-group-checkbox
+    display: flex
+    align-items: center
+    margin: .5rem 0   
+
+    input
+        position: absolute
+        top: 0
+        left: 0
+        width: 1px
+        height: 1px
+        opacity: 0
+
+.custom-checkbox
+    cursor: pointer
+    user-select: none
+    display: flex
+    align-items: center
+    gap: 6px
+
+    .text
+        font-size: .92rem
+        a
+            color: var(--color-primary-600)
+            cursor: pointer
+            &:hover
+                text-decoration: underline
+            &:visited
+                color: var(--color-primary-800)
+
+    .checkmark
+        position: relative
+        height: 20px
+        width: 20px
+        background-color: var(--white)
+        border: 1px solid #bbb
+        display: inline-block
+        margin-right: 8px
+        vertical-align: middle
+        border-radius: 5px
+        transition: 0.2s
+
+        &::after
+            content: ""
+            position: absolute
+            display: none
+
+    input:checked + .checkmark
+        background-color: var(--color-primary-600)
+        border-color: var(--color-primary-600)
+
+    input:checked + .checkmark::after
+        display: block
+        left: 7px
+        top: 3px
+        width: 5px
+        height: 10px
+        border: solid var(--white)
+        border-width: 0 2px 2px 0
+        transform: rotate(45deg)
+
 .button-group
     display: flex
     justify-content: space-between
@@ -74,7 +135,7 @@ input::placeholder
     &:active
         transform: scale(0.98)
 
-.btn-primary-disable 
+.btn-primary-disable
     background: #dadada
     color: #a0a0a0
     border: none

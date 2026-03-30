@@ -1,17 +1,19 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only.directive';
 import { cnpjValidator } from '../../../../shared/validation/cnpj.validator';
-import { SchoolRequest } from '../../models/school-request.model';
+import { SchoolRequest } from '../../../../core/models/requests/school/school-request.model';
+import { SpinnerToButton } from '../../../../shared/components/spinner-to-button/spinner-to-button';
 
 @Component({
   selector: 'app-register-step-school',
-  imports: [ReactiveFormsModule, NumbersOnlyDirective],
+  imports: [ReactiveFormsModule, NumbersOnlyDirective, SpinnerToButton],
   templateUrl: './register-step-school.html',
   styleUrl: './register-step-school.sass',
 })
 export class RegisterStepSchool {
+  @Input() isLoading: boolean = false;
   @Output() cancel = new EventEmitter<any>();
   @Output() next = new EventEmitter<any>();
 
@@ -32,7 +34,11 @@ export class RegisterStepSchool {
       Validators.required,
       this.exactLength(14),
       cnpjValidator()
-    ])
+    ]),
+
+    terms: new FormControl(false, [
+      Validators.requiredTrue
+    ]) 
   });
 
   constructor(
@@ -70,9 +76,9 @@ export class RegisterStepSchool {
     }
 
     const payload: SchoolRequest = {
-      nameCode: this.form.value.nameCode,
-      schoolName: this.form.value.schoolName,
-      cnpj: this.form.value.cnpj
+      nameCode: this.form.value.nameCode?.trim(),
+      schoolName: this.form.value.schoolName?.trim(),
+      cnpj: this.form.value.cnpj?.trim()
     };
 
     this.next.emit(payload);

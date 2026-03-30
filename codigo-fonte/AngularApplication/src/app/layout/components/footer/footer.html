@@ -1,0 +1,62 @@
+<footer class="main-footer">
+    <div class="footer-container container">
+        <div class="footer-col brand-col">
+            <h3 class="footer-logo">Meu S.I.M</h3>
+            <p>Sistema inteligente para gestão de reforço escolar.</p>
+
+            <div class="footer-contact">
+                <div class="contact-item">
+                    <p (click)="copyToClipboard('suporte@meusim.com', 'email')">Email: suporte@meusim.com</p>
+                    @if (copiedItem === 'email') {
+                        <span>Copiado!</span>
+                    }
+                </div>
+                <div class="contact-item">
+                    <p (click)="copyToClipboard('(81) 99999-9999', 'whatsapp')">WhatsApp: (81) 99999-9999</p>
+                    @if (copiedItem === 'whatsapp') {
+                        <span>Copiado!</span>
+                    }
+                </div>
+            </div>
+
+            <div class="footer-social">
+                <a href="#">Instagram</a>
+                <a href="#">LinkedIn</a>
+            </div>
+        </div>
+
+        <div class="footer-col">
+            <h4>Navegação</h4>
+            <ul class="footer-links">
+                <li><a routerLink="/">Início</a></li>
+                <li><a routerLink="/funcionalidades">Funcionalidades</a></li>
+                <li><a routerLink="/planos">Planos</a></li>
+                <li><a routerLink="/login">Entrar</a></li>
+                <li><a routerLink="/auth/sign-in" class="highlight">Começar agora</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Ajuda</h4>
+            <ul class="footer-links">
+                <li><a routerLink="/faq">Perguntas Frequentes</a></li>
+                <li><a routerLink="/contato">Fale Conosco</a></li>
+                <li><a routerLink="/suporte">Suporte</a></li>
+                <li><a routerLink="/documentacao">Documentação</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Legal</h4>
+            <ul class="footer-links">
+                <li><a routerLink="/privacidade">Política de Privacidade</a></li>
+                <li><a routerLink="/termos">Termos de Uso</a></li>
+                <li><a routerLink="/cookies">Política de Cookies</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2026 Meu S.I.M. Todos os direitos reservados.</p>
+    </div>
+</footer>

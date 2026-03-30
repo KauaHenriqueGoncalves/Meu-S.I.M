@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserServiceImpl")
-class UserServiceImplTest {
+public class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
@@ -158,9 +158,9 @@ class UserServiceImplTest {
         @DisplayName("deve cadastrar usuário com isActive=false e publicar evento")
         void shouldRegisterUser_withInactiveStateAndPublishEvent() {
             when(userRepository.findByCpf(validRequest.cpf())).thenReturn(Optional.empty());
-            when(userRepository.existsConflict(
-                    validRequest.email(), validRequest.cpf(), validRequest.phoneNumber()
-            )).thenReturn(false);
+            when(userRepository.existsByEmail(validRequest.email())).thenReturn(false);
+            when(userRepository.existsByCpf(validRequest.cpf())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber(validRequest.phoneNumber())).thenReturn(false);
             when(roleService.findByName(Role.Values.SCHOOL_ADMIN.name())).thenReturn(role);
             when(passwordEncoder.encode(validRequest.password())).thenReturn("hashed_password");
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -209,17 +209,48 @@ class UserServiceImplTest {
         }
 
         @Test
-        @DisplayName("deve lançar EntityAlreadyExistsException quando houver conflito de email ou telefone")
-        void shouldThrowEntityAlreadyExists_whenConflictExists() {
+        @DisplayName("deve lançar EntityAlreadyExistsException quando e-mail já estiver cadastrado")
+        void shouldThrowEntityAlreadyExists_whenEmailConflictExists() {
             when(userRepository.findByCpf(validRequest.cpf())).thenReturn(Optional.empty());
-            when(userRepository.existsConflict(
-                    validRequest.email(), validRequest.cpf(), validRequest.phoneNumber()
-            )).thenReturn(true);
+            when(userRepository.existsByEmail(validRequest.email())).thenReturn(true);
 
             assertThatThrownBy(() ->
                     userService.registerUserWithRole(validRequest, Role.Values.SCHOOL_ADMIN))
                     .isInstanceOf(EntityAlreadyExistsException.class)
-                    .hasMessageContaining("já cadastrado");
+                    .hasMessageContaining("E-mail já cadastrado");
+
+            verifyNoInteractions(eventPublisher);
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("deve lançar EntityAlreadyExistsException quando CPF já estiver cadastrado")
+        void shouldThrowEntityAlreadyExists_whenCpfConflictExists() {
+            when(userRepository.findByCpf(validRequest.cpf())).thenReturn(Optional.empty());
+            when(userRepository.existsByEmail(validRequest.email())).thenReturn(false);
+            when(userRepository.existsByCpf(validRequest.cpf())).thenReturn(true);
+
+            assertThatThrownBy(() ->
+                    userService.registerUserWithRole(validRequest, Role.Values.SCHOOL_ADMIN))
+                    .isInstanceOf(EntityAlreadyExistsException.class)
+                    .hasMessageContaining("CPF já cadastrado");
+
+            verifyNoInteractions(eventPublisher);
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("deve lançar EntityAlreadyExistsException quando telefone já estiver cadastrado")
+        void shouldThrowEntityAlreadyExists_whenPhoneConflictExists() {
+            when(userRepository.findByCpf(validRequest.cpf())).thenReturn(Optional.empty());
+            when(userRepository.existsByEmail(validRequest.email())).thenReturn(false);
+            when(userRepository.existsByCpf(validRequest.cpf())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber(validRequest.phoneNumber())).thenReturn(true);
+
+            assertThatThrownBy(() ->
+                    userService.registerUserWithRole(validRequest, Role.Values.SCHOOL_ADMIN))
+                    .isInstanceOf(EntityAlreadyExistsException.class)
+                    .hasMessageContaining("Telefone já cadastrado");
 
             verifyNoInteractions(eventPublisher);
             verify(userRepository, never()).save(any());
@@ -229,7 +260,9 @@ class UserServiceImplTest {
         @DisplayName("deve buscar a role correta no roleService conforme o enum passado")
         void shouldFetchCorrectRole_basedOnEnumValue() {
             when(userRepository.findByCpf(any())).thenReturn(Optional.empty());
-            when(userRepository.existsConflict(any(), any(), any())).thenReturn(false);
+            when(userRepository.existsByEmail(any())).thenReturn(false);
+            when(userRepository.existsByCpf(any())).thenReturn(false);
+            when(userRepository.existsByPhoneNumber(any())).thenReturn(false);
             when(roleService.findByName(Role.Values.COLLABORATOR.name())).thenReturn(role);
             when(passwordEncoder.encode(any())).thenReturn("hashed_password");
             when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));

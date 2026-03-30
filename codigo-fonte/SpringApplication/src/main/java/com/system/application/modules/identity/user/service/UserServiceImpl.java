@@ -18,9 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -89,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
         user = userRepository.save(user);
 
-        log.info("Usuário cadastrado com sucesso, aguardando confirmação de e-mail. [userId={}] [email={}] [perfil={}]",
+        log.info("Usuário cadastrado com sucesso, tentativa de envio de e-mail. [userId={}] [email={}] [perfil={}]",
                 user.getId(), user.getEmail(), roleValues.name());
 
         eventPublisher.publishEvent(new UserRegisteredEvent(user.getId()));
@@ -118,11 +116,19 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkUserConflict(UserRequest request) {
-        boolean conflict = userRepository.existsConflict(request.email(), request.cpf(), request.phoneNumber());
-        if (conflict) {
-            log.warn("Conflito de dados no cadastro de usuário. [email={}] [cpf={}]",
-                    request.email(), request.cpf());
-            throw new EntityAlreadyExistsException("Usuário já cadastrado");
+        if (userRepository.existsByEmail(request.email())) {
+            log.warn("Tentativa de cadastro com Email já cadastrado. [email={}]", request.email());
+            throw new EntityAlreadyExistsException("E-mail já cadastrado");
+        }
+
+        if (userRepository.existsByCpf(request.cpf())) {
+            log.warn("Tentativa de cadastro com CPF já cadastrado. [cpf={}]", request.cpf());
+            throw new EntityAlreadyExistsException("CPF já cadastrado");
+        }
+
+        if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
+            log.warn("Tentativa de cadastro com Telefone já cadastrado. [phoneNumber={}]", request.phoneNumber());
+            throw new EntityAlreadyExistsException("Telefone já cadastrado");
         }
     }
 
@@ -130,12 +136,11 @@ public class UserServiceImpl implements UserService {
         if (user.getActive()) {
             log.warn("Tentativa de cadastro com CPF já ativo no sistema. [userId={}] [cpf={}]",
                     user.getId(), user.getCpf());
-            throw new EntityAlreadyExistsException("Usuário já cadastrad");
+            throw new EntityAlreadyExistsException("CPF já cadastrado");
         }
 
         log.info("Usuário já cadastrado, mas pendente de confirmação. Reenviando e-mail. [userId={}] [email={}]",
                 user.getId(), user.getEmail());
-
         eventPublisher.publishEvent(new UserRegisteredEvent(user.getId())); // Usuário existe mas não confirmou
         throw new BusinessException("Cadastro já iniciado. Reenviamos o e-mail de confirmação.");
     }

@@ -4,27 +4,29 @@
 
   <div class="form-group">
     <label>Nome do Reforço Escolar*</label>
-    <input type="text" maxlength="60" formControlName="schoolName" placeholder="Digite o nome do reforço (ex: Reforço da Maria)" />
-  
+    <input type="text" maxlength="60" formControlName="schoolName"
+      placeholder="Digite o nome do reforço (ex: Reforço da Maria)" />
+
     @if (isInvalid('schoolName') && form.get('schoolName')?.errors?.['minlength']) {
-      <span class="input-message-error">Mínimo de 5 caracteres</span>
+    <span class="input-message-error">Mínimo de 5 caracteres</span>
     }
 
     @if (isInvalid('schoolName') && form.get('schoolName')?.errors?.['maxlength']) {
-      <span class="input-message-error">Mínimo de 50 caracteres</span>
+    <span class="input-message-error">Mínimo de 50 caracteres</span>
     }
   </div>
 
   <div class="form-group">
     <label>Código do Reforço Escolar*</label>
-    <input type="text" formControlName="nameCode" maxlength="60" placeholder="Digite o código da escola (Ex: reforco-maria-123)" />
+    <input type="text" formControlName="nameCode" maxlength="60"
+      placeholder="Digite o código da escola (Ex: reforco-maria-123)" />
 
     @if (isInvalid('nameCode') && form.get('nameCode')?.errors?.['minlength']) {
-      <span class="input-message-error">Mínimo de 5 caracteres</span>
+    <span class="input-message-error">Mínimo de 5 caracteres</span>
     }
 
     @if (isInvalid('nameCode') && form.get('nameCode')?.errors?.['maxlength']) {
-      <span class="input-message-error">Mínimo de 50 caracteres</span>
+    <span class="input-message-error">Mínimo de 50 caracteres</span>
     }
   </div>
 
@@ -39,20 +41,37 @@
     }
   </div>
 
+  <div class="form-group-checkbox">
+    <label class="custom-checkbox">
+      <input type="checkbox" formControlName="terms" />
+      <span class="checkmark"></span>
+      <span class="text">
+        Li e aceito os 
+        <a routerLink="/termos" target="_blank">Termos de Uso</a> e a
+        <a routerLink="/privacidade" target="_blank">Política de Privacidade</a>
+      </span>
+    </label>
+  </div>
+
   <div class="button-group">
     <button type="button" class="btn-back" (click)="cancelForm()">
       Voltar
     </button>
 
     @if (!form.invalid) {
-      <button type="submit" class="btn-primary">
-        Finalizar
-      </button>
+    <button type="submit" class="btn-primary" [disabled]="isLoading">
+      @if (isLoading) {
+      <app-spinner-to-button></app-spinner-to-button>
+      }
+      @else {
+      Finalizar
+      }
+    </button>
     }
     @else {
-      <button type="button" class="btn-primary-disable" (click)="inputsEmpty()">
-        Finalizar
-      </button>
+    <button type="button" class="btn-primary-disable" (click)="inputsEmpty()">
+      Finalizar
+    </button>
     }
   </div>
 </form>

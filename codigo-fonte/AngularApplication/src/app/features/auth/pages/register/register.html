@@ -18,14 +18,15 @@
             (next)="nextStep($event)">
           </app-register-step-user>
         }
-
         @case (1) { 
           <app-register-step-school
+            [isLoading]="isLoading"
             (cancel)="backStep()"
-            (next)="finish($event)"> 
+            (next)="finish($event)">
           </app-register-step-school>
         }
       }
     </div>
   </main>
 </div>
+<div id="turnstile-container"></div>

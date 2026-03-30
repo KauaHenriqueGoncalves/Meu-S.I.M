@@ -5,10 +5,12 @@ import com.system.application.auth.verification.EmailVerificationToken;
 import com.system.application.auth.verification.repository.EmailVerificationRepository;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
-import jakarta.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -31,7 +33,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService{
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String createOrRefreshToken(UUID userId) {
         log.info("Criando ou renovando token de verificacao de e-mail. [userId={}]", userId);
 
