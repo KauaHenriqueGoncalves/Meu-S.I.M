@@ -21,6 +21,7 @@
         @case (1) { 
           <app-register-step-school
             [isLoading]="isLoading"
+            [captchaExecuting]="captchaExecuting"
             (cancel)="backStep()"
             (next)="finish($event)">
           </app-register-step-school>

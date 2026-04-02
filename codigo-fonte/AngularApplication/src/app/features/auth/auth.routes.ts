@@ -13,6 +13,23 @@ export const routes: Routes = [
         canActivate: [registerFlowGuard],
         loadComponent: () =>
             import('./pages/verify-account/verify-account')
-                .then(m => m.VerifyAccount)
+                .then(m => m.VerifyAccount),
+    },
+    {
+        path: 'verify-account',
+        children: [
+            {
+                path: 'success',
+                loadComponent: () =>
+                    import('./pages/verify-account-success/verify-account-success')
+                        .then(m => m.VerifyAccountSuccess)
+            },
+            {
+                path: 'failed',
+                loadComponent: () =>
+                    import('./pages/verify-account-failed/verify-account-failed')
+                        .then(m => m.VerifyAccountFailed)
+            }
+        ]
     }
 ];

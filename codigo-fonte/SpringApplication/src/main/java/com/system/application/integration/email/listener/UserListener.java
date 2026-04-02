@@ -7,6 +7,7 @@ import com.system.application.integration.email.service.EmailSendService;
 import com.system.application.auth.verification.service.EmailVerificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -16,6 +17,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class UserListener {
     private static final Logger log =
             LoggerFactory.getLogger(UserListener.class);
+
+    @Value("${api.v1.url.back-end}")
+    private String backendUrl;
 
     private final EmailVerificationService emailVerificationService;
     private final EmailSendService emailSendService;
@@ -37,7 +41,7 @@ public class UserListener {
 
         User user = userService.findById(event.userId());
         String token = emailVerificationService.createOrRefreshToken(user.getId());
-        String link = "http://localhost:8080/api/v1/auth/verify?token=" + token;
+        String link = backendUrl + "/auth/verify?token=" + token;
 
         emailSendService.sendConfirmAccountEmail(user.getEmail(), user.getUsername(), link);
 

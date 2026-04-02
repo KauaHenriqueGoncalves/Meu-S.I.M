@@ -14,6 +14,7 @@ import { SpinnerToButton } from '../../../../shared/components/spinner-to-button
 })
 export class RegisterStepSchool {
   @Input() isLoading: boolean = false;
+  @Input() captchaExecuting: boolean = false;
   @Output() cancel = new EventEmitter<any>();
   @Output() next = new EventEmitter<any>();
 

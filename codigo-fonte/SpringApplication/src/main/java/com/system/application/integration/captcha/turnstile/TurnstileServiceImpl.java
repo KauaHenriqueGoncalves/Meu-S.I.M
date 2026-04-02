@@ -1,6 +1,8 @@
 package com.system.application.integration.captcha.turnstile;
 
 import com.system.application.integration.captcha.service.CaptchaService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,6 +19,9 @@ import java.util.Map;
 @Service
 @Qualifier("turnstile")
 public class TurnstileServiceImpl implements CaptchaService {
+    private static final Logger log =
+            LoggerFactory.getLogger(TurnstileServiceImpl.class);
+
     @Value("${turnstile.secret-key}")
     private String secretKey;
 
@@ -27,6 +32,8 @@ public class TurnstileServiceImpl implements CaptchaService {
 
     @Override
     public boolean validate(String token) {
+        log.info("Iniciando validacao de captcha Turnstile.");
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -36,10 +43,25 @@ public class TurnstileServiceImpl implements CaptchaService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(verifyUrl, request, Map.class);
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(verifyUrl, request, Map.class);
+            Map<String, Object> result = response.getBody();
 
-        Map<String, Object> result = response.getBody();
+            boolean success = result != null && Boolean.TRUE.equals(result.get("success"));
 
-        return result != null && Boolean.TRUE.equals(result.get("success"));
+            if (success) {
+                log.info("Validacao de captcha Turnstile bem-sucedida.");
+            } else {
+                log.warn("Validacao de captcha Turnstile falhou. [errorCodes={}]",
+                        result != null ? result.get("error-codes") : "resposta nula");
+            }
+
+            return success;
+        }
+        catch (Exception e) {
+            log.error("Erro ao comunicar com o servico Turnstile. [url={}] [motivo={}]",
+                    verifyUrl, e.getMessage(), e);
+            return false;
+        }
     }
 }

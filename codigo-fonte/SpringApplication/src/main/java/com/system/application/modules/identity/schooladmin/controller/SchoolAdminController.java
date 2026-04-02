@@ -35,7 +35,6 @@ public class SchoolAdminController {
             @RequestBody @Valid CreateSchoolAdminRequest request
     ) {
         if (!captchaService.validate(request.captchaRequest().captchaToken())) {
-            System.out.println(request.captchaRequest().captchaToken());
             throw new AccessDeniedException("Verificação de segurança falhou!");
         }
 

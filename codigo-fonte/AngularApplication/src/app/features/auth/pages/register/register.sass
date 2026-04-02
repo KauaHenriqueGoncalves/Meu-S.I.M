@@ -1,7 +1,7 @@
 .register-container
     display: flex
-    height: 100vh
-    overflow: hidden
+    min-height: 100vh
+    background: var(--background)
 
 .sidebar
     position: relative
@@ -15,6 +15,9 @@
     align-items: flex-start
     overflow: hidden
     z-index: 1
+
+    @media (max-width: 992px)
+        display: none
 
     h2
         font-size: 3rem
@@ -63,6 +66,11 @@
     justify-content: center
     align-items: center
     position: relative
+    padding: 2rem
+
+    @media (max-width: 768px)
+        padding: 5rem 1rem 2rem 1rem 
+        align-items: flex-start
 
     .btn-back
         position: absolute
@@ -80,6 +88,10 @@
         &:hover
             color: var(--color-primary-600)
 
+        @media (max-width: 768px)
+            top: 25px
+            left: 20px
+
 .form-box
     width: 100%
     max-width: 600px
@@ -89,6 +101,10 @@
     border: 1px solid var(--border-light)
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 20px 48px rgba(0, 0, 0, 0.05)
     transition: transform 0.3s ease
+
+    @media (max-width: 576px)
+        padding: 24px
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03)
 
 #turnstile-container
     position: absolute

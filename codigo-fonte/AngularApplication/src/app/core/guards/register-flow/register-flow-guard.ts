@@ -6,10 +6,10 @@ export const registerFlowGuard: CanActivateFn = () => {
   const registerStateService = inject(RegisterStateService);
   const router = inject(Router);
 
-  if (!registerStateService.email) {
-    router.navigate(['/']);
-    return false;
-  }
+  // if (!registerStateService.email) {
+  //   router.navigate(['/']);
+  //   return false;
+  // }
 
   return true;
 };

@@ -1,0 +1,23 @@
+<div class="verify-container error">
+  <div class="verify-box">
+    <div class="icon-wrapper error">
+      ✖
+    </div>
+
+    <h2>Falha na confirmação</h2>
+
+    <p class="message">
+      {{ message }}
+    </p>
+
+    <p class="instruction">
+        O link pode ter expirado ou já ter sido utilizado. Faça um novo cadastro ou consulte o suporte.
+    </p>
+
+    <div class="actions-group">
+      <button class="btn-primary" (click)="goToHome()">
+        Ir para o início
+      </button>
+    </div>
+  </div>
+</div>

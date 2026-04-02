@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class RegisterStateService {
-  email: string | null = null;
+  email: string | null | undefined = null;
 
   clear() {
     this.email = null;

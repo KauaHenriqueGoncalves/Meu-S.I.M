@@ -9,6 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 public record LoginRequest(
+
         @NotBlank(message = "O código da escola é obrigatório")
         @Size(max = 50, message = "O código da escola deve ter no máximo 50 caracteres")
         String schoolCode,

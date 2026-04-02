@@ -59,19 +59,19 @@
     </button>
 
     @if (!form.invalid) {
-    <button type="submit" class="btn-primary" [disabled]="isLoading">
-      @if (isLoading) {
-      <app-spinner-to-button></app-spinner-to-button>
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
+        @if (isLoading || captchaExecuting) {
+          <app-spinner-to-button></app-spinner-to-button>
+        }
+        @else {
+          Finalizar
+        }
+      </button>
       }
       @else {
-      Finalizar
+        <button type="button" class="btn-primary-disable" (click)="inputsEmpty()">
+          Finalizar
+        </button>
       }
-    </button>
-    }
-    @else {
-    <button type="button" class="btn-primary-disable" (click)="inputsEmpty()">
-      Finalizar
-    </button>
-    }
   </div>
 </form>

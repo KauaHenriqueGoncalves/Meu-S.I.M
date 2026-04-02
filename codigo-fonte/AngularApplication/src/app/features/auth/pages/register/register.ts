@@ -10,6 +10,7 @@ import { SchooladminApiService } from '../../../../core/services/api/schooladmin
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { CaptchaRequest } from '../../../../core/models/requests/captcha/capcha-request.model';
 
 declare const turnstile: any;
 
@@ -23,14 +24,16 @@ export class Register implements OnInit, OnDestroy {
   step: number = 0;
   isLoading: boolean = false;
 
-  userData: any = {};
-  schoolData: any = {};
-  captchaData: any = {};
+  userData: Partial<UserRequest> = {};
+  schoolData: Partial<SchoolRequest> = {};
+  captchaData: Partial<CaptchaRequest> = {};
 
+  captchaExecuting: boolean = false;
   private widgetId: string | null = null;
-  private captchaExecuting: boolean = false;
 
   private readonly SITE_KEY = environment.turnstileSiteKey;
+
+  private captchaTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private router: Router,
@@ -45,6 +48,9 @@ export class Register implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.captchaTimeoutRef) {
+      clearTimeout(this.captchaTimeoutRef);
+    }
     if (this.widgetId) {
       try {
         turnstile.remove(this.widgetId);
@@ -79,13 +85,22 @@ export class Register implements OnInit, OnDestroy {
     this.widgetId = turnstile.render('#turnstile-container', {
       sitekey: this.SITE_KEY,
       size: 'invisible',
+      retry: 'never',
       callback: (token: string) => {
-        if (!this.captchaExecuting || this.isLoading === false) return;
+        if (!this.captchaExecuting) return;
 
         this.captchaExecuting = false;
         this.captchaData = { captchaToken: token };
 
-        if (!this.userData?.email || !this.schoolData?.nameCode) return;
+        if (!this.userData?.email || !this.schoolData?.nameCode) {
+          this.isLoading = false;
+          this.notificationService.notify({
+            type: 'error',
+            text: 'Dados do formulário perdidos, preencha novamente'
+          });
+          this.backStep();
+          return;
+        };
 
         this.submitRegister();
       },
@@ -138,9 +153,14 @@ export class Register implements OnInit, OnDestroy {
     this.captchaExecuting = true;
     this.captchaData = { captchaToken: null };
 
+    const state = turnstile.getResponse(this.widgetId);
+    if (state !== undefined) {
+      turnstile.reset(this.widgetId);
+    }
+
     turnstile.execute(this.widgetId);
 
-    setTimeout(() => {
+    this.captchaTimeoutRef = setTimeout(() => {
       if (this.captchaExecuting) {
         this.notificationService.notify({
           type: 'warning',
@@ -160,26 +180,24 @@ export class Register implements OnInit, OnDestroy {
   }
 
   private submitRegister(): void {
-    console.log(this.userData);
-    console.log(this.schoolData);
-    console.log(this.captchaData);
-
     if (!this.captchaData?.captchaToken) {
       this.isLoading = false;
+      console.error('[Register] submitRegister chamado sem token — isso não deveria acontecer');
       return;
     }
 
-    this.schoolAdminApi.create(this.userData, this.schoolData, this.captchaData)
+    let success = false;
+
+    this.schoolAdminApi.create(
+      this.userData as UserRequest,
+      this.schoolData as SchoolRequest,
+      this.captchaData as CaptchaRequest
+    )
       .pipe(
         timeout(10000),
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        }),
         catchError((error) => {
           this.captchaExecuting = false;
           this.isLoading = false;
-
           this.captchaData = { captchaToken: null };
 
           if (this.widgetId) {
@@ -187,11 +205,19 @@ export class Register implements OnInit, OnDestroy {
           }
 
           return throwError(() => error);
+        }),
+        finalize(() => {
+          this.isLoading = false;
+
+          if (!success) {
+            this.cdr.detectChanges(); // só detecta mudanças em caso de erro
+          }
         })
       )
       .subscribe({
         next: () => {
-          this.registerStateService.email = this.userData.email;
+          success = true;
+          this.registerStateService.email = this.userData.email!;
           this.router.navigate(['/auth/verify-account']);
         },
         error: (err) => {
