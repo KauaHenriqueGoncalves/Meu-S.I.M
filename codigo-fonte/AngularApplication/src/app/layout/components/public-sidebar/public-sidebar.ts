@@ -7,4 +7,17 @@ import { RouterLink } from "@angular/router";
   templateUrl: './public-sidebar.html',
   styleUrl: './public-sidebar.sass',
 })
-export class PublicSidebar { }
+export class PublicSidebar {
+  isMenuOpen: boolean = false;
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+    
+    if (this.isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } 
+    else {
+      document.body.style.overflow = '';
+    }
+  }
+}

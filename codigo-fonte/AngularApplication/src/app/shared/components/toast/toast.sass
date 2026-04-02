@@ -1,10 +1,11 @@
 .toast-container
     position: fixed
-    top: 20px
-    right: 20px
+    top: 0px
+    right: 0px
     display: flex
     flex-direction: column
     gap: 10px
+    padding: 20px 20px
     z-index: 9999
 
 .toast
@@ -13,6 +14,9 @@
     color: var(--white)
     font-size: 14px
     box-shadow: 0 4px 12px rgba(0,0,0,0.15)
+
+    @media (max-width: 576px)
+        text-align: center
 
     &.success
         background: var(--color-primary-600)

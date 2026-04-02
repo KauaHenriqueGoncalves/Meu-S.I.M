@@ -13,12 +13,8 @@ import java.util.UUID;
 
 @Repository
 public interface SchoolRepository extends CrudRepository<School, UUID> {
-    @Query("""
-    SELECT COUNT(s) > 0 FROM School s
-    WHERE s.nameCode = :code
-        OR s.cnpj = :cnpj
-    """)
-    Boolean existsConflict(@Param("code") String nameCode, @Param("cnpj") String cnpj);
+    boolean existsByNameCode(String nameCode);
+    boolean existsByCnpj(String cnpj);
 
     @Query("""
     SELECT s FROM School s

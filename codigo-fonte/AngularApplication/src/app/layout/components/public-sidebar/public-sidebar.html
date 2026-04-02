@@ -1,8 +1,14 @@
+<div class="menu-overlay" [class.open]="isMenuOpen" (click)="toggleMenu()"></div>
+
 <nav class="nav-bar">
     <div class="container">
         <div class="icon">
             <img src="" alt="Logo MeuSim">
         </div>
+
+        <button class="menu-toggle" (click)="toggleMenu()" aria-label="Abrir menu">
+            ☰
+        </button>
 
         <div class="navigation">
             <ul class="links">
@@ -14,9 +20,29 @@
             </ul>
 
             <div class="btns">
-                <a routerLink="/sign-in">Criar Conta</a>
-                <a routerLink="">Entrar</a>
+                <a routerLink="/auth/sign-in" class="btn-outline">Criar Conta</a>
+                <a routerLink="" class="btn-solid">Entrar</a>
             </div>
         </div>
     </div>
 </nav>
+
+<div class="mobile-menu" [class.open]="isMenuOpen">
+    <div class="mobile-header">
+        <span class="mobile-title">Meu S.I.M</span>
+        <button class="close-btn" (click)="toggleMenu()">✕</button>
+    </div>
+
+    <ul class="mobile-links">
+        <li><a routerLink="/" (click)="toggleMenu()">Início</a></li>
+        <li><a routerLink="/funcionalidades" (click)="toggleMenu()">Funcionalidades</a></li>
+        <li><a routerLink="/planos" (click)="toggleMenu()">Planos</a></li>
+        <li><a routerLink="/sobre" (click)="toggleMenu()">Sobre</a></li>
+        <li><a routerLink="/faq" (click)="toggleMenu()">FAQ</a></li>
+    </ul>
+
+    <div class="mobile-btns">
+        <a routerLink="/auth/sign-in" (click)="toggleMenu()">Criar Conta</a>
+        <a routerLink="" (click)="toggleMenu()">Entrar</a>
+    </div>
+</div>

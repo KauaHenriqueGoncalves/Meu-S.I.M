@@ -1,0 +1,33 @@
+<div class="verify-container">
+  <div class="verify-box">
+    <div class="icon-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+
+    <h2>Verifique seu email</h2>
+
+    <p class="message">
+      Enviamos um link de confirmação para:<br>
+      <strong>{{ email }}</strong>
+    </p>
+
+    <p class="instruction">
+      Clique no link enviado para ativar sua conta e começar a usar o <span>Meu S.I.M</span>.
+    </p>
+
+    <p class="info">
+      <span>Obs:</span> O link expira em <strong>15 minutos</strong>.<br>
+      Caso expire, você poderá solicitar um novo cadastro após alguns instantes.
+    </p>
+
+    <div class="actions-group">
+      <button class="btn-primary" (click)="goToHome()">
+        Ir para o Início
+      </button>
+    </div>
+
+    <p class="hint">
+      Dica: Verifique sua pasta de <strong>spam</strong> ou promoções.
+    </p>
+  </div>
+</div>
