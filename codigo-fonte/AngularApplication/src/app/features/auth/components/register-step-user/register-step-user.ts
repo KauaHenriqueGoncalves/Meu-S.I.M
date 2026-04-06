@@ -3,7 +3,7 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validator
 import { cpfValidator } from '../../../../shared/validation/cpf.validator';
 import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only.directive';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
-import { UserRequest } from '../../../../core/models/requests/user/user-request.model';
+import { UserRequest } from '../../data/user-request.model';
 import { PhoneOnlyDirective } from '../../../../shared/directives/phone-only.directive';
 
 @Component({

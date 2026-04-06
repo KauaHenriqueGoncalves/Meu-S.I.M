@@ -1,1 +1,9 @@
-<p>private-layout works!</p>
+<div class="layout">
+  <app-private-sidebar [role]="userTokenPayload?.scope"></app-private-sidebar>
+
+  <main class="content">
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

@@ -1,31 +1,27 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { IconArrowLeft } from '../../../../shared/components/icons/icon-arrow-left.icon';
 import { Router } from '@angular/router';
-import { RegisterStepUser } from "../../components/register-step-user/register-step-user";
-import { IconArrowLeft } from "../../../../shared/components/icons/icon-arrow-left.icon";
-import { RegisterStepSchool } from "../../components/register-step-school/register-step-school";
-import { UserRequest } from '../../data/user-request.model';
-import { SchoolRequest } from '../../data/school-request.model';
-import { RegisterStateService } from '../../services/register-state.service';
-import { SchooladminApiService } from '../../../../core/services/api/schooladmin/schooladmin.api.service';
+import { LogInUser } from "../../components/log-in-user/log-in-user";
+import { LoginRequest } from '../../data/login-request.model';
+import { CaptchaRequest } from '../../data/capcha-request.model';
+import { AuthApiService } from '../../../../core/services/api/auth/auth.api.service';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { CaptchaRequest } from '../../data/capcha-request.model';
+import { AuthStore } from '../../../../core/auth/store/auth-store.service';
 
 declare const turnstile: any;
 
 @Component({
-  selector: 'app-register',
-  imports: [RegisterStepUser, IconArrowLeft, RegisterStepSchool],
-  templateUrl: './register.html',
-  styleUrl: './register.sass',
+  selector: 'app-log-in',
+  imports: [IconArrowLeft, LogInUser],
+  templateUrl: './log-in.html',
+  styleUrl: './log-in.sass',
 })
-export class Register implements OnInit, OnDestroy {
-  step: number = 0;
+export class LogIn implements OnInit, OnDestroy {
   isLoading: boolean = false;
 
-  userData: Partial<UserRequest> = {};
-  schoolData: Partial<SchoolRequest> = {};
+  loginData: Partial<LoginRequest> = {}
   captchaData: Partial<CaptchaRequest> = {};
 
   captchaExecuting: boolean = false;
@@ -38,9 +34,9 @@ export class Register implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private registerStateService: RegisterStateService,
+    private authStore: AuthStore,
     private notificationService: NotificationService,
-    private schoolAdminApi: SchooladminApiService
+    private authApi: AuthApiService
   ) { }
 
   ngOnInit(): void {
@@ -92,13 +88,12 @@ export class Register implements OnInit, OnDestroy {
         this.captchaExecuting = false;
         this.captchaData = { captchaToken: token };
 
-        if (!this.userData?.email || !this.schoolData?.nameCode) {
+        if (!this.loginData) {
           this.isLoading = false;
           this.notificationService.notify({
             type: 'error',
             text: 'Dados do formulário perdidos, preencha novamente'
           });
-          this.backStep();
           return;
         };
 
@@ -131,29 +126,19 @@ export class Register implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
-  nextStep(data: UserRequest) {
-    this.userData = data;
-    this.step = 1;
-  }
-
-  backStep() {
-    this.step = 0;
-    this.userData = {};
-    this.schoolData = {};
-  }
-
-  finish(data: SchoolRequest) {
+  finish(loginRequest: LoginRequest): void {
     if (this.isLoading) return;
     if (!this.widgetId) return;
     if (this.captchaExecuting) return;
 
-    this.schoolData = data;
+    this.loginData = loginRequest;
 
     this.isLoading = true;
     this.captchaExecuting = true;
     this.captchaData = { captchaToken: null };
 
     const state = turnstile.getResponse(this.widgetId);
+
     if (state !== undefined) {
       turnstile.reset(this.widgetId);
     }
@@ -188,9 +173,8 @@ export class Register implements OnInit, OnDestroy {
 
     let success = false;
 
-    this.schoolAdminApi.create(
-      this.userData as UserRequest,
-      this.schoolData as SchoolRequest,
+    this.authApi.login(
+      this.loginData as LoginRequest,
       this.captchaData as CaptchaRequest
     )
       .pipe(
@@ -208,17 +192,18 @@ export class Register implements OnInit, OnDestroy {
         }),
         finalize(() => {
           this.isLoading = false;
+          this.captchaExecuting = false;
 
           if (!success) {
-            this.cdr.detectChanges(); // só detecta mudanças em caso de erro
+            this.cdr.detectChanges();
           }
         })
       )
       .subscribe({
-        next: () => {
+        next: (res: any) => {
           success = true;
-          this.registerStateService.email = this.userData.email!;
-          this.router.navigate(['/auth/verify-account']);
+          this.authStore.setToken(res.accessToken);
+          this.router.navigate(['/app'], { replaceUrl: true });
         },
         error: (err) => {
           this.notificationService.notify({

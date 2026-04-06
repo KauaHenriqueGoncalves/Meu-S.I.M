@@ -1,12 +1,20 @@
 import { Routes } from '@angular/router';
 import { registerFlowGuard } from '../../core/guards/register-flow/register-flow-guard';
+import { loginGuest } from '../../core/guards/login-guest/login-guest-guard';
 
 export const routes: Routes = [
     {
-        path: 'sign-in',
+        path: 'sign-up',
         loadComponent: () =>
             import('./pages/register/register')
                 .then(m => m.Register)
+    },
+    {
+        path: 'log-in',
+        canActivate: [loginGuest],
+        loadComponent: () =>
+            import('./pages/log-in/log-in')
+                .then(m => m.LogIn)
     },
     {
         path: 'verify-account',

@@ -10,15 +10,14 @@ export class ApiConfig {
     }
 
     static get apiUrl(): string {
-        console.log("api utilizada: " + `${this.baseUrl}/${this.version}`);
         return `${this.baseUrl}/${this.version}`;
     }
 
     static endpoints = {
         auth: {
             login: '/auth/login',
-            register: '/auth/register',
-            refresh: '/auth/refresh'
+            refresh: '/auth/refresh',
+            logout: '/auth/logout'
         },
         user: {
             base: '/users'

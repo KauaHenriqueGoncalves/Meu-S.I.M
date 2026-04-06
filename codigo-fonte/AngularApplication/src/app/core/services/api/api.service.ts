@@ -11,13 +11,20 @@ export class ApiService {
   constructor(
     private http: HttpClient
   ) { }
-  
+
   get(url: string) {
     return this.http.get(`${this.baseUrl}${url}`);
   }
 
-  post(url: string, body: any) {
-    return this.http.post(`${this.baseUrl}${url}`, body);
+  post(url: string, body: any, options?: any) {
+    return this.http.post(
+      `${this.baseUrl}${url}`,
+      body,
+      {
+        withCredentials: true,
+        ...options
+      }
+    );
   }
 
   patch(url: string, body: any) {

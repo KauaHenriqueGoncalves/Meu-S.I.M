@@ -3,7 +3,7 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validator
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only.directive';
 import { cnpjValidator } from '../../../../shared/validation/cnpj.validator';
-import { SchoolRequest } from '../../../../core/models/requests/school/school-request.model';
+import { SchoolRequest } from '../../data/school-request.model';
 import { SpinnerToButton } from '../../../../shared/components/spinner-to-button/spinner-to-button';
 
 @Component({

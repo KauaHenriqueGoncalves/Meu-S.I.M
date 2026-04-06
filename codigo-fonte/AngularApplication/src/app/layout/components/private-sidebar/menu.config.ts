@@ -1,23 +1,28 @@
 export type Role = 'system_admin' | 'school_admin' | 'collaborator' | 'legal_guardian';
 
-export const MENU_CONFIG: Record<Role, any[]> = {
+export interface MenuItem {
+  label: string;
+  icon: string;
+  route: string;
+}
+
+export const MENU_CONFIG: Record<Role, MenuItem[]> = {
   system_admin: [
-    // { label: 'Dashboard', icon: 'home', route: '/dashboard' },
-    // { label: 'Escolas', icon: 'school', route: '/schools' },
-    // { label: 'Planos', icon: 'credit_card', route: '/billing' }
+    { label: 'system_admin', icon: '📊', route: '/dashboard' },
   ],
 
   school_admin: [
-    // { label: 'Dashboard', route: '/dashboard' },
-    // { label: 'Alunos', route: '/students' },
-    // { label: 'Turmas', route: '/classrooms' }
+    { label: 'Dashboard', icon: '📊', route: '/dashboard' },
+    { label: 'Escolas', icon: '🏫', route: '/schools' },
+    { label: 'Planos', icon: '💳', route: '/billing' },
+    { label: 'Planos', icon: '💳', route: '/billing' }
   ],
 
   collaborator: [
-    // { label: 'Minhas Turmas', route: '/classrooms' }
+    { label: 'collaborator', icon: '📊', route: '/dashboard' },
   ],
 
   legal_guardian: [
-    // { label: 'Minhas Turmas', route: '/classrooms' }
+    { label: 'legal_guardian', icon: '📊', route: '/dashboard' },
   ]
 };
