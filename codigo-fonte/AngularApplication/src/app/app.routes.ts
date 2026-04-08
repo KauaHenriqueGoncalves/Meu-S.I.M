@@ -5,7 +5,7 @@ export const routes: Routes = [
     {
         path: '',
         loadComponent: () =>
-            import('./layout/layouts/public/public-layout')
+            import('./layout/public-layout/public-layout')
                 .then(m => m.PublicLayout),
         children: [
             {
@@ -26,8 +26,16 @@ export const routes: Routes = [
         path: 'app',
         canActivate: [authGuard],
         loadComponent: () =>
-            import('./layout/layouts/private/private-layout')
-                .then(m => m.PrivateLayout)
+            import('./layout/private-layout/private-layout')
+                .then(m => m.PrivateLayout),
+        children: [
+            {
+                path: '',
+                loadChildren: () => 
+                    import('./features/dashboard/dashboard.routes')
+                        .then(m => m.routes)
+            }
+        ]
     },
     {
         path: '**',

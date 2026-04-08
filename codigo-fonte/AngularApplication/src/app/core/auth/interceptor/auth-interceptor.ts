@@ -1,26 +1,26 @@
 import { inject } from '@angular/core';
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
-import { HttpClient, HttpContext } from '@angular/common/http';
 import { AuthStore } from '../store/auth-store.service';
 import { NO_AUTH } from '../../config/no-auth.token.config';
-import { ApiConfig } from '../../config/api.config';
-import { AuthApiService } from '../../services/api/auth/auth.api.service';
+import { AuthApi } from '../../../features/auth/api/auth.api';
+import { Router } from '@angular/router';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
-  const authApi = inject(AuthApiService);
+  const authApi = inject(AuthApi);
+  const router = inject(Router);
 
-  // se for rota pública -> ignora tudo
+  // se for rota pública -> ignora tudo 
   if (req.context.get(NO_AUTH)) {
     console.log('[Interceptor] Rota pública (NO_AUTH):', req.url);
     return next(req);
   }
 
-  const token = authStore.getToken();
+  const token: string | null = authStore.getToken();
 
   let authReq = req;
 
@@ -36,7 +36,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   return next(authReq).pipe(
-    catchError((error: HttpErrorResponse) => { 
+    catchError((error: HttpErrorResponse) => {
       if (error.status !== 401) {
         console.log('[Interceptor] error diferente → lançar error');
         return throwError(() => error);
@@ -97,6 +97,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           console.log('[Interceptor] Refresh falhou → logout');
           isRefreshing = false;
           authStore.clear();
+          authApi.logout();
+          router.navigate(['/auth/log-in']);
           return throwError(() => err);
         })
       );

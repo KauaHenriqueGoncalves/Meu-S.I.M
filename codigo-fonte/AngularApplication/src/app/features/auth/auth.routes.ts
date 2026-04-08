@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { registerFlowGuard } from '../../core/guards/register-flow/register-flow-guard';
-import { loginGuest } from '../../core/guards/login-guest/login-guest-guard';
+import { loginGuest } from './guards/login-guest-guard';
 
 export const routes: Routes = [
     {

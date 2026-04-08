@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SpinnerToButton } from "../../../../shared/components/spinner-to-button/spinner-to-button";
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { Router, RouterLink } from '@angular/router';
-import { LoginRequest } from '../../data/login-request.model';
+import { LoginRequestDto } from '../../dto/login-request.dto';
 
 @Component({
   selector: 'app-log-in-user',
@@ -14,7 +14,7 @@ import { LoginRequest } from '../../data/login-request.model';
 export class LogInUser {
   @Input() isLoading: boolean = false;
   @Input() captchaExecuting: boolean = false;
-  @Output() next = new EventEmitter<LoginRequest>();
+  @Output() next = new EventEmitter<LoginRequestDto>();
   
   form = new FormGroup({
     schoolCode: new FormControl('', [
@@ -61,7 +61,7 @@ export class LogInUser {
       return;
     }
 
-    const payload: LoginRequest = {
+    const payload: LoginRequestDto = {
       schoolCode: this.form.value.schoolCode!.trim(),
       email: this.form.value.email!.trim(),
       password: this.form.value.password!.trim()

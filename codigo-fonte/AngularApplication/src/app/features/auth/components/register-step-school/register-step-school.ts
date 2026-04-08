@@ -3,7 +3,7 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validator
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only.directive';
 import { cnpjValidator } from '../../../../shared/validation/cnpj.validator';
-import { SchoolRequest } from '../../data/school-request.model';
+import { SchoolRequestDto } from '../../../school/dto/school-request.dto';
 import { SpinnerToButton } from '../../../../shared/components/spinner-to-button/spinner-to-button';
 
 @Component({
@@ -16,7 +16,7 @@ export class RegisterStepSchool {
   @Input() isLoading: boolean = false;
   @Input() captchaExecuting: boolean = false;
   @Output() cancel = new EventEmitter<any>();
-  @Output() next = new EventEmitter<any>();
+  @Output() next = new EventEmitter<SchoolRequestDto>();
 
   form = new FormGroup({
     nameCode: new FormControl('', [
@@ -69,14 +69,14 @@ export class RegisterStepSchool {
     });
   }
 
-  submit() {
+  submit(): void {
     this.form.markAllAsTouched();
 
     if (this.form.invalid) {
       this.inputsEmpty();
     }
 
-    const payload: SchoolRequest = {
+    const payload: SchoolRequestDto = {
       nameCode: this.form.value.nameCode?.trim(),
       schoolName: this.form.value.schoolName?.trim(),
       cnpj: this.form.value.cnpj?.trim()

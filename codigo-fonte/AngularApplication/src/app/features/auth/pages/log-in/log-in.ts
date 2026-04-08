@@ -1,10 +1,10 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { IconArrowLeft } from '../../../../shared/components/icons/icon-arrow-left.icon';
+import { ArrowLeftSvg } from '../../../../shared/components/svg/icon-arrow-left.svg';
 import { Router } from '@angular/router';
 import { LogInUser } from "../../components/log-in-user/log-in-user";
-import { LoginRequest } from '../../data/login-request.model';
-import { CaptchaRequest } from '../../data/capcha-request.model';
-import { AuthApiService } from '../../../../core/services/api/auth/auth.api.service';
+import { LoginRequestDto } from '../../dto/login-request.dto';
+import { CaptchaRequestDto } from '../../dto/capcha-request.dto';
+import { AuthApi } from '../../api/auth.api';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -14,20 +14,20 @@ declare const turnstile: any;
 
 @Component({
   selector: 'app-log-in',
-  imports: [IconArrowLeft, LogInUser],
+  imports: [ArrowLeftSvg, LogInUser],
   templateUrl: './log-in.html',
   styleUrl: './log-in.sass',
 })
 export class LogIn implements OnInit, OnDestroy {
   isLoading: boolean = false;
 
-  loginData: Partial<LoginRequest> = {}
-  captchaData: Partial<CaptchaRequest> = {};
+  loginData: Partial<LoginRequestDto> = {}
+  captchaData: Partial<CaptchaRequestDto> = {};
 
   captchaExecuting: boolean = false;
   private widgetId: string | null = null;
 
-  private readonly SITE_KEY = environment.turnstileSiteKey;
+  private readonly SITE_KEY: string = environment.turnstileSiteKey;
 
   private captchaTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
@@ -36,7 +36,7 @@ export class LogIn implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private authStore: AuthStore,
     private notificationService: NotificationService,
-    private authApi: AuthApiService
+    private authApi: AuthApi
   ) { }
 
   ngOnInit(): void {
@@ -122,11 +122,11 @@ export class LogIn implements OnInit, OnDestroy {
     });
   }
 
-  backToHome() {
+  backToHome(): void {
     this.router.navigate(['/']);
   }
 
-  finish(loginRequest: LoginRequest): void {
+  finish(loginRequest: LoginRequestDto): void {
     if (this.isLoading) return;
     if (!this.widgetId) return;
     if (this.captchaExecuting) return;
@@ -174,8 +174,8 @@ export class LogIn implements OnInit, OnDestroy {
     let success = false;
 
     this.authApi.login(
-      this.loginData as LoginRequest,
-      this.captchaData as CaptchaRequest
+      this.loginData as LoginRequestDto,
+      this.captchaData as CaptchaRequestDto
     )
       .pipe(
         timeout(10000),
@@ -203,7 +203,7 @@ export class LogIn implements OnInit, OnDestroy {
         next: (res: any) => {
           success = true;
           this.authStore.setToken(res.accessToken);
-          this.router.navigate(['/app'], { replaceUrl: true });
+          this.router.navigate(['/app/dashboard'], { replaceUrl: true });
         },
         error: (err) => {
           this.notificationService.notify({

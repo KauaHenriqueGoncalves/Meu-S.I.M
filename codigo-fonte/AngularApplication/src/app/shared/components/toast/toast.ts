@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
-import { NotificationMessage } from '../../../core/models/notification.model';
+import { NotificationMessage } from '../../models/notification.model';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { CommonModule } from '@angular/common';
 

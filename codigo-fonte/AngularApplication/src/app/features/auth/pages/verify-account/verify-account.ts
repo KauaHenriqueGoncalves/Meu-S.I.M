@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RegisterStateService } from '../../services/register-state.service';
 
@@ -8,15 +8,17 @@ import { RegisterStateService } from '../../services/register-state.service';
   templateUrl: './verify-account.html',
   styleUrl: './verify-account.sass',
 })
-export class VerifyAccount implements OnDestroy {
+export class VerifyAccount implements OnInit, OnDestroy {
   email: string | null = 'null';
 
   constructor(
     private router: Router,
     private registerStateService: RegisterStateService
-  ) {
-    if (registerStateService.email != null) {
-      this.email = registerStateService.email;
+  ) { }
+
+  ngOnInit(): void {
+    if (this.registerStateService.email != null) {
+      this.email = this.registerStateService.email;
     }
   }
   
