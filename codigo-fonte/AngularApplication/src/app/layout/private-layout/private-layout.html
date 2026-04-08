@@ -1,0 +1,13 @@
+<div class="layout">
+  <app-private-sidebar 
+    [role]="userTokenPayload?.scope"
+    [isTopbarHidden]="isTopbarHidden"
+    (next)="logout()">
+  </app-private-sidebar>
+
+  <main class="content" [class.topbar-hidden]="isTopbarHidden">
+    <div class="content-wrapper" (scroll)="onScroll($event)">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

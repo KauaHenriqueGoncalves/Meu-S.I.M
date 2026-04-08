@@ -1,0 +1,63 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="form">
+  <h2>Acesse sua conta</h2>
+  <p class="subtitle">Insira suas credenciais para entrar no portal.</p>
+
+  <div class="form-group">
+    <label>Código do Reforço Escolar*</label>
+    <input type="text" formControlName="schoolCode" maxlength="60"
+      placeholder="Ex: reforco-maria-123" />
+
+    @if (isInvalid('schoolCode') && form.get('schoolCode')?.errors?.['minlength']) {
+        <span class="input-message-error">Mínimo de 5 caracteres</span>
+    }
+
+    @if (isInvalid('schoolCode') && form.get('schoolCode')?.errors?.['maxlength']) {
+        <span class="input-message-error">Mínimo de 50 caracteres</span>
+    }
+  </div>
+
+  <div class="form-group">
+    <label>Email*</label>
+
+    <input type="email" maxlength="255" formControlName="email" placeholder="seu@email.com" />
+
+    @if (isInvalid('email') && form.get('email')?.errors?.['email']) {
+        <span class="input-message-error">Formato de email inválido</span>
+    }
+  </div>
+
+  <div class="form-group">
+    <label>Senha*</label>
+
+    <input type="password" formControlName="password" placeholder="••••••••" />
+
+    <div class="password-box-message">
+        @if (form.get('password')?.errors?.['minlength']) {
+            <span class="input-message-error">Mínimo de 8 caracteres</span>
+        }
+
+        @if (form.get('password')?.errors?.['maxlength']) {
+            <span class="input-message-error">Máximo de 20 caracteres</span>
+        }
+
+        <a routerLink="/" class="link-forgot-password">Esqueceu a senha?</a>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button type="submit" class="btn-primary" [disabled]="isLoading">
+        @if (isLoading || captchaExecuting) {
+          <app-spinner-to-button></app-spinner-to-button>
+        }
+        @else {
+          Entrar
+        }
+    </button>
+
+    <span class="or">ou</span>
+
+    <button type="button" class="btn-secundary" (click)="toCreateAccount()">
+        Criar Conta
+    </button>
+  </div>
+</form>

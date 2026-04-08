@@ -1,0 +1,355 @@
+$sidebar-collapsed: 80px
+$sidebar-expanded: 260px
+$floating-gap: 10px
+$mobile-breakpoint: 768px
+
+.menu-overlay
+    position: fixed
+    top: 0
+    left: 0
+    width: 100vw
+    height: 100vh
+    background: rgba(0, 0, 0, 0.14)
+    z-index: 400
+    opacity: 0
+    visibility: hidden
+    transition: all 0.2s ease-in-out
+
+    &.open
+        opacity: 1
+        visibility: visible
+
+.sidebar
+    position: fixed
+    top: $floating-gap
+    bottom: $floating-gap
+    left: $floating-gap
+    width: $sidebar-collapsed
+    background: var(--color-primary-600)
+    border-radius: 8px
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05)
+    border: 1px solid rgba(0, 0, 0, 0.05)
+    display: flex
+    flex-direction: column
+    z-index: 500
+    overflow: hidden
+    white-space: nowrap
+    transition: all .2s ease
+
+    &:hover
+        width: $sidebar-expanded
+
+.sidebar-header
+    height: 80px
+    display: flex
+    align-items: center
+    padding: 0 20px
+    margin-bottom: 14px
+
+    .logo-icon
+        min-width: 40px
+        height: 40px
+        color: var(--white)
+        border-radius: 6px
+        display: flex
+        align-items: center
+        justify-content: center
+        font-weight: 800
+        font-size: 14px
+        background: var(--color-primary-700)
+
+    .logo-text
+        margin-left: 16px
+        font-size: 18px
+        font-weight: 700
+        color: var(--color-primary-100)
+        opacity: 0
+        transition: opacity 0.2s ease
+        white-space: nowrap 
+        overflow: hidden 
+        text-overflow: ellipsis
+        max-width: 180px
+
+.sidebar:hover .logo-text
+    opacity: 1
+    transition-delay: 0.1s
+
+.sidebar-nav
+    display: flex
+    flex-direction: column
+    flex: 1
+    gap: 8px
+    padding: 0 16px
+    
+    li
+        width: 100%
+
+.sidebar-footer
+    display: flex
+    flex-direction: column
+    gap: 4px
+    padding: 16px
+    border-top: 1px solid var(--color-primary-100)
+
+.nav-item
+    position: relative
+    display: flex
+    align-items: center
+    gap: 5px
+    height: 48px
+    width: 100%
+    border-radius: 6px
+    color: var(--white)
+    text-align: left
+    font-size: 15px
+    cursor: pointer
+    transition: all 0.2s ease
+
+    .nav-text
+        opacity: 0
+        transition: opacity 0.2s ease
+
+    .icon
+        position: relative
+        display: flex
+        justify-content: center
+        align-items: center
+        min-width: 48px
+        font-size: 18px
+
+        svg
+            position: absolute
+            width: 24px !important
+            height: 24px !important
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
+            transition: stroke-width 0.2s ease, opacity 0.2s ease
+
+    &:hover, &.active
+        background: var(--color-primary-700)
+            
+.sidebar:hover .nav-text
+    opacity: 1
+    transition-delay: 0.1s
+
+.btn-logout
+    &:hover
+        background: rgba(228, 13, 13, 0.1)
+        color: #ffcbcb
+
+.btn-submenu
+    position: relative
+    
+    .chevron
+        margin-left: auto
+        margin-right: 16px
+        font-size: 10px
+        opacity: 0
+        transition: transform 0.3s ease, opacity 0.2s ease
+        color: var(--color-primary-100)
+
+        svg
+            width: 24px !important
+            height: 24px !important
+            position: absolute
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
+
+    &.open .chevron
+        transform: rotate(180deg)
+
+.sidebar:hover .chevron
+    opacity: 1
+    transition-delay: 0.1s
+
+.submenu-list
+    padding: 0
+    margin-top: 4px
+    background: rgba(0, 0, 0, 0.15) 
+    border-radius: 6px
+    list-style: none
+    overflow: hidden
+    animation: slideDown 0.2s ease-in-out
+
+.sub-nav-item
+    height: 40px
+    border-radius: 0
+    padding-left: 53px // alinhamento como pai padding + gap
+    color: var(--color-primary-100)
+    
+    .nav-text
+        font-size: 14px
+        opacity: 1
+
+    &:hover
+        background: rgba(255, 255, 255, 0.1)
+        color: var(--white)
+
+@keyframes slideDown
+    from
+        opacity: 0
+        transform: translateY(-5px)
+    to
+        opacity: 1
+        transform: translateY(0)
+
+.mobile-menu, .mobile-topbar
+    display: none
+
+@media (max-width: 992px)
+    .sidebar
+        display: none !important
+
+    .menu-overlay
+        display: block
+        position: fixed
+        top: 0
+        left: 0
+        width: 100vw
+        height: 100vh
+        background: rgba(0, 0, 0, 0.5)
+        z-index: 1500
+        opacity: 0
+        visibility: hidden
+        transition: all 0.2s ease-in-out
+
+        &.open
+            opacity: 1
+            visibility: visible
+
+    .mobile-topbar
+        display: flex
+        align-items: center
+        justify-content: space-between
+        position: fixed
+        top: 0
+        left: 0
+        right: 0
+        z-index: 450
+        margin: 7px
+        padding: .8rem 1rem .8rem .8rem
+        border-radius: 10px
+        background: var(--color-primary-600)
+        border-bottom: 1px solid var(--border-light)
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+
+        &.hidden
+            transform: translateY(-150%)
+
+        .sidebar-header
+            height: 40px
+            padding: 0
+            margin: 0
+            gap: 10px
+
+            .logo-text
+                font-size: 18px
+                opacity: 1
+                margin: 0
+
+        .menu-toggle
+            font-size: 1.8rem
+            background: transparent
+            border: none
+            color: var(--white)
+            cursor: pointer
+
+    .mobile-menu
+        display: flex
+        position: fixed
+        top: 0
+        right: -180% // Começa fora da tela (estética do public)
+        width: 280px
+        height: 100%
+        background: var(--color-primary-600)
+        box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15)
+        padding: 1.5rem 1.8rem
+        flex-direction: column
+        transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)
+        z-index: 2000
+
+        &.open
+            right: 0
+
+    .mobile-header
+        display: flex
+        justify-content: space-between
+        align-items: center
+        margin-bottom: 2rem
+        padding-bottom: .8rem
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1)
+
+        .mobile-title
+            color: var(--white)
+            font-size: 1.2rem
+            font-weight: 600
+
+        .close-btn
+            background: transparent
+            border: none
+            color: var(--white)
+            font-size: 1.7rem
+            cursor: pointer
+
+    .mobile-links
+        list-style: none
+        padding: 0
+        margin: 0
+        display: flex
+        flex-direction: column
+        gap: 0.5rem
+
+        li a, .mobile-submenu-btn
+            display: flex
+            justify-content: space-between
+            align-items: center
+            width: 100%
+            padding: 12px 0
+            color: var(--white)
+            text-decoration: none
+            font-size: 1.05rem
+            background: transparent
+            border: none
+            text-align: left
+            cursor: pointer
+
+        .mobile-sub-list
+            list-style: none
+            padding-left: 1.2rem
+            border-left: 1px solid rgba(255, 255, 255, 0.2)
+            margin-bottom: 0.5rem
+
+            li a
+                font-size: 0.98rem
+                opacity: 0.9
+
+        .chevron
+            font-size: 0.7rem
+            transition: transform 0.3s ease
+            &.rotated
+                transform: rotate(180deg)
+
+    .mobile-btns
+        margin-top: auto
+        display: flex
+        flex-direction: column
+        gap: 1rem
+        padding-bottom: 1rem
+
+        a
+            text-align: center
+            padding: 0.85rem
+            border-radius: 8px
+            font-weight: 600
+            font-size: 0.95rem
+            cursor: pointer
+            
+            &:first-child
+                border: 1px solid var(--white)
+                color: var(--white)
+
+            &:last-child
+                background: var(--white)
+                color: var(--color-primary-600)
