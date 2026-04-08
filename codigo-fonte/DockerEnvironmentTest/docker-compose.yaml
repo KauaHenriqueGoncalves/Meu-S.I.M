@@ -23,6 +23,10 @@ services:
         DATABASE_USERNAME_TEST: ${DATABASE_USERNAME_TEST}
         DATABASE_PASSWORD_TEST: ${DATABASE_PASSWORD_TEST}
         FRONT_END_URL: ${FRONT_END_URL}
+        BACK_END_URL: ${BACK_END_URL}
+        TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
+        TURNSTILE_SECRET_KEY_TEST: ${TURNSTILE_SECRET_KEY_TEST}
+        TURNSTILE_VERIFY_URL: ${TURNSTILE_VERIFY_URL}
         MERCADO_PAGO_ACCESS_TOKEN_TEST: ${MERCADO_PAGO_ACCESS_TOKEN_TEST}
         MERCADO_PAGO_NOTIFICATION_TEST: ${MERCADO_PAGO_NOTIFICATION_TEST}
         MERCADO_PAGO_WEBHOOK_SECRET_TEST: ${MERCADO_PAGO_WEBHOOK_SECRET_TEST}
@@ -62,6 +66,21 @@ services:
       timeout: 5s
       retries: 5
   
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_net
+
   redis:
     container_name: redis-local
     image: redis:7-alpine
@@ -105,11 +124,12 @@ services:
 
   # Container para teste de servidor proxy
   ngrok:
+    container_name: ngrok_proxy
     image: ngrok/ngrok:latest
     restart: unless-stopped
     command: start --all --config /etc/ngrok/ngrok.yml
-    mem_limit: 128m
-    cpus: 0.2
+    mem_limit: 128mb
+    cpus: 0.3
     environment:
     - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN} 
     volumes:

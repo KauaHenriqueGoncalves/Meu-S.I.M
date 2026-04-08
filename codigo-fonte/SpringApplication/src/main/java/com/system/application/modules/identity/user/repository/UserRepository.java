@@ -13,13 +13,9 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByCpf(String cpf);
 
-    @Query("""
-    SELECT COUNT(u) > 0 FROM User u
-    WHERE u.email = :email
-    OR u.cpf = :cpf
-    OR u.phoneNumber = :phone
-    """)
-    Boolean existsConflict(@Param("email") String email, @Param("cpf") String cpf, @Param("phone") String phone);
+    boolean existsByEmail(String email);
+    boolean existsByCpf(String cpf);
+    boolean existsByPhoneNumber(String phoneNumber);
 
     @Query("""
     select u

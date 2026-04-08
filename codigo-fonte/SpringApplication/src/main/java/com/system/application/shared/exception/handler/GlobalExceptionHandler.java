@@ -15,25 +15,28 @@ import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public final class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(
-            MethodArgumentNotValidException ex
+    public ResponseEntity<StandardError> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request
     ) {
-        Map<String, String> errors = new HashMap<>();
-
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError)error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
+        String message = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
         HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        return ResponseEntity.status(status).body(errors);
+        StandardError standardError = new StandardError(
+                Instant.now(),
+                status.value(),
+                "Validation error",
+                message,
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(standardError);
     }
 
     @ExceptionHandler(CpfInvalidException.class)

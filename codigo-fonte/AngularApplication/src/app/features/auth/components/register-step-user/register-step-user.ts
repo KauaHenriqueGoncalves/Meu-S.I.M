@@ -3,7 +3,7 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validator
 import { cpfValidator } from '../../../../shared/validation/cpf.validator';
 import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only.directive';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
-import { UserRequest } from '../../models/user-request.model';
+import { UserRequest } from '../../../../core/models/requests/user/user-request.model';
 import { PhoneOnlyDirective } from '../../../../shared/directives/phone-only.directive';
 
 @Component({
@@ -99,12 +99,12 @@ export class RegisterStepUser {
     }
 
     const payload: UserRequest = {
-      username: this.form.value.name,
-      email: this.form.value.email,
-      password: this.form.value.password,
-      cpf: this.form.value.cpf,
-      phoneNumber: this.form.value.phoneNumber,
-      address: this.form.value.address
+      username: this.form.value.name?.trim(),
+      email: this.form.value.email?.trim(),
+      password: this.form.value.password?.trim(),
+      cpf: this.form.value.cpf?.trim(),
+      phoneNumber: this.form.value.phoneNumber?.trim(),
+      address: this.form.value.address?.trim()
     };
 
     this.next.emit(payload);

@@ -1,0 +1,157 @@
+.main-footer
+    background: var(--color-primary-700)
+    color: var(--color-primary-50)
+    padding-top: 3.5rem
+
+.footer-container
+    display: grid
+    grid-template-columns: 1.7fr repeat(3, 1fr)
+    gap: 3rem
+
+    @media (max-width: 992px)
+        grid-template-columns: 1fr 1fr
+        gap: 4rem 3rem
+
+    @media (max-width: 576px)
+        grid-template-columns: 1fr
+        text-align: center
+
+.footer-container .footer-col
+    h4
+        color: var(--white)
+        margin-bottom: 1rem
+        font-size: 1.1rem
+        font-weight: 600
+
+    .footer-logo
+        font-size: 1.4rem
+        color: var(--color-primary-50)
+        margin-bottom: .7rem
+
+    .brand-description
+        font-size: 0.95rem
+        color: var(--white)
+        max-width: 400px
+        @media (max-width: 576px)
+            margin: 0 auto 1.5rem
+
+.footer-container .footer-col .footer-contact
+    margin: 1.5rem 0
+    display: flex
+    flex-direction: column
+    gap: .5rem
+
+    .contact-item
+        position: relative
+        display: inline-flex
+        align-items: center
+        gap: 0.5rem
+        cursor: pointer
+        font-size: 0.9rem
+        width: fit-content
+        transition: color 0.2s
+
+        &:hover
+            text-decoration: underline
+
+        &:active
+            color: var(--color-primary-200)    
+
+        @media (max-width: 576px)
+            margin: 0 auto
+
+            &:hover .value
+                text-decoration: underline
+                color: var(--white)
+
+            .label
+                font-weight: 600
+                color: var(--white)
+
+            .value
+                color: var(--white)
+                text-decoration: underline
+
+            .copy-badge
+                position: absolute
+                top: -25px
+                left: 50%
+                transform: translateX(-50%)
+                background: var(--white)
+                color: var(--color-primary-800)
+                padding: 2px 8px
+                border-radius: 4px
+                font-size: 0.7rem
+                font-weight: 700
+                animation: fadeInOut 2s forwards
+
+.footer-container .footer-col .footer-links
+    list-style: none
+    padding: 0
+    margin: 0
+
+    li
+        margin-bottom: 0.8rem
+
+        a
+            color: var(--color-primary-100)
+            text-decoration: none
+            font-size: 0.95rem
+
+            &:hover
+                color: var(--white)
+                text-decoration: underline
+
+            &:active
+                color: var(--color-primary-100)
+
+        .cta-link
+            color: var(--white)
+            font-weight: 500
+
+.footer-container .footer-col .footer-social
+    margin-top: 1rem
+    display: flex
+    gap: 1rem
+    max-width: fit-content
+
+    @media (max-width: 576px)
+        margin: 0 auto
+
+    a
+        color: var(--color-primary-100)
+        font-size: 0.9rem
+        text-decoration: none
+
+        &:hover
+            color: var(--white)
+            text-decoration: underline
+
+        &:active
+            color: var(--color-primary-100)
+
+.footer-bottom
+    margin-top: 2rem
+    padding: 1rem 0
+    border-top: 1px solid rgba(255,255,255,0.1)
+    text-align: center
+    font-size: 0.85rem
+    background: var(--color-primary-600)
+
+    p
+        font-size: 0.85rem
+        color: var(--white)
+        margin: 0
+
+@keyframes fadeInOut
+    0% 
+        opacity: 0
+        transform: translate(-50%, 10px)
+    20% 
+        opacity: 1
+        transform: translate(-50%, 0)
+    80% 
+        opacity: 1
+    100% 
+        opacity: 0
+        transform: translate(-50%, -10px)

@@ -90,6 +90,9 @@ public class SecurityConfig {
     public SecurityFilterChain testProtectedChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -141,6 +144,9 @@ public class SecurityConfig {
     public SecurityFilterChain securedChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

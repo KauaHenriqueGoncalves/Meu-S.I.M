@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start-dev": "ng serve --configuration development --host 0.0.0.0 --live-reload",
+    "start-dev": "ng serve --configuration development --host 0.0.0.0 --hmr=false --live-reload --proxy-config proxy.conf.json",
     "serve": "ng serve",
-    "build": "ng build",
+    "build": "ng build --prod",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
