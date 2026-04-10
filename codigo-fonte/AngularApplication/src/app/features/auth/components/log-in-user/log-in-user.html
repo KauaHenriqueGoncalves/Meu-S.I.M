@@ -3,7 +3,7 @@
   <p class="subtitle">Insira suas credenciais para entrar no portal.</p>
 
   <div class="form-group">
-    <label>Código do Reforço Escolar*</label>
+    <label>Código do Reforço Escolar<span class="asterix">*</span></label>
     <input type="text" formControlName="schoolCode" maxlength="60"
       placeholder="Ex: reforco-maria-123" />
 
@@ -17,7 +17,7 @@
   </div>
 
   <div class="form-group">
-    <label>Email*</label>
+    <label>Email<span class="asterix">*</span></label>
 
     <input type="email" maxlength="255" formControlName="email" placeholder="seu@email.com" />
 
@@ -27,7 +27,7 @@
   </div>
 
   <div class="form-group">
-    <label>Senha*</label>
+    <label>Senha<span class="asterix">*</span></label>
 
     <div class="input-wrapper">
       <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" />
