@@ -3,7 +3,14 @@
 <aside class="sidebar" (mouseenter)="toggleOverlay()" (mouseleave)="toggleOverlay()" (mouseleave)="resetMenus()">
     <div class="sidebar-header">
         <div class="logo-icon">SIM</div>
-        <h2 class="logo-text">School name name name</h2>
+        <h2 class="logo-text">
+            @switch (role) { 
+                @case ('school_admin') { Administrador }
+                @case ('legal_guardian') { Responsável }
+                @case ('collaborator') { Colaborador }
+                @default { Cargo } 
+            } 
+        </h2>
     </div>
 
     <ul class="sidebar-nav">
@@ -73,7 +80,14 @@
 <header class="mobile-topbar" [class.hidden]="isTopbarHidden">
     <div class="sidebar-header">
         <div class="logo-icon">SIM</div>
-        <h2 class="logo-text">Administrador</h2>
+        <h2 class="logo-text">
+            @switch (role) { 
+                @case ('school_admin') { Administrador }
+                @case ('legal_guardian') { Responsável }
+                @case ('collaborator') { Colaborador }
+                @default { Cargo } 
+            } 
+        </h2>
     </div>
 
     <button class="menu-toggle" (click)="toggleOverlay()" aria-label="Abrir menu">

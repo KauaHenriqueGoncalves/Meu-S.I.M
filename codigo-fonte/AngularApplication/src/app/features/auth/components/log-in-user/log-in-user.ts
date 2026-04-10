@@ -36,6 +36,8 @@ export class LogInUser {
     ])
   });
 
+  showPassword = false;
+
   constructor(
     private router: Router,
     private notificationService: NotificationService
