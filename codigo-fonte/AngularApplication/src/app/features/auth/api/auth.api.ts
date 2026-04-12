@@ -24,8 +24,6 @@ export class AuthApi {
       }
     }
 
-    // REQUISIÇÃO PROTEGIDA: return this.api.post(ApiConfig.endpoints.auth.login, payload);
-
     return this.apiService.post(
       ApiConfig.endpoints.auth.login, 
       payload, 
@@ -45,7 +43,7 @@ export class AuthApi {
     );
   }
 
-  logout() {
+  logout(): void {
     this.apiService.post(
       ApiConfig.endpoints.auth.logout,
       {},

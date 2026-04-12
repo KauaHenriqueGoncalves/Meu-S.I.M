@@ -33,8 +33,8 @@ export const MENU_CONFIG: Record<Role, MenuItem[]> = {
       icon: 'card',
       expanded: false,
       children: [
-        { label: 'Minhas Licenças', route: '/subscriptions' },
-        { label: 'Nova Licença', route: '/buy-subscription' },
+        { label: 'Minhas Licenças', route: '/app/my' },
+        { label: 'Nova Licença', route: '/app/new-subscription' },
       ]
     },
   ],

@@ -34,11 +34,17 @@ export const routes: Routes = [
                 loadChildren: () => 
                     import('./features/dashboard/dashboard.routes')
                         .then(m => m.routes)
+            },
+            {
+                path: '',
+                loadChildren: () => 
+                    import('./features/subscription/subscription.routes')
+                        .then(m => m.routes)
             }
         ]
     },
     {
         path: '**',
         redirectTo: ''
-    }
+    },
 ];
