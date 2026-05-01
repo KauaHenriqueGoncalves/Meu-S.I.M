@@ -16,7 +16,7 @@ export class BillingDiscountApi {
 
   findAllToClient(): Observable<BillingDiscountClientResponse[]> {
     if (!this.discount$) {
-      this.discount$ = this.apiService.get<BillingDiscountClientResponse>(
+      this.discount$ = this.apiService.get<BillingDiscountClientResponse[]>(
         ApiConfig.endpoints.billingdiscount.toClient,
       )
       .pipe(shareReplay(1));

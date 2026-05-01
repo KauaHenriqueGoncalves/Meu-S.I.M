@@ -1,15 +1,15 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { SchoolPlanApi } from '../../../schoolplan/api/school-plan-api';
+import { SchoolPlanApi } from '../../../schoolplan/api/school-plan.api';
 import { SchoolPlanClientResponseDto } from '../../../schoolplan/dto/school-plan-client-response.dto';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
-import { BillingDiscountApi } from '../../../billingdiscount/api/billing-discount-api';
+import { BillingDiscountApi } from '../../../billingdiscount/api/billing-discount.api';
 import { BillingDiscountClientResponse } from '../../../billingdiscount/dto/billing-discount-client-response.dto';
 import { Decimal } from 'decimal.js';
 import { SubscriptionCheckoutResponseDto } from '../../dto/subscription-checkout-response.dto';
 import { SubscriptionRequestDto } from '../../dto/subscription-request.dto';
-import { SubscriptionApi } from '../../api/subscription-api';
+import { SubscriptionApi } from '../../api/subscription.api';
 import { SpinnerToButton } from '../../../../shared/components/spinner-to-button/spinner-to-button';
 
 @Component({
@@ -85,83 +85,83 @@ export class NewSubscription implements OnInit {
 
   private requestSchoolPlan(): void {
     this.schoolPlanApi.findAllToClient()
-    .pipe(
-      timeout(10000),
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    )
-    .subscribe({
-      next: (res: SchoolPlanClientResponseDto[]) => {
-        this.plans = res.map(plan => 
-          ({ 
-            ...plan, 
-            basePrice: new Decimal(plan.monthlyPrice), 
+      .pipe(
+        timeout(10000),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      )
+      .subscribe({
+        next: (res: SchoolPlanClientResponseDto[]) => {
+          this.plans = res.map(plan =>
+          ({
+            ...plan,
+            basePrice: new Decimal(plan.monthlyPrice),
             monthlyPrice: new Decimal(plan.monthlyPrice),
-            selectedMonths: 1 
+            selectedMonths: 1
           }));
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.notificationService.notify({
-          type: 'error',
-          text: err.error?.message || 'Erro inesperado, tente novamente mais tarde'
-        });
-      }
-    });
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro inesperado, tente novamente mais tarde'
+          });
+        }
+      });
   }
 
   private requestDiscounts(): void {
     this.billingDiscountApi.findAllToClient()
-    .pipe(
-      timeout(10000),
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    )
-    .subscribe({
-      next: (res: BillingDiscountClientResponse[]) => {
-        this.discounts = res.map(discount => 
+      .pipe(
+        timeout(10000),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      )
+      .subscribe({
+        next: (res: BillingDiscountClientResponse[]) => {
+          this.discounts = res.map(discount =>
           ({
             ...discount,
             discountPercent: new Decimal(discount.discountPercent)
           }));
-      },
-      error: (err) => {
-        this.notificationService.notify({
-          type: 'error',
-          text: err.error?.message || 'Erro inesperado, tente novamente mais tarde'
-        });
-      }
-    });
+        },
+        error: (err) => {
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro inesperado, tente novamente mais tarde'
+          });
+        }
+      });
   }
 
   private requestPaySubscription(subscription: SubscriptionRequestDto, plan: SchoolPlanClientResponseDto): void {
     if (plan.isLoading) return;
 
     plan.isLoading = true;
-    
+
     this.subscriptionApi.paySubscription(subscription)
-    .pipe(
-      timeout(10000),
-      catchError((error) => {
-        return throwError(() => error);
-      }),
-      finalize(() => {
-        plan.isLoading = false;
-        this.cdr.detectChanges();
-      })
-    )
-    .subscribe({
-      next: (res: SubscriptionCheckoutResponseDto) => {
-        window.open(res.initPoint, '_blank');
-      },
-      error: (err) => {
-        this.notificationService.notify({
-          type: 'error',
-          text: err.error?.message || 'Erro inesperado, tente novamente mais tarde'
-        });
-      }
-    });
+      .pipe(
+        timeout(10000),
+        catchError((error) => {
+          return throwError(() => error);
+        }),
+        finalize(() => {
+          plan.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res: SubscriptionCheckoutResponseDto) => {
+          window.open(res.initPoint, '_blank');
+        },
+        error: (err) => {
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro inesperado, tente novamente mais tarde'
+          });
+        }
+      });
   }
 }

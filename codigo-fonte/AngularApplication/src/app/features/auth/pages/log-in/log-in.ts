@@ -9,6 +9,7 @@ import { NotificationService } from '../../../../core/services/notification/noti
 import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { AuthStore } from '../../../../core/auth/store/auth-store.service';
+import { TokenResponse } from '../../dto/token-response.dto';
 
 declare const turnstile: any;
 
@@ -200,7 +201,7 @@ export class LogIn implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: (res: any) => {
+        next: (res: TokenResponse) => {
           success = true;
           this.authStore.setToken(res.accessToken);
           this.router.navigate(['/app/dashboard'], { replaceUrl: true });

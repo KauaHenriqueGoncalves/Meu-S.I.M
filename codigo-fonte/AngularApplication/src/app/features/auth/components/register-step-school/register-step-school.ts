@@ -5,10 +5,11 @@ import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only
 import { cnpjValidator } from '../../../../shared/validation/cnpj.validator';
 import { SchoolRequestDto } from '../../../school/dto/school-request.dto';
 import { SpinnerToButton } from '../../../../shared/components/spinner-to-button/spinner-to-button';
+import { NoEmojiDirective } from '../../../../shared/directives/no-emoji.directive';
 
 @Component({
   selector: 'app-register-step-school',
-  imports: [ReactiveFormsModule, NumbersOnlyDirective, SpinnerToButton],
+  imports: [ReactiveFormsModule, NumbersOnlyDirective, SpinnerToButton, NoEmojiDirective],
   templateUrl: './register-step-school.html',
   styleUrl: './register-step-school.sass',
 })

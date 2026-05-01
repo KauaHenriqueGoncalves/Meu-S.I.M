@@ -42,7 +42,9 @@
                             } 
                         </span>
                         <span class="nav-text">{{ item.label }}</span>
-                        <span class="chevron"><app-svg-angle-down /></span>
+                        <span class="chevron">
+                            <app-svg-angle-down color="#ecfdf5" [size]="18"/>
+                        </span>
                     </button>
 
                     @if (item.expanded) {

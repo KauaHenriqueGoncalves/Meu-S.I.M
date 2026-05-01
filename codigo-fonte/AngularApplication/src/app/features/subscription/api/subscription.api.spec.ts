@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { BillingDiscountApi } from './billing-discount-api';
+import { SubscriptionApi } from './subscription.api';
 
-describe('BillingDiscountApi', () => {
-  let service: BillingDiscountApi;
+describe('SubscriptionApi', () => {
+  let service: SubscriptionApi;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(BillingDiscountApi);
+    service = TestBed.inject(SubscriptionApi);
   });
 
   it('should be created', () => {

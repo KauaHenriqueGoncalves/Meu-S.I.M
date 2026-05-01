@@ -1,0 +1,314 @@
+.my-subs-container
+    padding: 1rem 0
+    animation: fadeIn 0.4s ease-out
+
+.page-header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 2rem
+    padding: 1rem 0 2rem
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15)
+
+    .title-area
+        h1
+            font-size: 1.8rem
+            color: var(--text-333)
+            margin-bottom: 0.5rem
+        p
+            color: var(--text-666)
+            font-size: 1rem
+
+    .btn-primary
+        background: var(--color-primary-600)
+        color: var(--white)
+        border: none
+        padding: 0.8rem 1.5rem
+        border-radius: 8px
+        font-weight: 600
+        cursor: pointer
+        &:hover
+            background: var(--color-primary-700)
+        &:active
+            transform: scale(.98)
+
+.subs-list
+    background: var(--white)
+    border-radius: 12px
+    border: 1px solid rgba(0, 0, 0, 0.08)
+    overflow: hidden    
+
+.list-header
+    display: grid
+    grid-template-columns: 2fr 1fr 2fr 1fr
+    gap: 1rem
+    padding: 1rem 1.5rem
+    background: var(--bg-light)
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08)
+    font-weight: 600
+    color: var(--text-666)
+    font-size: 0.9rem
+    text-transform: uppercase
+    letter-spacing: 0.5px
+
+.sub-row
+    display: grid
+    grid-template-columns: 2fr 1fr 2fr 1fr
+    gap: 1rem
+    padding: 1.25rem 1.5rem
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08)
+    align-items: center
+    transition: background 0.2s
+
+    &:last-child
+        border-bottom: none
+
+.col-plan
+    .plan-info
+        display: flex
+        flex-direction: column
+        strong
+            color: var(--text-333)
+            font-size: 1rem
+            margin-bottom: 0.2rem
+        .sub-id
+            font-size: 0.75rem
+            color: var(--text-666)
+            font-family: monospace
+
+.col-date
+    .date-info
+        display: flex
+        align-items: center
+        gap: 0.5rem
+        color: var(--text-333)
+        font-size: 0.9rem
+        .arrow
+            color: var(--text-666)
+            transform: rotate(180deg)
+        .expired-text
+            color: #d32f2f
+            text-decoration: line-through
+
+.col-action
+    text-align: right
+
+.mobile-label
+    display: none
+
+.badge
+    padding: 0.3rem 0.8rem
+    border-radius: 20px
+    font-size: 0.75rem
+    font-weight: 700
+    text-transform: uppercase
+    letter-spacing: 0.5px
+    display: inline-block
+
+    &.active
+        background: rgba(30, 194, 118, 0.15)
+        color: var(--color-primary-600)
+    &.expired
+        background: rgba(211, 47, 47, 0.1)
+        color: #d32f2f
+    &.pending_payment
+        background: rgba(245, 124, 0, 0.1)
+        color: #f57c00
+    &.canceled
+        background: #f9f9f9
+        color: var(--text-666)
+
+.btn-details
+    background: transparent
+    border: 1px solid var(--color-primary-600)
+    color: var(--color-primary-600)
+    padding: 0.5rem 1rem
+    border-radius: 6px
+    font-weight: 600
+    font-size: 0.85rem
+    cursor: pointer
+    transition: background 0.2s, color 0.2s
+    width: 100%
+    text-align: center
+
+    &:hover
+        background: var(--color-primary-600)
+        color: var(--white)
+
+    &:active
+        transform: scale(.98)
+
+.pagination
+    display: flex
+    justify-content: center
+    align-items: center
+    gap: 1.5rem
+    margin-top: 2rem
+
+    button
+        padding: 0.5rem 1rem
+        border: 1px solid rgba(0, 0, 0, 0.08)
+        background: var(--white)
+        border-radius: 6px
+        cursor: pointer
+        font-weight: 600
+        min-width: 100px
+        height: 38px
+        color: var(--text-666)
+        transition: background 0.2s, color 0.2s, border 0.2s
+
+        &:disabled
+            opacity: 0.5
+            cursor: not-allowed
+            background: #f9f9f9
+
+        &:active
+            transform: scale(.97)
+
+        &:not(:disabled):hover
+            border-color: var(--color-primary-600)
+            color: var(--color-primary-600)
+
+    .page-info
+        display: flex
+        flex-direction: column
+        align-items: center
+        gap: 0.2rem
+
+        .numbers
+            font-size: 0.9rem
+            color: var(--text-666)
+            strong
+                color: var(--text-333)
+                font-weight: 700
+
+        .total
+            font-size: 0.75rem
+            color: #999
+
+.empty-state
+    padding: 1rem 1.5rem
+    font-size: 1rem
+    color: var(--text-333)
+
+.skeleton-row
+    display: grid
+    grid-template-columns: 2fr 1fr 2fr 1fr
+    gap: 1rem
+    padding: 1rem 1.5rem
+    align-items: center
+    
+    .skeleton-item
+        background: #d7d7d7
+        border-radius: 4px
+        overflow: hidden
+        position: relative
+        
+        &::after
+            content: ""
+            height: 50px
+            position: absolute
+            top: 0
+            right: 0
+            bottom: 0
+            left: 0
+            transform: translateX(-100%)
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0))
+            animation: shimmer 1.5s infinite
+
+    .col-plan
+        .title
+            height: 20px
+            width: 140px
+            margin-bottom: 6px
+        
+        .subtitle
+            height: 14px
+            width: 80px
+
+    .col-status
+        .badge-skeleton
+            height: 24px
+            width: 70px
+            border-radius: 20px
+
+    .col-date
+        .date-bar
+            height: 18px
+            width: 160px
+
+    .col-action
+        .button-skeleton
+            height: 34px
+            width: 110px
+            border-radius: 6px
+            margin-left: auto
+
+@keyframes fadeIn
+    from
+        opacity: 0
+        transform: translateY(10px)
+    to
+        opacity: 1
+        transform: translateY(0)
+
+@keyframes shimmer
+    100%
+        transform: translateX(100%)
+
+@media (max-width: 768px)
+    .my-subs-container
+        padding: 1rem
+
+    .page-header
+        flex-direction: column
+        align-items: flex-start
+        gap: 1.2rem
+        padding: 0 0 2rem
+
+        .title-area h1
+            font-size: 1.5rem
+
+        .btn-primary
+            width: 100%
+    
+    .list-header
+        display: none // Remove o cabeçalho no mobile
+
+    .subs-list
+        background: transparent
+        border: none
+
+    .sub-row
+        display: flex
+        flex-direction: column
+        gap: 1rem
+        background: var(--white)
+        border: 1px solid rgba(0, 0, 0, 0.08)
+        border-radius: 12px
+        margin-bottom: 1rem
+        padding: 1.5rem
+        align-items: flex-start
+
+        &:last-child
+            margin-bottom: 0
+
+    .col-plan, .col-status, .col-date, .col-action
+        width: 100%
+
+    .col-action
+        justify-content: center
+
+    .btn-details
+        width: 100% // Volta a ser full-width
+        border: 1px solid var(--color-primary-600)
+
+    .mobile-label
+        display: block
+        font-size: 0.75rem
+        color: var(--text-666)
+        margin-bottom: 0.25rem
+        text-transform: uppercase
+        font-weight: 600
+        letter-spacing: 0.5px
+        

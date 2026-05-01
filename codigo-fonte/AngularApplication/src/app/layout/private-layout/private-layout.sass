@@ -6,6 +6,11 @@
     flex-direction: column
     box-sizing: border-box
 
+    ::-webkit-scrollbar
+            width: 4px
+    ::-webkit-scrollbar-thumb
+        background: rgba(90, 228, 152, 0.7)
+
     @media (max-width: 992px)
         margin: 0
         height: 100vh // Agora ele sempre ocupa a tela inteira
@@ -23,9 +28,11 @@
 
     .content-wrapper
         flex: 1
+        padding-right: 1rem
         overflow-y: auto
         overflow-x: hidden
         border-radius: 12px
 
         @media (max-width: 992px)
+            padding-right: .2rem
             border-radius: 0px

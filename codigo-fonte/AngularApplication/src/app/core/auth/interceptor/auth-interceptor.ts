@@ -5,6 +5,7 @@ import { AuthStore } from '../store/auth-store.service';
 import { NO_AUTH } from '../../config/no-auth.token.config';
 import { AuthApi } from '../../../features/auth/api/auth.api';
 import { Router } from '@angular/router';
+import { NotificationService } from '../../services/notification/notification.service';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
@@ -13,6 +14,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
   const authApi = inject(AuthApi);
   const router = inject(Router);
+  const notificationService = inject(NotificationService);
 
   // se for rota pública -> ignora tudo 
   if (req.context.get(NO_AUTH)) {
@@ -93,6 +95,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           return next(newReq);
         }),
         catchError((err) => {
+          notificationService.notify({
+            type: 'error',
+            text: 'Faça o login novamente'
+          });
           // refresh falhou -> logout
           console.log('[Interceptor] Refresh falhou → logout');
           isRefreshing = false;

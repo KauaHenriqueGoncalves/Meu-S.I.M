@@ -5,10 +5,11 @@ import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { UserRequestDto } from '../../../user/dto/user-request.dto';
 import { PhoneOnlyDirective } from '../../../../shared/directives/phone-only.directive';
+import { NoEmojiDirective } from '../../../../shared/directives/no-emoji.directive';
 
 @Component({
   selector: 'app-register-step-user',
-  imports: [ReactiveFormsModule, NumbersOnlyDirective, PhoneOnlyDirective],
+  imports: [ReactiveFormsModule, NumbersOnlyDirective, PhoneOnlyDirective, NoEmojiDirective],
   templateUrl: './register-step-user.html',
   styleUrl: './register-step-user.sass',
 })
@@ -36,8 +37,6 @@ export class RegisterStepUser {
     cpf: new FormControl('', [
       Validators.required,
       this.exactLength(11),
-      Validators.maxLength(11),
-      Validators.minLength(11),
       cpfValidator()
     ]),
 

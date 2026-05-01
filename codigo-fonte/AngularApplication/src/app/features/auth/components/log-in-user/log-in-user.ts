@@ -4,10 +4,11 @@ import { SpinnerToButton } from "../../../../shared/components/spinner-to-button
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { Router, RouterLink } from '@angular/router';
 import { LoginRequestDto } from '../../dto/login-request.dto';
+import { NoEmojiDirective } from '../../../../shared/directives/no-emoji.directive';
 
 @Component({
   selector: 'app-log-in-user',
-  imports: [ReactiveFormsModule, SpinnerToButton, RouterLink],
+  imports: [ReactiveFormsModule, SpinnerToButton, RouterLink, NoEmojiDirective],
   templateUrl: './log-in-user.html',
   styleUrl: './log-in-user.sass',
 })

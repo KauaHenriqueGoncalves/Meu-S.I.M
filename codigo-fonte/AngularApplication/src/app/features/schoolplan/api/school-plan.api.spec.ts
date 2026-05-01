@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SchoolPlanApi } from './school-plan-api';
+import { SchoolPlanApi } from './school-plan.api';
 
 describe('SchoolPlanApi', () => {
   let service: SchoolPlanApi;
