@@ -1,4 +1,4 @@
-# Meu SIM — API
+# Meu SIM — API (desatualizado)
 
 API do **Sistema Integrado de Gestão para Reforço Acadêmico**, desenvolvida como base SaaS multi-escola.  
 Oferece autenticação segura com JWT/RSA, controle de acesso por perfis, integração com Mercado Pago e suporte a múltiplos ambientes de execução.
