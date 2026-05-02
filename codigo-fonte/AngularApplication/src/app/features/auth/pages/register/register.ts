@@ -1,22 +1,22 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RegisterStepUser } from "../../components/register-step-user/register-step-user";
-import { IconArrowLeft } from "../../../../shared/components/icons/icon-arrow-left.icon";
+import { ArrowLeftSvg } from "../../../../shared/components/svg/icon-arrow-left.svg";
 import { RegisterStepSchool } from "../../components/register-step-school/register-step-school";
-import { UserRequest } from '../../../../core/models/requests/user/user-request.model';
-import { SchoolRequest } from '../../../../core/models/requests/school/school-request.model';
+import { UserRequestDto } from '../../../user/dto/user-request.dto';
+import { SchoolRequestDto } from '../../../school/dto/school-request.dto';
 import { RegisterStateService } from '../../services/register-state.service';
-import { SchooladminApiService } from '../../../../core/services/api/schooladmin/schooladmin.api.service';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { CaptchaRequest } from '../../../../core/models/requests/captcha/capcha-request.model';
+import { CaptchaRequestDto } from '../../dto/capcha-request.dto';
+import { SchooladminApi } from '../../../shooladmin/api/schooladmin.api';
 
 declare const turnstile: any;
 
 @Component({
   selector: 'app-register',
-  imports: [RegisterStepUser, IconArrowLeft, RegisterStepSchool],
+  imports: [RegisterStepUser, ArrowLeftSvg, RegisterStepSchool],
   templateUrl: './register.html',
   styleUrl: './register.sass',
 })
@@ -24,14 +24,14 @@ export class Register implements OnInit, OnDestroy {
   step: number = 0;
   isLoading: boolean = false;
 
-  userData: Partial<UserRequest> = {};
-  schoolData: Partial<SchoolRequest> = {};
-  captchaData: Partial<CaptchaRequest> = {};
+  userData: Partial<UserRequestDto> = {};
+  schoolData: Partial<SchoolRequestDto> = {};
+  captchaData: Partial<CaptchaRequestDto> = {};
 
   captchaExecuting: boolean = false;
   private widgetId: string | null = null;
 
-  private readonly SITE_KEY = environment.turnstileSiteKey;
+  private readonly SITE_KEY: string = environment.turnstileSiteKey;
 
   private captchaTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
@@ -40,7 +40,7 @@ export class Register implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private registerStateService: RegisterStateService,
     private notificationService: NotificationService,
-    private schoolAdminApi: SchooladminApiService
+    private schoolAdminApi: SchooladminApi
   ) { }
 
   ngOnInit(): void {
@@ -127,11 +127,11 @@ export class Register implements OnInit, OnDestroy {
     });
   }
 
-  backToHome() {
+  backToHome(): void {
     this.router.navigate(['/']);
   }
 
-  nextStep(data: UserRequest) {
+  nextStep(data: UserRequestDto) {
     this.userData = data;
     this.step = 1;
   }
@@ -142,7 +142,7 @@ export class Register implements OnInit, OnDestroy {
     this.schoolData = {};
   }
 
-  finish(data: SchoolRequest) {
+  finish(data: SchoolRequestDto) {
     if (this.isLoading) return;
     if (!this.widgetId) return;
     if (this.captchaExecuting) return;
@@ -189,9 +189,9 @@ export class Register implements OnInit, OnDestroy {
     let success = false;
 
     this.schoolAdminApi.create(
-      this.userData as UserRequest,
-      this.schoolData as SchoolRequest,
-      this.captchaData as CaptchaRequest
+      this.userData as UserRequestDto,
+      this.schoolData as SchoolRequestDto,
+      this.captchaData as CaptchaRequestDto
     )
       .pipe(
         timeout(10000),

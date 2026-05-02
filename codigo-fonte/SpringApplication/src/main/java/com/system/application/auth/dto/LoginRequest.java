@@ -1,5 +1,7 @@
 package com.system.application.auth.dto;
 
+import com.system.application.integration.captcha.dto.CaptchaRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +23,11 @@ public record LoginRequest(
 
         @NotBlank(message = "A senha é obrigatória")
         @Size(min = 8, max = 20, message = "A senha deve ter entre 8 e 20 caracteres")
-        String password
+        String password,
+
+        @Valid
+        @NotNull(message = "O captcha é obrigatório")
+        CaptchaRequest captchaRequest
 
 ) implements Serializable {
     @Serial

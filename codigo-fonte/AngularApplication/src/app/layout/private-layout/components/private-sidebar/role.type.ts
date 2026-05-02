@@ -1,0 +1,1 @@
+export type Role = 'system_admin' | 'school_admin' | 'collaborator' | 'legal_guardian';

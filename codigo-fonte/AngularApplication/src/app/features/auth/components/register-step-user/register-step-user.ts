@@ -3,17 +3,18 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validator
 import { cpfValidator } from '../../../../shared/validation/cpf.validator';
 import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only.directive';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
-import { UserRequest } from '../../../../core/models/requests/user/user-request.model';
+import { UserRequestDto } from '../../../user/dto/user-request.dto';
 import { PhoneOnlyDirective } from '../../../../shared/directives/phone-only.directive';
+import { NoEmojiDirective } from '../../../../shared/directives/no-emoji.directive';
 
 @Component({
   selector: 'app-register-step-user',
-  imports: [ReactiveFormsModule, NumbersOnlyDirective, PhoneOnlyDirective],
+  imports: [ReactiveFormsModule, NumbersOnlyDirective, PhoneOnlyDirective, NoEmojiDirective],
   templateUrl: './register-step-user.html',
   styleUrl: './register-step-user.sass',
 })
 export class RegisterStepUser {
-  @Output() next = new EventEmitter<any>();
+  @Output() next = new EventEmitter<UserRequestDto>();
 
   form = new FormGroup({
     name: new FormControl('', [
@@ -22,6 +23,12 @@ export class RegisterStepUser {
     ]),
 
     email: new FormControl('', [
+      Validators.required,
+      Validators.email,
+      Validators.maxLength(255)
+    ]),
+
+    confirmEmail: new FormControl('', [
       Validators.required,
       Validators.email,
       Validators.maxLength(255)
@@ -52,8 +59,14 @@ export class RegisterStepUser {
       Validators.required
     ]),
   }, {
-    validators: this.passwordMatchValidator()
+    validators: [
+      this.passwordMatchValidator(),
+      this.emailMatchValidator()
+    ]
   });
+
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private notificationService: NotificationService
@@ -70,6 +83,19 @@ export class RegisterStepUser {
 
       return null;
     };
+  }
+
+  emailMatchValidator(): ValidatorFn {
+    return (form: AbstractControl) => {
+      const email = form.get('email')?.value;
+      const confirm = form.get('confirmEmail')?.value;
+
+      if (email != confirm) {
+        return { emailMismatch: true }
+      }
+
+      return null;
+    }
   }
 
   exactLength(length: number) {
@@ -91,14 +117,14 @@ export class RegisterStepUser {
     });
   }
 
-  submit() {
+  submit(): void {
     this.form.markAllAsTouched();
 
     if (this.form.invalid) {
       this.inputsEmpty();
     }
 
-    const payload: UserRequest = {
+    const payload: UserRequestDto = {
       username: this.form.value.name?.trim(),
       email: this.form.value.email?.trim(),
       password: this.form.value.password?.trim(),

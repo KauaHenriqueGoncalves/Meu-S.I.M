@@ -14,6 +14,6 @@ export class VerifyAccountSuccess {
   ) { }
 
   goToLogin(): void {
-    this.router.navigate(['/']);
+    this.router.navigate(['/auth/log-in']);
   }
 }

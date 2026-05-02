@@ -11,20 +11,46 @@ export class ApiService {
   constructor(
     private http: HttpClient
   ) { }
-  
-  get(url: string) {
-    return this.http.get(`${this.baseUrl}${url}`);
+
+  get<T>(url: string, options?: any) {
+    return this.http.get<T>(
+      `${this.baseUrl}${url}`,
+      {
+        withCredentials: true,
+        ...options
+      }
+    );
   }
 
-  post(url: string, body: any) {
-    return this.http.post(`${this.baseUrl}${url}`, body);
+  post<T>(url: string, body: any, options?: any) {
+    return this.http.post<T>(
+      `${this.baseUrl}${url}`,
+      body,
+      {
+        withCredentials: true,
+        ...options
+      }
+    );
   }
 
-  patch(url: string, body: any) {
-    return this.http.patch(`${this.baseUrl}${url}`, body);
+  patch<T>(url: string, body: any, options?: any) {
+    return this.http.patch<T>(
+      `${this.baseUrl}${url}`, 
+      body,
+      {
+        withCredentials: true,
+        ...options
+      }
+    );
   }
 
-  delete(url: string) {
-    return this.http.delete(`${this.baseUrl}${url}`);
+  delete<T>(url: string, options?: any) {
+    return this.http.delete<T>(
+      `${this.baseUrl}${url}`,
+      {
+        withCredentials: true,
+        ...options
+      }
+    );
   }
 }

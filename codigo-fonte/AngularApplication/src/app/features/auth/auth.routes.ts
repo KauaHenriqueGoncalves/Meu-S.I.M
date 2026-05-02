@@ -1,34 +1,37 @@
 import { Routes } from '@angular/router';
 import { registerFlowGuard } from '../../core/guards/register-flow/register-flow-guard';
+import { loginGuest } from './guards/login-guest-guard';
+import { Register } from './pages/register/register';
+import { LogIn } from './pages/log-in/log-in';
+import { VerifyAccount } from './pages/verify-account/verify-account';
+import { VerifyAccountSuccess } from './pages/verify-account-success/verify-account-success';
+import { VerifyAccountFailed } from './pages/verify-account-failed/verify-account-failed';
 
-export const routes: Routes = [
+export const authRoutes: Routes = [
     {
-        path: 'sign-in',
-        loadComponent: () =>
-            import('./pages/register/register')
-                .then(m => m.Register)
+        path: 'sign-up', 
+        component: Register
+    },
+    {
+        path: 'log-in',
+        canActivate: [loginGuest],
+        component: LogIn
     },
     {
         path: 'verify-account',
         canActivate: [registerFlowGuard],
-        loadComponent: () =>
-            import('./pages/verify-account/verify-account')
-                .then(m => m.VerifyAccount),
+        component: VerifyAccount,
     },
     {
         path: 'verify-account',
         children: [
             {
                 path: 'success',
-                loadComponent: () =>
-                    import('./pages/verify-account-success/verify-account-success')
-                        .then(m => m.VerifyAccountSuccess)
+                component: VerifyAccountSuccess
             },
             {
                 path: 'failed',
-                loadComponent: () =>
-                    import('./pages/verify-account-failed/verify-account-failed')
-                        .then(m => m.VerifyAccountFailed)
+                component: VerifyAccountFailed
             }
         ]
     }

@@ -1,0 +1,77 @@
+<div class="subscriptions-container">
+    <div class="page-header">
+        <div class="title-area">
+            <h1>Planos e Licenças</h1>
+            <p>Escolha a capacidade ideal para o gerenciamento do seu reforço.</p>
+        </div>
+
+        <div class="coupon-area" title="Funcionalidade em breve">
+            <label for="coupon">Possui um cupom de desconto?</label>
+            <div class="input-group">
+                <span class="icon">🎟️</span> <input type="text" id="coupon" placeholder="Digite o código" disabled>
+                <button type="button" class="btn-apply" disabled>Aplicar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="plans-grid">
+        @for (plan of plans; track plan.id) {
+            <div class="plan-card" [class.highlight]="plan.name === 'Intermediario' || plan.name === 'Premium'">
+                <div class="card-header">
+                    <h3 class="plan-name">{{ plan.name }}</h3>
+                    <div class="plan-price">
+                        <span class="currency">R$</span>
+                        <span class="amount">{{ plan.monthlyPrice.toString() | number:'1.2-2' }}</span>
+                        <span class="period">/mês</span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <ul class="plan-features">
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>{{ plan.maxStudents }}</strong> Alunos</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>{{ plan.maxCollaborators }}</strong> Colaboradores</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>{{ plan.maxLegalGuardian }}</strong> Responsáveis</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>{{ plan.maxSchoolAdmin }}</strong> Administradores</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-footer">
+                    <div class="months-selector">
+                        <p>Duração da licença</p>
+                        <div class="stepper">
+                            <button type="button" (click)="decrementMonths(plan)"><span>-</span></button>
+                            <span class="value">{{ plan.selectedMonths || 1 }} <span>meses</span></span>
+                            <button type="button" (click)="incrementMonths(plan)"><span>+</span></button>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn-subscribe" (click)="paySubscription(plan)">
+                        @if (plan.isLoading) {
+                            <app-spinner-to-button
+                                [color]="(plan.name === 'Intermediario' || plan.name === 'Premium') ? 'var(--color-primary-600)' : '#fff'"
+                            ></app-spinner-to-button>
+                        }
+                        @else {
+                            Adquirir Licença
+                        }
+                    </button>
+                </div>
+            </div>
+        } @empty {
+            <div class="card-empty"></div>
+            <div class="card-empty"></div>
+        }
+    </div>
+</div>

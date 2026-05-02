@@ -1,0 +1,227 @@
+<div class="details-container">
+    <div class="page-header">
+        <div class="title-row">
+            <button class="btn-back" (click)="goBack()">
+                <span class="icon">
+                    <app-svg-arrow-left color="current" [size]="18"/>
+                </span> Voltar
+            </button>
+            <div class="title-area">
+                <div class="title-badge">
+                    <h1>Detalhes da Licença</h1>
+                    @if (!isLoadingPage && detail) {
+                        <span class="badge" [ngClass]="detail.subscriptionStatus.toLowerCase()">
+                            {{ 
+                                detail.subscriptionStatus === Status.ACTIVE ? 'Ativo' :
+                                detail.subscriptionStatus === Status.EXPIRED ? 'Expirado' :
+                                detail.subscriptionStatus === Status.PENDING_PAYMENT ? 'Pendente' : 'Cancelado' 
+                            }}
+                        </span>
+                    }
+                    @else {
+                        <div class="skeleton-loading">
+                            <div class="sk-item sk-title"></div>
+                        </div>
+                    }
+                </div>
+                <p>Acompanhe as informações completas do seu plano e mais detalhes.</p>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoadingPage) {
+        <div class="content-grid">
+            <div class="detail-card skeleton-loading">
+                <div class="card-header">
+                    <div class="sk-item sk-title"></div>
+                    <div class="sk-item sk-label"></div>
+                </div>
+                <div class="card-body">
+                    <div class="sk-item sk-label"></div>
+                    <div class="sk-item sk-text-large"></div>
+                    
+                    <div class="date-row">
+                        <div><div class="sk-item sk-label"></div><div class="sk-item sk-text"></div></div>
+                        <div><div class="sk-item sk-label"></div><div class="sk-item sk-text"></div></div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <div class="sk-item sk-label" style="width: 120px"></div>
+                    <div class="sk-list">
+                        @for (i of [1,2,3,4]; track i) {
+                            <div class="sk-list-item">
+                                <div class="sk-item sk-bullet"></div>
+                                <div class="sk-item sk-text"></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-card skeleton-loading">
+                <div class="card-header"><div class="sk-item sk-title"></div></div>
+                <div class="card-body">
+                    <div class="sk-financial">
+                        <div class="sk-item sk-text-full"></div>
+                        <div class="sk-item sk-text-full"></div>
+                        <div class="sk-item sk-price-box"></div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-grid-2">
+                        @for (i of [1,2,3,4]; track i) {
+                            <div><div class="sk-item sk-label"></div><div class="sk-item sk-text"></div></div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @else if (detail) {
+        <div class="content-grid">
+            <div class="detail-card">
+                <div class="card-header">
+                    <h2>Informações do Plano</h2>
+                    <span class="id-text">ID: {{ detail.id.split('-')[0] + "-" + detail.id.split('-')[1] }}...</span>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label>Plano Contratado</label>
+                        <p class="highlight-text">{{ detail.planName }} ({{ detail.months }} meses)</p>
+                    </div>
+                    
+                    <div class="date-row">
+                        <div class="info-group">
+                            <label>Início</label>
+                            <p>{{ detail.startDate | date:'dd/MM/yyyy' }}</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Vencimento</label>
+                            <p [class.danger]="detail.subscriptionStatus === Status.EXPIRED">
+                                {{ detail.endDate | date:'dd/MM/yyyy' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+                    
+                    <label class="section-label">Capacidade do Plano</label>
+                    <ul class="limits-list">
+                        <li><span>Alunos:</span> <strong>{{ detail.maxStudents }}</strong></li>
+                        <li><span>Colaboradores:</span> <strong>{{ detail.maxCollaborators }}</strong></li>
+                        <li><span>Responsáveis:</span> <strong>{{ detail.maxLegalGuardian }}</strong></li>
+                        <li><span>Administradores:</span> <strong>{{ detail.maxSchoolAdmin }}</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="card-header">
+                    <h2>Resumo Financeiro</h2>
+                    <span class="status-text" [ngClass]="detail.paymentStatus.toLowerCase()">
+                        {{ 
+                            detail.paymentStatus === PayStatus.PENDING ? 'PENDENTE' :
+                            detail.paymentStatus === PayStatus.PAID ? 'PAGO' :
+                            detail.paymentStatus === PayStatus.EXPIRED ? 'EXPIRADO' : 'FALHOU' 
+                        }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="financial-breakdown">
+                        <div class="amount-row">
+                            <span>Valor Original:</span>
+                            <span>R$ {{ detail.originalAmount | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="amount-row discount">
+                            <span>Desconto:</span>
+                            <span>- R$ {{ detail.discountAmount | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="amount-row total">
+                            <span>Total Pago:</span>
+                            <span class="price">R$ {{ detail.amount | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="info-grid-2">
+                        <div class="info-group">
+                            <label>Forma de Pagamento</label>
+                            <p>{{ detail.paymentMethod || '--' }} ({{ detail.installments || '--' }}x)</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Data do Pagamento</label>
+                            <p>{{ detail.paidAt ? (detail.paidAt | date:'dd/MM/yyyy HH:mm') : '--' }}</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Nº do Pedido</label>
+                            <p class="mono">{{ detail.orderId || '--' }}</p>
+                        </div>
+                        <div class="info-group">
+                            <label>ID Transação</label>
+                            <p class="mono">{{ detail.providerPaymentId.split('-')[0] + "-" + detail.providerPaymentId.split('-')[1] + "-" + detail.providerPaymentId.split('-')[2] }}...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <div class="action-left">
+                @if (canCancel()) {
+                    <button class="btn-danger-outline" (click)="openCancelModal()">
+                        Cancelar Licença
+                    </button>
+                }
+            </div>
+
+            <div class="action-right">
+                @if (detail.subscriptionStatus === Status.PENDING_PAYMENT) {
+                    <button class="btn-primary-large" (click)="paySubscription()" [disabled]="isPaying">
+                        @if (isPaying) {
+                            <app-spinner-to-button color="#fff"></app-spinner-to-button>
+                        } @else {
+                            Realizar Pagamento
+                        }
+                    </button>
+                }
+            </div> 
+        </div>
+    }
+</div>
+
+@if (showCancelModal) {
+    <div class="modal-overlay" (click)="closeCancelModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-icon">
+                <app-svg-warning color="#d32f2f" [size]="32"/>
+            </div>
+            <h2>Confirmar Cancelamento</h2>
+            <p>Você está prestes a cancelar a licença do plano <strong>{{ detail?.planName }}</strong>. O acesso ao seu reforço escolar será mantido apenas até o fim do ciclo já pago.</p>
+
+            <div class="confirm-area">
+                <label>Para confirmar sua decisão, digite <strong>{{ requiredCancelText }}</strong> abaixo:</label>
+                <input 
+                    type="text" 
+                    [(ngModel)]="cancelConfirmationText" 
+                    placeholder="Digite a frase de confirmação" 
+                    autocomplete="off"
+                    [disabled]="isCanceling"
+                >
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" (click)="closeCancelModal()" [disabled]="isCanceling">
+                    Manter Licença
+                </button>
+                
+                <button class="btn-danger-solid" (click)="confirmCancel()" [disabled]="cancelConfirmationText !== requiredCancelText || isCanceling">
+                    @if (isCanceling) {
+                        <app-spinner-to-button color="#d32f2f"></app-spinner-to-button>
+                    } @else {
+                        Cancelar
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}

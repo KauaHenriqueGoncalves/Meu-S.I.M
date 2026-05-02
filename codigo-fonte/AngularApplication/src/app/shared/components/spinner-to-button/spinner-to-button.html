@@ -1,1 +1,10 @@
-<span class="spinner"></span>
+<span
+  class="spinner"
+  [ngStyle]="{
+    width: size + 'px',
+    height: size + 'px',
+    borderWidth: border + 'px',
+    borderTopColor: color,
+    animationDuration: speed + 's'
+  }"
+></span>
