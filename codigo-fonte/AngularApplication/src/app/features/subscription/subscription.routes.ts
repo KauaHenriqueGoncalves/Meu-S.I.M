@@ -1,22 +1,19 @@
 import { Routes } from "@angular/router";
+import { NewSubscription } from "./pages/new-subscription/new-subscription";
+import { MySubscriptions } from "./pages/my-subscriptions/my-subscriptions";
+import { SubscriptionDetail } from "./pages/subscription-detail/subscription-detail";
 
-export const routes: Routes = [
+export const subscriptionRoutes: Routes = [
     {
         path: 'new-subscription',
-        loadComponent: () =>
-            import('./pages/new-subscription/new-subscription')
-                .then(m => m.NewSubscription)
+        component: NewSubscription
     },
     {
         path: 'my-subscriptions',
-        loadComponent: () =>
-            import('./pages/my-subscriptions/my-subscriptions')
-                .then(m => m.MySubscriptions)
+        component: MySubscriptions
     },
     {
         path: 'subscription-detail',
-        loadComponent: () =>
-            import('./pages/subscription-detail/subscription-detail')
-                .then(m => m.SubscriptionDetail)
+        component: SubscriptionDetail
     }
 ];

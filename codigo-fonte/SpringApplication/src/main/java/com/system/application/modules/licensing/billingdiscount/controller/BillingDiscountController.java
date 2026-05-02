@@ -3,6 +3,7 @@ package com.system.application.modules.licensing.billingdiscount.controller;
 import com.system.application.modules.licensing.billingdiscount.BillingDiscount;
 import com.system.application.modules.licensing.billingdiscount.dto.BillingDiscountRequest;
 import com.system.application.modules.licensing.billingdiscount.dto.BillingDiscountResponse;
+import com.system.application.modules.licensing.billingdiscount.dto.BillingDiscountToClientResponseDto;
 import com.system.application.modules.licensing.billingdiscount.service.BillingDiscountService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,14 @@ public class BillingDiscountController {
     public ResponseEntity<List<BillingDiscountResponse>> findAll() {
         List<BillingDiscountResponse> response =
                 billingDiscountService.findAll();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/to-client")
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<List<BillingDiscountToClientResponseDto>> findAllToClient() {
+        List<BillingDiscountToClientResponseDto> response =
+                billingDiscountService.findAllToClient();
         return ResponseEntity.ok(response);
     }
 

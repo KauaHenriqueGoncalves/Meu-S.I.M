@@ -263,7 +263,26 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         ensureSubscriptionBelongsToSchool(school, subscription);
 
         if (!(subscription.getStatus() == SubscriptionStatus.ACTIVE)) {
+            // TODO: verificar e testar
+
             SchoolPayment payment = schoolPaymentService.findBySchoolSubscriptionId(subscription.getId());
+
+            boolean isExpired = subscription.getStatus().equals(SubscriptionStatus.EXPIRED);
+
+            if (isExpired) {
+                log.info("Pagamento expirado não pode ser alterado. [schoolSubscriptionId={}] [paymentId={}] [status={}]",
+                        schoolSubscriptionId, payment.getId(), subscription.getStatus());
+                throw new BusinessException("Pagamento expirado não pode ser alterado");
+            }
+
+            boolean isCanceled = subscription.getStatus().equals(SubscriptionStatus.CANCELED);
+
+            if (isCanceled) {
+                log.info("Pagamento cancelado não pode ser alterado. [schoolSubscriptionId={}] [paymentId={}] [status={}]",
+                        schoolSubscriptionId, payment.getId(), subscription.getStatus());
+                throw new BusinessException("Pagamento cancelado não pode ser alterado");
+            }
+
             payment.setStatus(PaymentStatus.FAILED);
             log.info("Pagamento marcado como falho por cancelamento de assinatura nao ativa. [schoolSubscriptionId={}] [paymentId={}] [statusAnterior={}]",
                     schoolSubscriptionId, payment.getId(), subscription.getStatus());

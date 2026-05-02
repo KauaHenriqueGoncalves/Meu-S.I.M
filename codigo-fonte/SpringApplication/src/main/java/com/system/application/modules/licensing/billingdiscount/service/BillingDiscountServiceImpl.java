@@ -3,6 +3,7 @@ package com.system.application.modules.licensing.billingdiscount.service;
 import com.system.application.modules.licensing.billingdiscount.BillingDiscount;
 import com.system.application.modules.licensing.billingdiscount.dto.BillingDiscountRequest;
 import com.system.application.modules.licensing.billingdiscount.dto.BillingDiscountResponse;
+import com.system.application.modules.licensing.billingdiscount.dto.BillingDiscountToClientResponseDto;
 import com.system.application.modules.licensing.billingdiscount.repository.BillingDiscountRepository;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
@@ -39,6 +40,21 @@ public class BillingDiscountServiceImpl implements BillingDiscountService {
                 .stream()
                 .sorted(Comparator.comparing(BillingDiscount::getMonths))
                 .map(bd -> new BillingDiscountResponse(bd.getId(), bd.getMonths(), bd.getDiscountPercent()))
+                .toList();
+
+        log.info("Descontos de cobranca encontrados. [total={}]", response.size());
+
+        return response;
+    }
+
+    @Override
+    public List<BillingDiscountToClientResponseDto> findAllToClient() {
+        log.info("Buscando todos os descontos de cobranca.");
+
+        List<BillingDiscountToClientResponseDto> response = billingDiscountRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(BillingDiscount::getMonths))
+                .map(bd -> new BillingDiscountToClientResponseDto(bd.getMonths(), bd.getDiscountPercent()))
                 .toList();
 
         log.info("Descontos de cobranca encontrados. [total={}]", response.size());

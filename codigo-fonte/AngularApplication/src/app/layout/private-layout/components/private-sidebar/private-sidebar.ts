@@ -38,7 +38,6 @@ export class PrivateSidebar implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    console.log(this.role as Role)
     this.menu = MENU_CONFIG[this.role as Role] || [];
   }
 
@@ -60,10 +59,6 @@ export class PrivateSidebar implements OnInit {
       });
       item.expanded = !item.expanded;
     }
-  }
-
-  resetMenus(): void {
-    //this.menu.forEach(item => item.expanded = false);
   }
 
   logout(): void {

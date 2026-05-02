@@ -26,4 +26,8 @@ export class SubscriptionPaymentApi {
 
     return this.cache.get(key)!;
   }
+
+  refreshCache(): void {
+    this.cache.clear();
+  }
 }

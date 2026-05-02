@@ -113,10 +113,12 @@ export class SubscriptionDetail implements OnInit {
   paySubscription(): void {
     if (this.isPaying || !this.detail) return;
     this.isPaying = true;
-
-    // Aqui vai a chamada para gerar o link do MercadoPago/Asaas
-    console.log('Redirecionando para pagamento do pedido:', this.detail.orderId);
-    setTimeout(() => { this.isPaying = false; }, 2000);
+    try {
+      window.location.href = `https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=${this.detail.providerPaymentId}`;
+    }
+    catch {
+      this.isPaying = false;
+    }
   }
 
   canCancel(): boolean {
