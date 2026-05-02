@@ -17,16 +17,27 @@ export class ApiConfig {
         auth: {
             login: '/auth/login',
             refresh: '/auth/refresh',
-            logout: '/auth/logout'
+            logout: '/auth/logout',
+        },
+        billingdiscount: {
+            base: '/billing-discounts',
+            toClient: '/billing-discounts/to-client',
+        },
+        schoolPlan: {
+            base: '/school-plans',
+            toClient: '/school-plans/to-client',
+        },
+        subscription: {
+            base: '/school-subscriptions',
         },
         user: {
-            base: '/users'
+            base: '/users',
         },
         schoolAdmin: {
-            base: '/school-admins'
+            base: '/school-admins',
         },
         school: {
-            base: '/schools'
+            base: '/schools',
         }
     };
 }

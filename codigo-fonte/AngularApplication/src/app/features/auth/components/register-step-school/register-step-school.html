@@ -3,47 +3,44 @@
   <p class="subtitle">Continue criando seu Reforço Escolar</p>
 
   <div class="form-group">
-    <label>Nome do Reforço Escolar*</label>
-    <input type="text" maxlength="60" formControlName="schoolName"
-      placeholder="Digite o nome do reforço (ex: Reforço da Maria)" />
+    <label>Nome do Reforço Escolar<span class="asterix">*</span></label>
+    <input type="text" maxlength="60" formControlName="schoolName" placeholder="Digite o nome do reforço (ex: Reforço da Maria)" noEmoji/>
 
     @if (isInvalid('schoolName') && form.get('schoolName')?.errors?.['minlength']) {
-    <span class="input-message-error">Mínimo de 5 caracteres</span>
+      <span class="input-message-error">Mínimo de 5 caracteres</span>
     }
 
     @if (isInvalid('schoolName') && form.get('schoolName')?.errors?.['maxlength']) {
-    <span class="input-message-error">Mínimo de 50 caracteres</span>
+      <span class="input-message-error">Mínimo de 50 caracteres</span>
     }
   </div>
 
   <div class="form-group">
-    <label>Código do Reforço Escolar*</label>
-    <input type="text" formControlName="nameCode" maxlength="60"
-      placeholder="Digite o código da escola (Ex: reforco-maria-123)" />
+    <label>Código do Reforço Escolar para <strong>Entrar</strong><span class="asterix">*</span></label>
+    <input type="text" formControlName="nameCode" maxlength="60" placeholder="Digite o código da escola (Ex: reforco-maria-123)" noEmoji/>
 
     @if (isInvalid('nameCode') && form.get('nameCode')?.errors?.['minlength']) {
-    <span class="input-message-error">Mínimo de 5 caracteres</span>
+      <span class="input-message-error">Mínimo de 5 caracteres</span>
     }
 
     @if (isInvalid('nameCode') && form.get('nameCode')?.errors?.['maxlength']) {
-    <span class="input-message-error">Mínimo de 50 caracteres</span>
+      <span class="input-message-error">Mínimo de 50 caracteres</span>
     }
   </div>
 
   <div class="form-group">
-    <label>CNPJ*</label>
+    <label>CNPJ<span class="asterix">*</span></label>
 
-    <input type="text" formControlName="cnpj" maxlength="14" placeholder="Digite seu CNPJ (apenas números)"
-      numbersOnly />
+    <input type="text" formControlName="cnpj" maxlength="14" placeholder="Digite seu CNPJ (apenas números)" numbersOnly/>
 
-    @if (isInvalid('cnpj') && form.get('cnpj')?.errors?.['invalidCnpj'] && !form.get('cnpj')?.errors?.['exactLength']) {
-    <span class="input-message-error">CNPJ inválido</span>
+    @if (isInvalid('cnpj')) {
+      <span class="input-message-error">CNPJ inválido</span>
     }
   </div>
 
   <div class="form-group-checkbox">
     <label class="custom-checkbox">
-      <input type="checkbox" formControlName="terms" />
+      <input type="checkbox" formControlName="terms"/>
       <span class="checkmark"></span>
       <span class="text">
         Li e aceito os 

@@ -6,22 +6,33 @@
     flex-direction: column
     box-sizing: border-box
 
+    ::-webkit-scrollbar
+            width: 4px
+    ::-webkit-scrollbar-thumb
+        background: rgba(90, 228, 152, 0.7)
+
     @media (max-width: 992px)
         margin: 0
         height: 100vh // Agora ele sempre ocupa a tela inteira
-        padding: 80px .75rem .7rem .75rem // O 80px empurra o wrapper para baixo da barra
+        padding: 80px .5rem .7rem .75rem // O 80px empurra o wrapper para baixo da barra
         transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+
+        ::-webkit-scrollbar
+            width: 3px
+        ::-webkit-scrollbar-thumb
+            background: rgba(0, 0, 0, 0.15)
+
 
         &.topbar-hidden
             padding-top: .7rem
 
     .content-wrapper
         flex: 1
+        padding-right: 1rem
         overflow-y: auto
         overflow-x: hidden
         border-radius: 12px
 
         @media (max-width: 992px)
+            padding-right: .2rem
             border-radius: 0px
-            
-            

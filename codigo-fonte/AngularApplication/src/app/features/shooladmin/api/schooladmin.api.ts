@@ -7,7 +7,6 @@ import { CaptchaRequestDto } from '../../auth/dto/capcha-request.dto';
 import { ApiConfig } from '../../../core/config/api.config';
 import { NO_AUTH } from '../../../core/config/no-auth.token.config';
 
-
 @Injectable({
   providedIn: 'root',
 })

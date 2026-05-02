@@ -9,7 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface BillingDiscountRepository extends JpaRepository<BillingDiscount, UUID> {
-    Optional<BillingDiscount> findByMonths(Integer months);
     Optional<BillingDiscount> findFirstByMonthsLessThanEqualOrderByMonthsDesc(Integer months);
     Optional<BillingDiscount> findByMonthsAndIdNot(Integer months, UUID id);
 }

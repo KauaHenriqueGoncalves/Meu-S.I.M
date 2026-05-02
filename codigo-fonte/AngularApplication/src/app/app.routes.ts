@@ -1,44 +1,47 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/guard/auth-guard';
+import { authRoutes } from './features/auth/auth.routes';
+import { PublicLayout } from './layout/public-layout/public-layout';
+import { publicRoutes } from './features/public/public.routes';
+import { PrivateLayout } from './layout/private-layout/private-layout';
+import { dashboardRoutes } from './features/dashboard/dashboard.routes';
+import { roleGuard } from './core/auth/guard/role-guard';
+import { subscriptionRoutes } from './features/subscription/subscription.routes';
 
 export const routes: Routes = [
     {
         path: '',
-        loadComponent: () =>
-            import('./layout/public-layout/public-layout')
-                .then(m => m.PublicLayout),
+        component: PublicLayout,
         children: [
             {
                 path: '',
-                loadChildren: () =>
-                    import('./features/public/public.routes')
-                        .then(m => m.routes)
+                children: publicRoutes
             }
         ]
     },
     {
         path: 'auth',
-        loadChildren: () =>
-            import('./features/auth/auth.routes')
-                .then(m => m.routes)
+        children: authRoutes
     },
     {
         path: 'app',
         canActivate: [authGuard],
-        loadComponent: () =>
-            import('./layout/private-layout/private-layout')
-                .then(m => m.PrivateLayout),
+        component: PrivateLayout,
         children: [
             {
                 path: '',
-                loadChildren: () => 
-                    import('./features/dashboard/dashboard.routes')
-                        .then(m => m.routes)
+                canMatch: [roleGuard('school_admin')],
+                children: dashboardRoutes
+            },
+            {
+                path: '',
+                canMatch: [roleGuard('school_admin', 'dfasdfasdcasdf')],
+                children: subscriptionRoutes
             }
         ]
     },
     {
         path: '**',
         redirectTo: ''
-    }
+    },
 ];

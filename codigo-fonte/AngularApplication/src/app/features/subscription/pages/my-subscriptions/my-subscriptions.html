@@ -1,0 +1,117 @@
+<div class="my-subs-container">
+    <div class="page-header">
+        <div class="title-area">
+            <h1>Minhas Licenças</h1>
+            <p>Acompanhe o histórico e o status das assinaturas do seu reforço.</p>
+        </div>
+        <button class="btn-primary" routerLink="/app/new-subscription">Adquirir Nova Licença</button>
+    </div>
+
+    <div class="subs-list">
+        <div class="list-header">
+            <div class="col-plan">Plano</div>
+            <div class="col-status">Status</div>
+            <div class="col-date">Período</div>
+            <div class="col-action">Detalhes</div>
+        </div>
+
+        <div class="list-body">
+            @if (pageData) {
+                @for (sub of pageData.content; track sub.id) {
+                    <div class="sub-row">
+
+                        <div class="col-plan">
+                            <span class="mobile-label">Plano</span>
+                            <div class="plan-info">
+                                <strong>{{ sub.planName }}</strong>
+                                <span class="sub-id">ID: {{ sub.id.split('-')[0] + "-" + sub.id.split('-')[1] }}...</span>
+                            </div>
+                        </div>
+
+                        <div class="col-status">
+                            <span class="mobile-label">Status</span>
+                            <span class="badge" [ngClass]="sub.status.toLowerCase()">
+                                {{ 
+                                    sub.status === Status.ACTIVE ? 'Ativo' :
+                                    sub.status === Status.EXPIRED ? 'Expirado' :
+                                    sub.status === Status.PENDING_PAYMENT ? 'Pendente' : 'Cancelado' 
+                                }}
+                            </span>
+                        </div>
+
+                        <div class="col-date">
+                            <span class="mobile-label">Período</span>
+                            <div class="date-info">
+                                <span>{{ sub.startDate | date:'dd/MM/yyyy' }}</span>
+                                <span class="arrow">
+                                    <app-svg-arrow-left color="current" [size]="15"/>
+                                </span>
+                                <span [class.expired-text]="sub.status === Status.EXPIRED">
+                                    {{ sub.endDate | date:'dd/MM/yyyy' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-action">
+                            <button class="btn-details" (click)="viewDetails(sub.id)">
+                                Ver Detalhes
+                            </button>
+                        </div>
+
+                    </div>
+                } 
+                @empty {
+                    <div class="empty-state">
+                        <p>Você ainda não possui nenhuma licença registrada.</p>
+                    </div>
+                }
+            } 
+            @else {
+                @for (i of [1,2,3,4]; track i) {
+                    <div class="sub-row skeleton-row">
+                        <div class="col-plan">
+                            <div class="skeleton-item title"></div>
+                            <div class="skeleton-item subtitle"></div>
+                        </div>
+                        <div class="col-status">
+                            <div class="skeleton-item badge-skeleton"></div>
+                        </div>
+                        <div class="col-date">
+                            <div class="skeleton-item date-bar"></div>
+                        </div>
+                        <div class="col-action">
+                            <div class="skeleton-item button-skeleton"></div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    @if (pageData && pageData.totalElements > 0 && !(pageData.totalElements <= pageData.size)) {
+        <div class="pagination">
+            <button [disabled]="!pageData.hasPrevious || isPaginating" (click)="changePage(pageData!.page - 1)">
+                @if (isPaginating) {
+                    <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                } @else {
+                    Anterior
+                }
+            </button>
+            
+            <div class="page-info">
+                <span class="numbers">
+                Página <strong>{{ pageData!.page + 1 }}</strong> de {{ pageData!.totalPages }}
+                </span>
+                <span class="total">({{ pageData!.totalElements }} registros)</span>
+            </div>
+
+            <button [disabled]="!pageData.hasNext || isPaginating" (click)="changePage(pageData!.page + 1)">
+                @if (isPaginating) {
+                    <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                } @else {
+                    Próximo
+                }
+            </button>
+        </div>
+    }
+</div>

@@ -32,16 +32,16 @@ export class PrivateLayout implements OnInit {
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
     const currentScroll = target.scrollTop;
+    const delta = currentScroll - this.lastScrollTop;
 
-    // Se rolou para baixo e passou de 50px (para não esconder logo no topo)
-    if (currentScroll > this.lastScrollTop && currentScroll > 50) {
+    if (Math.abs(delta) < 5) return;
+
+    if (delta > 0 && currentScroll > 60) {
       this.isTopbarHidden = true;
-    } else {
-      // Se rolou para cima
+    } else if (delta < -10 || currentScroll < 60) {
       this.isTopbarHidden = false;
     }
 
-    // Atualiza a última posição
     this.lastScrollTop = currentScroll;
   }
 
