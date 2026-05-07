@@ -11,6 +11,7 @@ import { PaymentStatus } from '../../../subscriptionpayment/enum/payment-status.
 import { SubscriptionPaymentApi } from '../../../subscriptionpayment/api/subscription-payment.api';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { catchError, finalize, throwError, timeout } from 'rxjs';
+import { SubscriptionApi } from '../../api/subscription.api';
 
 @Component({
   selector: 'app-subscription-detail',
@@ -33,6 +34,7 @@ export class SubscriptionDetail implements OnInit {
 
   constructor(
     private paymentApi: SubscriptionPaymentApi,
+    private subscriptionApi: SubscriptionApi,
     private notificationService: NotificationService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -97,28 +99,42 @@ export class SubscriptionDetail implements OnInit {
 
     this.isCanceling = true;
 
-    // Simulação da sua API de cancelamento
-    console.log('Enviando requisição de cancelamento para:', this.detail.id);
-
-    // Retorno
-    // this.isCanceling = false; 
-    //   this.showCancelModal = false;
-    //   // Atualiza o status localmente para refletir na tela
-    //   if (this.detail) {
-    //     this.detail.subscriptionStatus = SubscriptionStatus.CANCELED;
-    //   }
-    //   this.cdr.detectChanges();
+    this.subscriptionApi.cancelSubscription(this.detail.id)
+      .pipe(
+        timeout(10000),
+        catchError((error) => {
+          return throwError(() => error);
+        }),
+        finalize(() => {
+          this.isCanceling = false;
+          this.showCancelModal = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          window.location.reload();
+        },
+        error: (err) => {
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro inesperado, tente novamente mais tarde'
+          });
+        }
+      });
   }
 
   paySubscription(): void {
     if (this.isPaying || !this.detail) return;
     this.isPaying = true;
     try {
-      window.location.href = `https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=${this.detail.providerPaymentId}`;
+      const checkoutLink: string = `https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=${this.detail.providerPaymentId}`;
+      window.open(checkoutLink, '_blank');
     }
     catch {
       this.isPaying = false;
     }
+    this.isPaying = false;
   }
 
   canCancel(): boolean {

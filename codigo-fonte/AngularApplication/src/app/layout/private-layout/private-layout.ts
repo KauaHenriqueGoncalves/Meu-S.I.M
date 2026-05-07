@@ -5,6 +5,8 @@ import { PrivateSidebar } from './components/private-sidebar/private-sidebar';
 import { AuthService } from '../../core/auth/service/auth.service';
 import { AuthApi } from '../../features/auth/api/auth.api';
 import { AuthStore } from '../../core/auth/store/auth-store.service';
+import { CacheResetService } from '../../core/services/cache-reset/cache-reset.service';
+import { SubscriptionCheckService } from '../../features/subscription/service/subscription-check/subscription-check.service';
 
 @Component({
   selector: 'app-private-layout',
@@ -22,11 +24,14 @@ export class PrivateLayout implements OnInit {
     private authService: AuthService,
     private authStore: AuthStore,
     private authApi: AuthApi,
+    private cacheResetService: CacheResetService,
+    private subscriptionCheckService: SubscriptionCheckService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.userTokenPayload = this.authService.getPayload();
+    this.subscriptionCheckService.check();
   }
 
   onScroll(event: Event): void {
@@ -48,6 +53,7 @@ export class PrivateLayout implements OnInit {
   logout(): void {
     this.authStore.clear();
     this.authApi.logout();
+    this.cacheResetService.resetAll();
     this.router.navigate(['/auth/log-in']);
   }
 }

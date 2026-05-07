@@ -78,8 +78,7 @@ public class SchoolPaymentServiceImpl implements SchoolPaymentService {
     @Transactional
     public SchoolPayment create(SchoolPaymentRequest request) {
         log.info("Iniciando criacao de pagamento da escola. [schoolSubscriptionId={}] [valor={}] [providerId={}]",
-                request.schoolSubscription().getId(), request.amount(), request.providerPaymentId()
-        );
+                request.schoolSubscription().getId(), request.amount(), request.providerPaymentId());
 
         SchoolPayment payment = SchoolPayment.createInit(request);
         payment = schoolPaymentRepository.save(payment);

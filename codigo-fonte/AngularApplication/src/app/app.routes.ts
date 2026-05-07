@@ -7,6 +7,7 @@ import { PrivateLayout } from './layout/private-layout/private-layout';
 import { dashboardRoutes } from './features/dashboard/dashboard.routes';
 import { roleGuard } from './core/auth/guard/role-guard';
 import { subscriptionRoutes } from './features/subscription/subscription.routes';
+import { subscriptionPaymentRoutes } from './features/subscriptionpayment/subscription-payment.routes';
 
 export const routes: Routes = [
     {
@@ -24,6 +25,12 @@ export const routes: Routes = [
         children: authRoutes
     },
     {
+        path: 'payment',
+        canActivate: [authGuard],
+        canMatch: [roleGuard('school_admin')],
+        children: subscriptionPaymentRoutes
+    },
+    {
         path: 'app',
         canActivate: [authGuard],
         component: PrivateLayout,
@@ -37,7 +44,7 @@ export const routes: Routes = [
                 path: '',
                 canMatch: [roleGuard('school_admin', 'dfasdfasdcasdf')],
                 children: subscriptionRoutes
-            }
+            },
         ]
     },
     {

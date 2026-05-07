@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -59,8 +60,10 @@ public class SchoolSubscriptionScheduler {
     public void expirePendingSubscriptions() {
         log.info("Iniciando job de expiracao de pagamentos pendentes. [instant={}]", Instant.now());
 
+        Instant expiration = Instant.now().minus(Duration.ofMinutes(60));
+
         List<SchoolPayment> expiredPayments = schoolPaymentService
-                .findAllByStatusAndExpiresAtBefore(PaymentStatus.PENDING, Instant.now());
+                .findAllByStatusAndExpiresAtBefore(PaymentStatus.PENDING, expiration);
 
         if (expiredPayments.isEmpty()) {
             log.info("Nenhum pagamento pendente expirado encontrado.");

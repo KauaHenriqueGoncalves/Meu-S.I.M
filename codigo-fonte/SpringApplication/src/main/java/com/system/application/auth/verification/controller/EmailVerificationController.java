@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 public class EmailVerificationController {
-    @Value("${api.v1.url.front-end}")
+    @Value("${web.site.url.front-end}")
     private String frontendUrl;
 
     private final EmailVerificationService emailVerificationService;
@@ -41,7 +41,7 @@ public class EmailVerificationController {
                     .header("Location", frontendUrl + "/auth/verify-account/failed?reason=expired")
                     .build();
         }
-        return ResponseEntity.status(302)
+        return ResponseEntity.status(200)
                 .header("Location", frontendUrl + "/auth/verify-account/success")
                 .build();
     }

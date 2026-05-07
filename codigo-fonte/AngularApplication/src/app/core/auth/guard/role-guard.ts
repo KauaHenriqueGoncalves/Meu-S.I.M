@@ -19,9 +19,6 @@ export function roleGuard(...roles: string[]): CanMatchFn {
       return router.navigate(['/']);
     }
 
-    console.log(role)
-    console.log("Pode carregar: " + roles.includes(role))
-
     return roles.includes(role);
   };
 }

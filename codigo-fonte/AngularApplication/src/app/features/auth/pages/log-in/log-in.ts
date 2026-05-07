@@ -51,7 +51,8 @@ export class LogIn implements OnInit, OnDestroy {
     if (this.widgetId) {
       try {
         turnstile.remove(this.widgetId);
-      } catch (e) {
+      }
+      catch (e) {
         console.warn('Erro ao remover Turnstile:', e);
       }
       this.widgetId = null;
@@ -67,7 +68,10 @@ export class LogIn implements OnInit, OnDestroy {
     const script = document.querySelector('script[src*="turnstile"]') as HTMLScriptElement;
 
     if (!script) {
-      console.error('Turnstile script não encontrado');
+      this.notificationService.notify({
+        type: 'error',
+        text: 'reCAPTCHA não carregado, atualize a página ou volte mais tarde'
+      });
       return;
     }
 
@@ -115,7 +119,7 @@ export class LogIn implements OnInit, OnDestroy {
 
         this.notificationService.notify({
           type: 'error',
-          text: 'Falha na verificação de segurança, tente novamente'
+          text: 'Falha na verificação de reCAPTCHA, tente novamente'
         });
 
         this.cdr.detectChanges();
@@ -138,7 +142,7 @@ export class LogIn implements OnInit, OnDestroy {
     this.captchaExecuting = true;
     this.captchaData = { captchaToken: null };
 
-    const state = turnstile.getResponse(this.widgetId);
+    const state: any = turnstile.getResponse(this.widgetId);
 
     if (state !== undefined) {
       turnstile.reset(this.widgetId);
@@ -150,7 +154,7 @@ export class LogIn implements OnInit, OnDestroy {
       if (this.captchaExecuting) {
         this.notificationService.notify({
           type: 'warning',
-          text: 'Verificação de robô travou, resetando...'
+          text: 'Verificação de robô travou, tente novamente, resetando...'
         });
 
         this.captchaExecuting = false;
@@ -168,11 +172,11 @@ export class LogIn implements OnInit, OnDestroy {
   private submitRegister(): void {
     if (!this.captchaData?.captchaToken) {
       this.isLoading = false;
-      console.error('[Register] submitRegister chamado sem token — isso não deveria acontecer');
+      console.error('[Register] submitRegister chamado sem token - isso não deveria acontecer');
       return;
     }
 
-    let success = false;
+    let success: boolean = false;
 
     this.authApi.login(
       this.loginData as LoginRequestDto,

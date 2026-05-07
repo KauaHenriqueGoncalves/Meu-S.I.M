@@ -20,10 +20,10 @@
                     <a [routerLink]="item.route" class="nav-item">
                         <span class="icon"> 
                             @switch (item.icon) { 
-                                @case ('dashboard') { <app-svg-dashboard /> }
-                                @case ('academic') { <app-svg-academic /> }
-                                @case ('users') { <app-svg-users /> }
-                                @case ('card') { <app-svg-card /> }
+                                @case ('dashboard') { <app-svg-dashboard color="#ecfdf5" [size]="24" /> }
+                                @case ('academic') { <app-svg-academic color="#ecfdf5" [size]="24" /> }
+                                @case ('users') { <app-svg-users color="#ecfdf5" [size]="24" /> }
+                                @case ('card') { <app-svg-card color="#ecfdf5" [size]="24" /> }
                                 @default { {{ item.icon }} } 
                             } 
                         </span>
@@ -34,10 +34,10 @@
                     <button type="button" class="nav-item btn-submenu" (click)="toggleSubmenu(item)" [class.open]="item.expanded">
                         <span class="icon">
                             @switch (item.icon) { 
-                                @case ('dashboard') { <app-svg-dashboard /> }
-                                @case ('academic') { <app-svg-academic /> }
-                                @case ('users') { <app-svg-users /> }
-                                @case ('card') { <app-svg-card /> }
+                                @case ('dashboard') { <app-svg-dashboard color="#ecfdf5" [size]="24" /> }
+                                @case ('academic') { <app-svg-academic color="#ecfdf5" [size]="24" /> }
+                                @case ('users') { <app-svg-users color="#ecfdf5" [size]="24" /> }
+                                @case ('card') { <app-svg-card color="#ecfdf5" [size]="24" /> }
                                 @default { {{ item.icon }} } 
                             } 
                         </span>
@@ -66,13 +66,13 @@
     <div class="sidebar-footer">
         <a routerLink="/config" class="nav-item">
             <span class="icon">
-                <app-svg-gear />
+                <app-svg-gear color="#ecfdf5" [size]="24" />
             </span>
             <span class="nav-text">Configurações</span>
         </a>
         <button type="button" class="nav-item btn-logout" (click)="logout()">
             <span class="icon">
-                <app-svg-logout />
+                <app-svg-logout color="#ecfdf5" [size]="24" />
             </span>
             <span class="nav-text">Sair</span>
         </button>

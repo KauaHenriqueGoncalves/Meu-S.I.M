@@ -1,5 +1,5 @@
 import { DatePipe, NgClass } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { SubscriptionStatus } from '../../enum/subscription-status.enum';
 import { SubscriptionResponseDto } from '../../dto/subscription-response.dto';
@@ -17,6 +17,8 @@ import { ArrowLeftSvg } from "../../../../shared/components/svg/icon-arrow-left.
   styleUrl: './my-subscriptions.sass',
 })
 export class MySubscriptions implements OnInit {
+  @ViewChild('subsContainer') subsContainer!: ElementRef;
+
   Status = SubscriptionStatus;
   isPaginating: boolean = false;
 
@@ -59,6 +61,7 @@ export class MySubscriptions implements OnInit {
         next: (res: PageResponse<SubscriptionResponseDto>) => {
           this.pageData = res;
           this.cdr.detectChanges();
+          this.moveScroolToDown(this.subsContainer);
         },
         error: (err) => {
           this.notificationService.notify({
@@ -67,6 +70,23 @@ export class MySubscriptions implements OnInit {
           });
         }
       });
+  }
+
+  private moveScroolToDown(container: ElementRef): void {
+    setTimeout(() => {
+      let el: HTMLElement | null = container.nativeElement.parentElement;
+
+      while (el) {
+        if (el.scrollHeight > el.clientHeight) {
+          el.scrollTo({
+            top: el.scrollHeight,
+            behavior: 'smooth'
+          });
+          break;
+        }
+        el = el.parentElement;
+      }
+    }, 0);
   }
 
   private loadSubscriptions(): void {
