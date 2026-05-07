@@ -60,7 +60,7 @@ public class ProcessPaymentNotificationService {
             subscriptionId = UUID.fromString(payment.externalReference());
         }
         catch (IllegalArgumentException e) {
-            log.error("Referencia externa invalida, nao e um UUID. [paymentId={}] [externalReference={}]",
+            log.error("Referencia externa invalida, nao é um UUID. [paymentId={}] [externalReference={}]",
                     payment.id(), payment.externalReference(), e);
             throw new PaymentGatewayException("Referencia externa invalida recebida do MercadoPago. [paymentId=" + payment.id() + "] - " + e);
         }

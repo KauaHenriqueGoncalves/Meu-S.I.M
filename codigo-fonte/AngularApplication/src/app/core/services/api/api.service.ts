@@ -33,9 +33,20 @@ export class ApiService {
     );
   }
 
+  put<T>(url: string, body: any, options?: any) {
+    return this.http.put<T>(
+      `${this.baseUrl}${url}`,
+      body,
+      {
+        withCredentials: true,
+        ...options
+      }
+    );
+  }
+
   patch<T>(url: string, body: any, options?: any) {
     return this.http.patch<T>(
-      `${this.baseUrl}${url}`, 
+      `${this.baseUrl}${url}`,
       body,
       {
         withCredentials: true,

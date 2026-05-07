@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { RegisterStateService } from '../../../features/auth/services/register-state.service';
+import { RegisterStateService } from '../../services/register-state.service';
 
 export const registerFlowGuard: CanActivateFn = () => {
   const registerStateService = inject(RegisterStateService);

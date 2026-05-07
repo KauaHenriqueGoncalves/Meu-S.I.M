@@ -147,7 +147,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
                 ))
                 .orElseThrow(() -> {
                     log.warn("Escola sem licenca ativa ao buscar info da assinatura. [schoolId={}]", school.getId());
-                    return new SubscriptionException("A escola nao possui uma licenca ativa.");
+                    return new SubscriptionException("A escola nao possui uma licença ativa.");
                 });
     }
 

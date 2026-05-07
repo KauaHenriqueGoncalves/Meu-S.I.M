@@ -8,12 +8,10 @@ export function cnpjValidator(): ValidatorFn {
       return { invalidCnpj: true };
     }
 
-    // Elimina CNPJs inválidos conhecidos
     if (/^(\d)\1+$/.test(cnpj)) {
       return { invalidCnpj: true };
     }
 
-    // Validação dos dígitos verificadores
     let size = cnpj.length - 2;
     let numbers = cnpj.substring(0, size);
     let digits = cnpj.substring(size);

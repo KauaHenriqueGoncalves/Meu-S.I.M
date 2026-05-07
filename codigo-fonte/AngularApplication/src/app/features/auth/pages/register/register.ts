@@ -54,7 +54,8 @@ export class Register implements OnInit, OnDestroy {
     if (this.widgetId) {
       try {
         turnstile.remove(this.widgetId);
-      } catch (e) {
+      } 
+      catch (e) {
         console.warn('Erro ao remover Turnstile:', e);
       }
       this.widgetId = null;
@@ -70,7 +71,10 @@ export class Register implements OnInit, OnDestroy {
     const script = document.querySelector('script[src*="turnstile"]') as HTMLScriptElement;
 
     if (!script) {
-      console.error('Turnstile script não encontrado');
+      this.notificationService.notify({
+        type: 'error',
+        text: 'reCAPTCHA não carregado, atualize a página ou volte mais tarde'
+      });
       return;
     }
 
@@ -119,7 +123,7 @@ export class Register implements OnInit, OnDestroy {
 
         this.notificationService.notify({
           type: 'error',
-          text: 'Falha na verificação de segurança, tente novamente'
+          text: 'Falha na verificação de reCAPTCHA, tente novamente'
         });
 
         this.cdr.detectChanges();
@@ -154,6 +158,7 @@ export class Register implements OnInit, OnDestroy {
     this.captchaData = { captchaToken: null };
 
     const state = turnstile.getResponse(this.widgetId);
+
     if (state !== undefined) {
       turnstile.reset(this.widgetId);
     }
@@ -164,7 +169,7 @@ export class Register implements OnInit, OnDestroy {
       if (this.captchaExecuting) {
         this.notificationService.notify({
           type: 'warning',
-          text: 'Verificação de robô travou, resetando...'
+          text: 'Verificação de robô travou, tente novamente, resetando...'
         });
 
         this.captchaExecuting = false;
@@ -186,7 +191,7 @@ export class Register implements OnInit, OnDestroy {
       return;
     }
 
-    let success = false;
+    let success: boolean = false;
 
     this.schoolAdminApi.create(
       this.userData as UserRequestDto,
@@ -210,7 +215,7 @@ export class Register implements OnInit, OnDestroy {
           this.isLoading = false;
 
           if (!success) {
-            this.cdr.detectChanges(); // só detecta mudanças em caso de erro
+            this.cdr.detectChanges();
           }
         })
       )

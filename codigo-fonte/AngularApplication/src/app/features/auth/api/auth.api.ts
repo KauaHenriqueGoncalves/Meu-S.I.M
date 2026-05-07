@@ -36,7 +36,7 @@ export class AuthApi {
   }
 
   refresh(): Observable<TokenResponse> {
-    return this.apiService.post(
+    return this.apiService.post<TokenResponse>(
       ApiConfig.endpoints.auth.refresh, 
       {}, 
       {
@@ -46,7 +46,7 @@ export class AuthApi {
   }
 
   logout(): void {
-    this.apiService.post(
+    this.apiService.post<any>(
       ApiConfig.endpoints.auth.logout,
       {},
       {
