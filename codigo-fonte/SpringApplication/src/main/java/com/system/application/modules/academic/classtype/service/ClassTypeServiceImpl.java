@@ -15,6 +15,7 @@ import java.util.Set;
 public class ClassTypeServiceImpl implements ClassTypeService {
     private static final Logger log =
             LoggerFactory.getLogger(ClassTypeServiceImpl.class);
+
     private final ClassTypeRepository classTypeRepository;
 
     public ClassTypeServiceImpl(

@@ -81,7 +81,7 @@ public class RateLimitConfig extends OncePerRequestFilter {
         return Bucket.builder()
                 .addLimit(Bandwidth.classic(
                         10,
-                        Refill.intervally(10, Duration.ofMinutes(5))
+                        Refill.intervally(10, Duration.ofMinutes(3))
                 ))
                 .build();
     }

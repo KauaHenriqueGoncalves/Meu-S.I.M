@@ -22,25 +22,23 @@ export class SubscriptionCheckService {
   }
 
   check(): void {
-    setTimeout(() => {
-      if (this.authService.getPayload()?.scope != 'school_admin') return;
+    if (this.authService.getPayload()?.scope != 'school_admin') return;
 
-      this.subscriptionApi.findActive()
-        .pipe(
-          timeout(10000),
-          catchError(() => {
-            this.notificationService.notify({
-              type: 'warning',
-              text: 'Você não possui uma licença ativa.'
-            });
-            return EMPTY;
-          })
-        )
-        .subscribe({
-          next: (res: SubscriptionCheckResponse) => {
-            this.subscription = res;
-          }
-        });
-    }, 1000);
+    this.subscriptionApi.findActive()
+      .pipe(
+        timeout(10000),
+        catchError(() => {
+          this.notificationService.notify({
+            type: 'warning',
+            text: 'Você não possui uma licença ativa.'
+          });
+          return EMPTY;
+        })
+      )
+      .subscribe({
+        next: (res: SubscriptionCheckResponse) => {
+          this.subscription = res;
+        }
+      });
   }
 }

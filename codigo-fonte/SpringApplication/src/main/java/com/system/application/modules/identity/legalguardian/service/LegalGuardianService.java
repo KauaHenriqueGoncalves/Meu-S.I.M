@@ -9,7 +9,7 @@ import com.system.application.shared.dto.PageResponse;
 import java.util.UUID;
 
 public interface LegalGuardianService {
-    PageResponse<LegalGuardianResponse> findAllResponseBySchool(UUID userId, int page, int size);
+    PageResponse<LegalGuardianResponse> findAllResponseBySchool(UUID userId, String name, int page, int size);
     LegalGuardian findById(UUID legalGuardianId);
     LegalGuardianDetailResponse findResponseDetailById(UUID legalGuardianId);
     LegalGuardian save(UUID userId, UserRequest userRequest, LegalGuardianRequest legalGuardianRequest);

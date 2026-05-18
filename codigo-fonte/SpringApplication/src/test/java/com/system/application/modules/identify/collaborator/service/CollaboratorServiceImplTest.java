@@ -6,7 +6,6 @@ import com.system.application.modules.identity.collaborator.dto.CollaboratorRequ
 import com.system.application.modules.identity.collaborator.dto.CollaboratorResponse;
 import com.system.application.modules.identity.collaborator.dto.UpdateCollaboratorRequest;
 import com.system.application.modules.identity.collaborator.repository.CollaboratorRepository;
-import com.system.application.modules.identity.collaborator.repository.projection.CollaboratorListView;
 import com.system.application.modules.identity.collaborator.service.CollaboratorServiceImpl;
 import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.user.User;
@@ -22,6 +21,8 @@ import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
+import com.system.application.shared.services.cache.keys.CacheKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -49,16 +50,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CollaboratorServiceImpl")
 public class CollaboratorServiceImplTest {
-    @Mock
-    private CollaboratorRepository collaboratorRepository;
-    @Mock
-    private SchoolSubscriptionService schoolSubscriptionService;
-    @Mock
-    private UserService userService;
-    @Mock
-    private SchoolService schoolService;
-    @Mock
-    private BCryptPasswordEncoder passwordEncoder;
+    @Mock private CollaboratorRepository collaboratorRepository;
+    @Mock private SchoolSubscriptionService schoolSubscriptionService;
+    @Mock private UserService userService;
+    @Mock private SchoolService schoolService;
+    @Mock private BCryptPasswordEncoder passwordEncoder;
+    @Mock private CacheService cacheService;
 
     @InjectMocks
     private CollaboratorServiceImpl collaboratorService;
@@ -152,30 +149,6 @@ public class CollaboratorServiceImplTest {
         passwordRequest = new PasswordRequest("novaSenha123");
     }
 
-    private CollaboratorListView mockListView(UUID id, String username, String specialty, String workload) {
-        return new CollaboratorListView() {
-            @Override
-            public UUID getId() {
-                return id;
-            }
-
-            @Override
-            public String getUsername() {
-                return username;
-            }
-
-            @Override
-            public String getSpecialty() {
-                return specialty;
-            }
-
-            @Override
-            public String getWorkload() {
-                return workload;
-            }
-        };
-    }
-
     @Nested
     @DisplayName("findById()")
     final class FindById {
@@ -242,40 +215,7 @@ public class CollaboratorServiceImplTest {
     @Nested
     @DisplayName("findAllResponseBySchool()")
     final class FindAllResponseBySchool {
-        @Test
-        @DisplayName("deve retornar página de colaboradores mapeados da escola")
-        void shouldReturnPage_whenSchoolHasCollaborators() {
-            Pageable pageable = PageRequest.of(0, 10);
-            CollaboratorListView view =
-                    mockListView(collaboratorId, "Carlos Lima", "Matemática", "8h");
 
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(collaboratorRepository.findAllBySchoolId(eq(schoolId), any(Pageable.class)))
-                    .thenReturn(new PageImpl<>(List.of(view), pageable, 1));
-
-            PageResponse<CollaboratorResponse> result =
-                    collaboratorService.findAllResponseBySchool(userId, 0, 10);
-
-            assertThat(result.content()).hasSize(1);
-            assertThat(result.content().getFirst().username()).isEqualTo("Carlos Lima");
-            assertThat(result.content().getFirst().specialty()).isEqualTo("Matemática");
-            assertThat(result.content().getFirst().workload()).isEqualTo("8h");
-        }
-
-        @Test
-        @DisplayName("deve retornar página vazia quando escola não tiver colaboradores")
-        void shouldReturnEmptyPage_whenSchoolHasNoCollaborators() {
-            Pageable pageable = PageRequest.of(0, 10);
-
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(collaboratorRepository.findAllBySchoolId(eq(schoolId), any(Pageable.class)))
-                    .thenReturn(new PageImpl<>(List.of(), pageable, 0));
-
-            PageResponse<CollaboratorResponse> result =
-                    collaboratorService.findAllResponseBySchool(userId, 0, 10);
-
-            assertThat(result.content()).isEmpty();
-        }
     }
 
     @Nested

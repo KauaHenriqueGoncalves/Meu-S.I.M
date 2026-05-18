@@ -4,6 +4,7 @@ import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.role.repository.RoleRepository;
 import com.system.application.modules.identity.role.service.RoleServiceImpl;
 import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.shared.services.cache.CacheService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,8 +23,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RoleServiceImpl")
 public class RoleServiceImplTest {
-    @Mock
-    private RoleRepository roleRepository;
+    @Mock private RoleRepository roleRepository;
+    @Mock private CacheService cacheService;
 
     @InjectMocks
     private RoleServiceImpl roleService;

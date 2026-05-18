@@ -9,7 +9,7 @@ import com.system.application.shared.dto.PageResponse;
 import java.util.UUID;
 
 public interface CollaboratorService {
-    PageResponse<CollaboratorResponse> findAllResponseBySchool(UUID userId, int page, int size);
+    PageResponse<CollaboratorResponse> findAllResponseBySchool(UUID userId, String name, int page, int size);
     Collaborator findById(UUID collaboratorId);
     CollaboratorDetailResponse findResponseDetailById(UUID collaboratorId);
     Collaborator save(UUID userId, UserRequest userRequest, CollaboratorRequest collaboratorRequest);

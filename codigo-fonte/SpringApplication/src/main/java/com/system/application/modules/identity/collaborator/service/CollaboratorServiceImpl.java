@@ -1,12 +1,12 @@
 package com.system.application.modules.identity.collaborator.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.system.application.modules.identity.collaborator.Collaborator;
 import com.system.application.modules.identity.collaborator.dto.*;
 import com.system.application.modules.identity.collaborator.repository.CollaboratorRepository;
 import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.user.dto.PasswordRequest;
 import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
-import com.system.application.modules.licensing.schoolsubscription.dto.SubscriptionInfoResponse;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.service.SchoolService;
@@ -18,11 +18,11 @@ import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
+import com.system.application.shared.services.cache.keys.CacheKeys;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +30,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -42,43 +44,67 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     private final UserService userService;
     private final SchoolService schoolService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final CacheService cacheService;
+
+    private static final Duration COLLABORATOR_TTL = Duration.ofHours(15);
 
     public CollaboratorServiceImpl(
             CollaboratorRepository collaboratorRepository,
             SchoolSubscriptionService schoolSubscriptionService,
             UserService userService,
             SchoolService schoolService,
-            BCryptPasswordEncoder passwordEncoder
+            BCryptPasswordEncoder passwordEncoder,
+            CacheService cacheService
     ) {
         this.collaboratorRepository = collaboratorRepository;
         this.schoolSubscriptionService = schoolSubscriptionService;
         this.userService = userService;
         this.schoolService = schoolService;
         this.passwordEncoder = passwordEncoder;
+        this.cacheService = cacheService;
     }
 
     @Override
-    @Cacheable(value = "page_collaborators", key = "#userId + ':' + #page + ':' + #size")
-    public PageResponse<CollaboratorResponse> findAllResponseBySchool(UUID userId, int page, int size) {
+    public PageResponse<CollaboratorResponse> findAllResponseBySchool(UUID userId, String name, int page, int size) {
         School school = schoolService.findByUserId(userId);
 
-        log.info("Buscando colaboradores da escola. [schoolId={}] [page={}] [size={}]",
-                school.getId(), page, size);
+        String nameFilter = (name != null && !name.isBlank()) ? name.trim() : null;
+
+        log.info("Buscando colaboradores da escola. [schoolId={}] [name={}] [page={}] [size={}]",
+                school.getId(), nameFilter, page, size);
+
+        String key = CacheKeys.collaborator(school.getId(), page, size, nameFilter);
+
+        Optional<PageResponse<CollaboratorResponse>> cacheResponse = cacheService.get(key, new TypeReference<>(){});
+
+        if (cacheResponse.isPresent()) {
+            log.info("Colaboradores encontrados no cache. [schoolId={}] [total={}] [totalPages={}]",
+                    school.getId(), cacheResponse.get().totalElements(), cacheResponse.get().totalPages());
+            return cacheResponse.get();
+        }
 
         Pageable sortedPageable =
                 PageRequest.of(page, size, Sort.by("user.username").ascending());
-        Page<CollaboratorResponse> response = collaboratorRepository.findAllBySchoolId(school.getId(), sortedPageable)
-                .map(c ->
-                        new CollaboratorResponse(c.getId(), c.getUsername(), c.getSpecialty(), c.getWorkload()));
+
+        Page<CollaboratorResponse> responsePage =
+                collaboratorRepository.findAllBySchoolIdAndName(school.getId(), nameFilter, sortedPageable)
+                .map(c -> new CollaboratorResponse(c.getId(), c.getUser().getUsername(), c.getSpecialty(), c.getWorkload()));
 
         log.info("Colaboradores encontrados. [schoolId={}] [total={}] [totalPages={}]",
-                school.getId(), response.getTotalElements(), response.getTotalPages());
+                school.getId(), responsePage.getTotalElements(), responsePage.getTotalPages());
 
-        return PageResponse.from(response);
+        PageResponse<CollaboratorResponse> response = PageResponse.from(responsePage);
+
+        cacheService.set(key, response, COLLABORATOR_TTL);
+
+        return response;
     }
 
     @Override
     public Collaborator findById(UUID collaboratorId) {
+        log.info("Buscando colaborador pelo id. [collaboratorId={}]",
+                collaboratorId);
+
         return collaboratorRepository.findById(collaboratorId)
                 .orElseThrow(() -> {
                     log.warn("Colaborador não encontrado. [collaboratorId={}]", collaboratorId);
@@ -88,30 +114,30 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
     @Override
     public CollaboratorDetailResponse findResponseDetailById(UUID collaboratorId) {
-        return collaboratorRepository.findById(collaboratorId)
-                .map(c -> {
-                    return new CollaboratorDetailResponse(
-                            c.getId(),
-                            c.getUser().getUsername(),
-                            c.getUser().getEmail(),
-                            c.getUser().getCpf(),
-                            c.getUser().getPhoneNumber(),
-                            c.getUser().getAddress(),
-                            c.getUser().getActive(),
-                            c.getDateOfBirth(),
-                            c.getSpecialty(),
-                            c.getWorkload()
-                    );
-                })
-                .orElseThrow(() -> {
-                    log.warn("Colaborador não encontrado ao buscar detalhes. [collaboratorId={}]", collaboratorId);
-                    return new NotFoundObjectException("Não encontrou colaborador");
-                });
+        String key = CacheKeys.collaborator(collaboratorId, "detailResponse");
+
+        log.info("Buscando detalhes do colaborador. [collaboratorId={}]",
+                collaboratorId);
+
+        Optional<CollaboratorDetailResponse> cacheResponse = cacheService.get(key, new TypeReference<>(){});
+
+        if (cacheResponse.isPresent()) {
+            log.info("Detalhes do colaborador encontrado pelo cache. [collaboratorId={}] [key={}]",
+                    collaboratorId, key);
+            return cacheResponse.get();
+        }
+
+        Collaborator c = findById(collaboratorId);
+
+        CollaboratorDetailResponse response = CollaboratorDetailResponse.of(c);
+
+        cacheService.set(key, response, COLLABORATOR_TTL);
+
+        return response;
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = "page_collaborators", allEntries = true)
     public Collaborator save(UUID userId, UserRequest userRequest, CollaboratorRequest collaboratorRequest) {
         School school = schoolService.findByUserId(userId);
 
@@ -130,25 +156,34 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                 collaboratorRequest.specialty(),
                 collaboratorRequest.workload()
         );
+
         collaborator = collaboratorRepository.save(collaborator);
 
         log.info("Colaborador cadastrado com sucesso. [collaboratorId={}] [userId={}] [schoolId={}]",
                 collaborator.getId(), user.getId(), school.getId());
+
+        String key = CacheKeys.collaboratorPattern(school.getId());
+
+        log.info("Apagando todos os cache de Collaborator ligado à escola. [school={}] [key={}]",
+                school.getId(), key);
+
+        cacheService.evictByPattern(key);
 
         return collaborator;
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = "page_collaborators", allEntries = true)
     public void update(UUID userId, UUID collaboratorId, UpdateCollaboratorRequest updateRequest) {
         log.info("Iniciando atualização de colaborador. [requisitanteId={}] [collaboratorId={}]",
                 userId, collaboratorId);
 
         School school = schoolService.findByUserId(userId);
+
         ensureSchoolHasActiveSubscription(school.getId());
 
         Collaborator collaborator = findById(collaboratorId);
+
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
 
         collaborator.getUser().setUsername(updateRequest.username());
@@ -163,6 +198,15 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
         log.info("Colaborador atualizado com sucesso. [collaboratorId={}] [schoolId={}]",
                 collaboratorId, school.getId());
+
+        String keySchool = CacheKeys.collaboratorPattern(school.getId());
+        String keyUser = CacheKeys.collaboratorPattern(collaborator.getId());
+
+        log.info("Apagando todos os cache de colaborador ligado à escola. [keyPattern={}] [keyUser={}]",
+                keySchool, keyUser);
+
+        cacheService.evictByPattern(keySchool);
+        cacheService.evictByPattern(keyUser);
     }
 
     @Override
@@ -180,11 +224,17 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
         log.info("Senha do colaborador atualizada com sucesso. [collaboratorId={}] [schoolId={}]",
                 collaboratorId, school.getId());
+
+        String key = CacheKeys.collaboratorPattern(collaborator.getId());
+
+        log.info("Apagando caches relacionado ao colaborador. [collaboratorId={}] [key={}]",
+                collaboratorId, key);
+
+        cacheService.evictByPattern(key);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = "page_collaborators", allEntries = true)
     public void deleteById(UUID userId, UUID collaboratorId) {
         log.info("Iniciando exclusão de colaborador. [requisitanteId={}] [collaboratorId={}]",
                 userId, collaboratorId);
@@ -199,6 +249,15 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
         log.info("Colaborador excluído com sucesso. [collaboratorId={}] [schoolId={}]",
                 collaboratorId, school.getId());
+
+        String keySchool = CacheKeys.collaboratorPattern(school.getId());
+        String keyUser = CacheKeys.collaboratorPattern(collaborator.getId());
+
+        log.info("Apagando todos os cache de colaborador ligado à escola. [keyPattern={}] [keyUser={}]",
+                keySchool, keyUser);
+
+        cacheService.evictByPattern(keySchool);
+        cacheService.evictByPattern(keyUser);
     }
 
     private void ensureCollaboratorBelongsToSchool(UUID schoolId, Collaborator collaborator) {
