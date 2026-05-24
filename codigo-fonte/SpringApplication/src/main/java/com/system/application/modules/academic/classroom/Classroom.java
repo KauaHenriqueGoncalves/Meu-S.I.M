@@ -8,10 +8,7 @@ import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "classroom")
@@ -25,30 +22,33 @@ public final class Classroom implements Serializable {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id")
+    @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
     @ManyToOne
-    @JoinColumn(name = "class_type_id")
+    @JoinColumn(name = "class_type_id", nullable = false)
     private ClassType classType;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
+    @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
     @Column(name = "name", nullable = false, length = 60)
     private String name;
 
-    @Column(name = "max_students")
+    @Column(name = "max_students", nullable = false)
     private Integer maxStudents;
+
+    @Column(name = "description", nullable = false, length = 200)
+    private String description;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "classroom_student",
-            joinColumns = @JoinColumn(name = "classroom_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id")
+            joinColumns = @JoinColumn(name = "classroom_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "student_id", nullable = false)
     )
-    private Set<Student> students = new HashSet<>();
+    private List<Student> students = new ArrayList<>();
 
     public Classroom() {
     }
@@ -60,7 +60,8 @@ public final class Classroom implements Serializable {
             Subject subject,
             String name,
             Integer maxStudents,
-            Set<Student> students
+            String description,
+            List<Student> students
     ) {
         this.id = id;
         this.school = school;
@@ -68,6 +69,7 @@ public final class Classroom implements Serializable {
         this.subject = subject;
         this.name = name;
         this.maxStudents = maxStudents;
+        this.description = description;
         this.students = students;
     }
 
@@ -119,11 +121,19 @@ public final class Classroom implements Serializable {
         this.maxStudents = maxStudents;
     }
 
-    public Set<Student> getStudents() {
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<Student> getStudents() {
         return students;
     }
 
-    public void setStudents(Set<Student> students) {
+    public void setStudents(List<Student> students) {
         this.students = students;
     }
 

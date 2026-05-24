@@ -6,6 +6,7 @@ import com.system.application.auth.dto.LoginResponse;
 import com.system.application.auth.service.CookieService;
 import com.system.application.auth.service.JwtService;
 import com.system.application.auth.service.LoginService;
+import com.system.application.auth.service.RefreshService;
 import com.system.application.auth.token.TokenResponse;
 import com.system.application.integration.captcha.dto.CaptchaRequest;
 import com.system.application.integration.captcha.service.CaptchaService;
@@ -28,6 +29,7 @@ import java.util.UUID;
 @RequestMapping("/auth")
 public final class AuthController {
     private final LoginService loginService;
+    private final RefreshService  refreshService;
     private final JwtService jwtService;
     private final UserService userService;
     private final CookieService cookieService;
@@ -35,12 +37,14 @@ public final class AuthController {
 
     public AuthController(
             LoginService loginService,
+            RefreshService refreshService,
             JwtService jwtService,
             UserService userService,
             CookieService cookieService,
             @Qualifier("turnstile") CaptchaService captchaService
     ) {
         this.loginService = loginService;
+        this.refreshService = refreshService;
         this.jwtService = jwtService;
         this.userService = userService;
         this.cookieService = cookieService;
@@ -88,10 +92,7 @@ public final class AuthController {
 
         // TODO: Refresh vazio, retorne um erro no body
 
-        Jwt jwt = jwtService.decode(refreshToken);
-        String id = jwt.getSubject();
-        User user = userService.findById(UUID.fromString(id));
-        String accessToken = jwtService.generateAccessToken(new LoginResponse(user.getId(), user.getRole()));
+        String accessToken = refreshService.getAccessToken(refreshToken);
         return ResponseEntity.ok(new TokenResponse(accessToken));
     }
 

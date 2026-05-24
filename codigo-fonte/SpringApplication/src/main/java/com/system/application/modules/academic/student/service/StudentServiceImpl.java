@@ -110,7 +110,7 @@ public class StudentServiceImpl implements StudentService {
 
         ensureLegalGuardianBelongsToUserSchool(school.getId(), legalGuardian);
 
-        String key = CacheKeys.student(school.getId(), "byLegalGuardian");
+        String key = CacheKeys.student(legalGuardianId, "byLegalGuardian");
 
         Optional<List<StudentResponse>> cacheResponse = cacheService.get(key, new TypeReference<>(){});
 
@@ -238,7 +238,7 @@ public class StudentServiceImpl implements StudentService {
         String keySchool = CacheKeys.studentPattern(school.getId());
         String keyUser = CacheKeys.studentPattern(student.getId());
 
-        log.info("Apagando todos os cache de student ligado à escola. [keyPattern={}] [keyUser={}]",
+        log.info("Apagando todos os cache de student ligado à escola. [keySchool={}] [keyUser={}]",
                 keySchool, keyUser);
 
         cacheService.evictByPattern(keySchool);
@@ -265,7 +265,7 @@ public class StudentServiceImpl implements StudentService {
         String keySchool = CacheKeys.studentPattern(school.getId());
         String keyUser = CacheKeys.studentPattern(student.getId());
 
-        log.info("Apagando todos os cache de student ligado à escola. [keyPattern={}] [keyUser={}]",
+        log.info("Apagando todos os cache de student ligado à escola. [keySchool={}] [keyUser={}]",
                 keySchool, keyUser);
 
         cacheService.evictByPattern(keySchool);

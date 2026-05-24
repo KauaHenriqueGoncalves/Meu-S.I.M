@@ -86,6 +86,7 @@ public final class LoginServiceImpl implements LoginService {
 
         SystemAdmin systemAdmin = systemAdminService
                 .findByCpfAndEmail(adminLoginRequest.cpf(), adminLoginRequest.email());
+
         User user = systemAdmin.getUser();
 
         if (!passwordEncoder.matches(adminLoginRequest.password(), user.getPassword())) {
@@ -102,6 +103,7 @@ public final class LoginServiceImpl implements LoginService {
 
         boolean isSystemAdmin = user.getRole().stream()
                 .anyMatch(role -> role.getId() == Role.Values.SYSTEM_ADMIN.getValue());
+
         if (!isSystemAdmin) {
             log.warn("Usuario sem role de administrador tentou acessar login administrativo. [userId={}] [email={}] [roles={}]",
                     user.getId(), user.getEmail(), user.getRole());

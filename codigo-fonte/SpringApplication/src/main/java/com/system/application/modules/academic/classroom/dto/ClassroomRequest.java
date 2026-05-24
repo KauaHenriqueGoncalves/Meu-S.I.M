@@ -22,7 +22,12 @@ public record ClassroomRequest(
         @NotBlank(message = "Nome é obrigatório")
         @Size(max = 60, message = "Nome da turma deve ter no máximo 30 caracteres")
         @NoLeadingTrailingSpace
-        String name
+        String name,
+
+        @NotNull(message = "A descrição da turma não pode ser nula")
+        @Size(max = 200, message = "Descrição da turma até 200 caracteres")
+        @NoLeadingTrailingSpace
+        String description
 
 ) implements Serializable {
 

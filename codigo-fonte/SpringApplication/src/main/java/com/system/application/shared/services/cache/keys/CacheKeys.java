@@ -13,8 +13,8 @@ public final class CacheKeys {
         return "legalGuardian::" + id.toString() + "*";
     }
 
-    public static String legalGuardian(UUID legalGuardianId, String suffix) {
-        return "legalGuardian::" + legalGuardianId.toString() + "::" + suffix;
+    public static String legalGuardian(UUID id, String suffix) {
+        return "legalGuardian::" + id.toString() + "::" + suffix;
     }
 
     public static String legalGuardian(UUID id, int page, int size, String name) {
@@ -29,8 +29,8 @@ public final class CacheKeys {
         return "collaborator::" + id.toString() + "*";
     }
 
-    public static String collaborator(UUID collaboratorId, String suffix) {
-        return "collaborator::" + collaboratorId.toString() + "::" + suffix;
+    public static String collaborator(UUID id, String suffix) {
+        return "collaborator::" + id.toString() + "::" + suffix;
     }
 
     public static String collaborator(UUID id, int page, int size, String name) {
@@ -56,8 +56,8 @@ public final class CacheKeys {
         return "student::" + id.toString() + "*";
     }
 
-    public static String student(UUID studentId, String suffix) {
-        return "student::" + studentId.toString() + "::" + suffix;
+    public static String student(UUID id, String suffix) {
+        return "student::" + id.toString() + "::" + suffix;
     }
 
     public static String student(UUID id, int page, int size, String name) {
@@ -66,5 +66,36 @@ public final class CacheKeys {
                 page + "::" +
                 size + "::" +
                 ((name != null) ? name.trim() : "") + "::page";
+    }
+
+    public static String classTypeList() {
+        return "classType::List";
+    }
+
+    public static String classType(long id) {
+        return "classType::" + id;
+    }
+
+    public static String classroomPattern(UUID id) {
+        return "classroom::" + id.toString() + "*";
+    }
+
+    public static String classroom(UUID id, int page, int size) {
+        return "classroom::" +
+                id.toString() + "::" +
+                page + "::" +
+                size + "::page";
+    }
+
+    public static String classroom(UUID id, String suffix) {
+        return "classroom::" + id.toString() + "::" + suffix;
+    }
+
+    public static String classSchedulePattern(UUID id) {
+        return "classSchedule::" + id.toString() + "*";
+    }
+
+    public static String classSchedule(UUID schoolId, UUID classScheduleId, String suffix) {
+        return "classSchedule::" + schoolId.toString() + "::" + classScheduleId.toString() + "::" + suffix;
     }
 }

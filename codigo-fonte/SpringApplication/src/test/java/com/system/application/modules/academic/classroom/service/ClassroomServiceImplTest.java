@@ -97,14 +97,15 @@ public class ClassroomServiceImplTest {
 
         classroom = new Classroom(
                 classroomId, school, classTypeGroup, subject,
-                "Turma A", 10, new HashSet<>()
+                "Turma A", 10, "", new ArrayList<>()
         );
 
         request = new ClassroomRequest(
                 ClassType.Values.GROUP.getValue(),
                 subjectId,
                 10,
-                "Turma A"
+                "Turma A",
+                ""
         );
     }
 
@@ -227,7 +228,7 @@ public class ClassroomServiceImplTest {
         void shouldThrowAccessDenied_whenClassroomBelongsToDifferentSchool() {
             Classroom classroomDeOutraEscola = new Classroom(
                     classroomId, outraEscola, classTypeGroup, subject,
-                    "Turma B", 10, new HashSet<>()
+                    "Turma B", 10, "", new ArrayList<>()
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
@@ -267,7 +268,7 @@ public class ClassroomServiceImplTest {
         @DisplayName("deve cadastrar turma INDIVIDUAL com maxStudents=1")
         void shouldSaveClassroom_whenIndividualTypeWithOneStudent() {
             ClassroomRequest individualRequest = new ClassroomRequest(
-                    ClassType.Values.INDIVIDUAL.getValue(), subjectId, 1, "Turma Individual"
+                    ClassType.Values.INDIVIDUAL.getValue(), subjectId, 1, "Turma Individual", ""
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
@@ -289,7 +290,7 @@ public class ClassroomServiceImplTest {
         @DisplayName("deve lançar IllegalArgumentException quando INDIVIDUAL tiver maxStudents > 1")
         void shouldThrow_whenIndividualTypeWithMoreThanOneStudent() {
             ClassroomRequest invalidRequest = new ClassroomRequest(
-                    ClassType.Values.INDIVIDUAL.getValue(), subjectId, 2, "Turma Individual"
+                    ClassType.Values.INDIVIDUAL.getValue(), subjectId, 2, "Turma Individual", ""
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
@@ -344,7 +345,7 @@ public class ClassroomServiceImplTest {
         @DisplayName("deve atualizar a turma com sucesso")
         void shouldUpdateClassroom_whenValid() {
             ClassroomRequest updateRequest = new ClassroomRequest(
-                    ClassType.Values.GROUP.getValue(), subjectId, 15, "Turma B"
+                    ClassType.Values.GROUP.getValue(), subjectId, 15, "Turma B", ""
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
@@ -369,10 +370,10 @@ public class ClassroomServiceImplTest {
         void shouldThrow_whenNewMaxStudentsBelowCurrentCount() {
             Student s1 = new Student(UUID.randomUUID(), school, "Aluno 1", LocalDate.of(2010, 1, 1), "5º", null);
             Student s2 = new Student(UUID.randomUUID(), school, "Aluno 2", LocalDate.of(2010, 1, 1), "5º", null);
-            classroom.setStudents(new HashSet<>(Set.of(s1, s2)));
+            classroom.setStudents(new ArrayList<>(Set.of(s1, s2)));
 
             ClassroomRequest updateRequest = new ClassroomRequest(
-                    ClassType.Values.GROUP.getValue(), subjectId, 1, "Turma B" // maxStudents < 2 alunos atuais
+                    ClassType.Values.GROUP.getValue(), subjectId, 1, "Turma B", "" // maxStudents < 2 alunos atuais
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
@@ -393,7 +394,7 @@ public class ClassroomServiceImplTest {
         @DisplayName("deve lançar AccessDeniedException quando turma não pertencer à escola")
         void shouldThrow_whenClassroomBelongsToDifferentSchool() {
             Classroom classroomDeOutraEscola = new Classroom(
-                    classroomId, outraEscola, classTypeGroup, subject, "Turma X", 10, new HashSet<>()
+                    classroomId, outraEscola, classTypeGroup, subject, "Turma X", 10, "", new ArrayList<>()
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
@@ -432,7 +433,7 @@ public class ClassroomServiceImplTest {
         @Test
         @DisplayName("deve lançar BusinessException quando turma estiver cheia")
         void shouldThrow_whenClassroomIsFull() {
-            Set<Student> estudantes = new HashSet<>();
+            List<Student> estudantes = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
                 estudantes.add(new Student(UUID.randomUUID(), school, "Aluno " + i,
                         LocalDate.of(2010, 1, 1), "5º", null));
@@ -555,7 +556,7 @@ public class ClassroomServiceImplTest {
         @DisplayName("deve lançar AccessDeniedException quando turma não pertencer à escola")
         void shouldThrow_whenClassroomBelongsToDifferentSchool() {
             Classroom classroomDeOutraEscola = new Classroom(
-                    classroomId, outraEscola, classTypeGroup, subject, "Turma X", 10, new HashSet<>()
+                    classroomId, outraEscola, classTypeGroup, subject, "Turma X", 10, "", new ArrayList<>()
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);

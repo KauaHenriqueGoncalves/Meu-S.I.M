@@ -1,10 +1,13 @@
 package com.system.application.shared.util;
 
 public final class CpfValidator {
-    private CpfValidator() {}
+    private static CpfValidator instance = null;
 
     public static CpfValidator getInstance() {
-        return new CpfValidator();
+        if (instance == null) {
+            instance = new CpfValidator();
+        }
+        return instance;
     }
 
     public Boolean isValid(String cpf) {

@@ -26,10 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -76,11 +73,11 @@ public class ClassScheduleServiceImplTest {
         classType.setName("GROUP");
 
         classroom = new Classroom(
-                classroomId, school, classType, subject, "Turma A", 10, new HashSet<>()
+                classroomId, school, classType, subject, "Turma A", 10, "", new ArrayList<>()
         );
 
         classroomDeOutraEscola = new Classroom(
-                UUID.randomUUID(), outraEscola, classType, subject, "Turma B", 10, new HashSet<>()
+                UUID.randomUUID(), outraEscola, classType, subject, "Turma B", 10, "", new ArrayList<>()
         );
 
         classSchedule = new ClassSchedule(
