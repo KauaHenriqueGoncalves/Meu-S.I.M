@@ -7,4 +7,4 @@ tunnels:
 
   backend:
     proto: http
-    addr: spring_api:8080
+    addr: host.docker.internal:8080

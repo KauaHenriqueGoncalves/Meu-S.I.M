@@ -60,13 +60,13 @@ public class SchoolSubscriptionController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")
-    public ResponseEntity<SchoolSubscriptionCheckoutResponse> paySubscription(
+    public ResponseEntity<SchoolSubscriptionCheckoutResponse> createCheckout(
             @RequestBody @Valid SchoolSubscriptionRequest request,
             JwtAuthenticationToken token
     ) {
         UUID user = UUID.fromString(token.getName());
         SchoolSubscriptionCheckoutResponse checkout =
-                schoolSubscriptionService.create(user, request);
+                schoolSubscriptionService.createCheckout(user, request);
         return ResponseEntity.ok(checkout);
     }
 
@@ -78,6 +78,17 @@ public class SchoolSubscriptionController {
     ) {
         UUID userId = UUID.fromString(token.getName());
         schoolSubscriptionService.cancelById(userId, subscriptionId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/reactive")
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<Void> reactiveSubscription(
+            @PathVariable("id") UUID subscriptionId,
+            JwtAuthenticationToken token
+    ) {
+        UUID userId = UUID.fromString(token.getName());
+        schoolSubscriptionService.reactiveById(userId, subscriptionId);
         return ResponseEntity.ok().build();
     }
 }

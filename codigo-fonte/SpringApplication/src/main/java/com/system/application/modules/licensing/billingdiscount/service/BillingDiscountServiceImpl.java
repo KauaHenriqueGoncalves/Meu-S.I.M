@@ -1,5 +1,6 @@
 package com.system.application.modules.licensing.billingdiscount.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.system.application.modules.licensing.billingdiscount.BillingDiscount;
 import com.system.application.modules.licensing.billingdiscount.dto.BillingDiscountRequest;
 import com.system.application.modules.licensing.billingdiscount.dto.BillingDiscountResponse;
@@ -7,6 +8,8 @@ import com.system.application.modules.licensing.billingdiscount.dto.BillingDisco
 import com.system.application.modules.licensing.billingdiscount.repository.BillingDiscountRepository;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.shared.services.cache.CacheService;
+import com.system.application.shared.services.cache.keys.CacheKeys;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -25,16 +29,34 @@ public class BillingDiscountServiceImpl implements BillingDiscountService {
             LoggerFactory.getLogger(BillingDiscountServiceImpl.class);
 
     private final BillingDiscountRepository billingDiscountRepository;
+    private final CacheService cacheService;
+
+    private static final Duration BILLINGDISCOUNT_TTL = Duration.ofHours(100);
 
     public BillingDiscountServiceImpl(
-            BillingDiscountRepository billingDiscountRepository
+            BillingDiscountRepository billingDiscountRepository,
+            CacheService cacheService
     ) {
         this.billingDiscountRepository = billingDiscountRepository;
+        this.cacheService = cacheService;
     }
 
     @Override
     public List<BillingDiscountResponse> findAll() {
-        log.info("Buscando todos os descontos de cobranca.");
+        log.info("Buscando todos os descontos da licença.");
+
+        String key = CacheKeys.billingDiscount("List");
+
+        Optional<List<BillingDiscountResponse>> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Descontos da licença encontrados em cache. [total={}]",
+                    cacheResponse.get().size());
+            return cacheResponse.get();
+        }
 
         List<BillingDiscountResponse> response = billingDiscountRepository.findAll()
                 .stream()
@@ -42,14 +64,29 @@ public class BillingDiscountServiceImpl implements BillingDiscountService {
                 .map(bd -> new BillingDiscountResponse(bd.getId(), bd.getMonths(), bd.getDiscountPercent()))
                 .toList();
 
-        log.info("Descontos de cobranca encontrados. [total={}]", response.size());
+        log.info("Descontos da licença encontrados. [total={}]", response.size());
+
+        cacheService.set(key, response, BILLINGDISCOUNT_TTL);
 
         return response;
     }
 
     @Override
     public List<BillingDiscountToClientResponseDto> findAllToClient() {
-        log.info("Buscando todos os descontos de cobranca.");
+        log.info("Buscando todos os descontos da licença para o cliente.");
+
+        String key = CacheKeys.billingDiscount("ListToClient");
+
+        Optional<List<BillingDiscountToClientResponseDto>> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Descontos da licença encontrados em cache para o cliente. [total={}]",
+                    cacheResponse.get().size());
+            return cacheResponse.get();
+        }
 
         List<BillingDiscountToClientResponseDto> response = billingDiscountRepository.findAll()
                 .stream()
@@ -57,13 +94,18 @@ public class BillingDiscountServiceImpl implements BillingDiscountService {
                 .map(bd -> new BillingDiscountToClientResponseDto(bd.getMonths(), bd.getDiscountPercent()))
                 .toList();
 
-        log.info("Descontos de cobranca encontrados. [total={}]", response.size());
+        log.info("Descontos de cobranca encontrados para o cliente. [total={}]", response.size());
+
+        cacheService.set(key, response, BILLINGDISCOUNT_TTL);
 
         return response;
     }
 
     @Override
     public BillingDiscount findById(UUID id) {
+        log.info("Buscando desconto pelo id. [discountId={}]",
+                id);
+
         return billingDiscountRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Desconto de cobranca nao encontrado. [billingDiscountId={}]", id);
@@ -100,6 +142,12 @@ public class BillingDiscountServiceImpl implements BillingDiscountService {
         log.info("Desconto de cobranca cadastrado com sucesso. [billingDiscountId={}] [meses={}] [desconto={}]",
                 billingDiscount.getId(), billingDiscount.getMonths(), billingDiscount.getDiscountPercent());
 
+        String key = CacheKeys.billingDiscountPattern();
+
+        log.info("Apagando todos os caches de descontos. [key={}]", key);
+
+        cacheService.evictByPattern(key);
+
         return billingDiscount;
     }
 
@@ -117,6 +165,12 @@ public class BillingDiscountServiceImpl implements BillingDiscountService {
 
         log.info("Desconto de cobranca atualizado com sucesso. [billingDiscountId={}] [meses={}] [desconto={}]",
                 id, billingDiscount.getMonths(), billingDiscount.getDiscountPercent());
+
+        String key = CacheKeys.billingDiscountPattern();
+
+        log.info("Apagando todos os caches de descontos. [key={}]", key);
+
+        cacheService.evictByPattern(key);
     }
 
     @Override
@@ -127,6 +181,12 @@ public class BillingDiscountServiceImpl implements BillingDiscountService {
         billingDiscountRepository.deleteById(id);
 
         log.info("Desconto de cobranca excluido com sucesso. [billingDiscountId={}]", id);
+
+        String key = CacheKeys.billingDiscountPattern();
+
+        log.info("Apagando todos os caches de descontos. [key={}]", key);
+
+        cacheService.evictByPattern(key);
     }
 
     private BigDecimal normalizePercent(BigDecimal percent) {

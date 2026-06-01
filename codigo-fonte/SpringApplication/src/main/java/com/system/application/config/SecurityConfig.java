@@ -1,18 +1,9 @@
 package com.system.application.config;
 
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
-import com.system.application.shared.util.PemUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,14 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -37,26 +21,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${jwt.public.key}")
-    private Resource publicKeyResource;
-
-    @Value("${jwt.private.key}")
-    private Resource privateKeyResource;
-
-    @Bean
-    public RSAPublicKey publicKey() throws Exception {
-        return (RSAPublicKey) PemUtils.getInstance().readPublicKey(publicKeyResource.getInputStream());
-    }
-
-    @Bean
-    public RSAPrivateKey privateKey() throws Exception {
-        return (RSAPrivateKey) PemUtils.getInstance().readPrivateKey(privateKeyResource.getInputStream());
-    }
-
     @Bean
     @Order(1)
     @Profile("test")
-    public SecurityFilterChain testPublicChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain testPublicChain(HttpSecurity http) {
         http
                 .securityMatcher(
                         "/console-h2/**",
@@ -66,10 +34,7 @@ public class SecurityConfig {
                         "/auth/refresh",
                         "/auth/logout",
                         "/auth/login/admin",
-                        "/auth/verify",
-                        "/auth/payment/success", // TESTE
-                        "/auth/payment/pending", // TESTE
-                        "/auth/payment/failure"  // TESTE
+                        "/auth/verify"
                 )
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -87,7 +52,7 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     @Profile("test")
-    public SecurityFilterChain testProtectedChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain testProtectedChain(HttpSecurity http) {
         http
                 .cors(withDefaults())
                 .headers(headers -> headers
@@ -105,7 +70,7 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     @Profile({"prod", "dev"})
-    public SecurityFilterChain publicRegisterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain publicRegisterChain(HttpSecurity http) {
         http
                 .securityMatcher(
                         "/auth/**",
@@ -127,10 +92,7 @@ public class SecurityConfig {
                                 "/webhooks/mercado-pago"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/auth/verify",
-                                "/auth/payment/success",  // TESTE
-                                "/auth/payment/pending",  // TESTE
-                                "/auth/payment/failure"   // TESTE
+                                "/auth/verify"
                         ).permitAll()
                         .anyRequest().denyAll()
                 )
@@ -141,7 +103,7 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     @Profile({"prod", "dev"})
-    public SecurityFilterChain securedChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securedChain(HttpSecurity http) {
         http
                 .cors(withDefaults())
                 .headers(headers -> headers
@@ -154,20 +116,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(withDefaults()));
         return http.build();
-    }
-
-    @Bean
-    public JwtEncoder jwtEncoder(RSAPublicKey publicKey, RSAPrivateKey privateKey) {
-        JWK jwk = new RSAKey.Builder(publicKey)
-                .privateKey(privateKey)
-                .build();
-        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-        return new NimbusJwtEncoder(jwks);
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder(RSAPublicKey publicKey) {
-        return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 
     @Bean

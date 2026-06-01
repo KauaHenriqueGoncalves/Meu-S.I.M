@@ -28,13 +28,17 @@ public class SchoolServiceImpl implements SchoolService {
     @Override
     public School findById(UUID schoolId) {
         return schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new NotFoundObjectException("Escola não encontrada"));
+                .orElseThrow(
+                        () -> new NotFoundObjectException("Escola não encontrada")
+                );
     }
 
     @Override
     public School findByUserId(UUID userId) {
         return schoolRepository.findSchoolByUserId(userId)
-                .orElseThrow(() -> new NotFoundObjectException("Escola não encontrada"));
+                .orElseThrow(
+                        () -> new NotFoundObjectException("Escola não encontrada")
+                );
     }
 
     @Override
@@ -56,7 +60,6 @@ public class SchoolServiceImpl implements SchoolService {
             log.warn("Tentativa de cadastro com Codigo do reforco ja cadastrado. [nameCode={}]", request.nameCode());
             throw new EntityAlreadyExistsException("Código do reforço já cadastrado");
         }
-
         if (schoolRepository.existsByCnpj(request.cnpj())) {
             log.warn("Tentativa de cadastro com CNPJ já cadastrado. [cnpj={}]", request.cnpj());
             throw new EntityAlreadyExistsException("Cnpj já cadastrado");

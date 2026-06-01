@@ -3,6 +3,8 @@ package com.system.application.modules.licensing.schoolsubscription.service;
 import com.system.application.modules.licensing.billingdiscount.service.BillingDiscountService;
 import com.system.application.modules.licensing.schoolsubscription.dto.*;
 import com.system.application.modules.school.School;
+import com.system.application.modules.school.dto.SchoolCapacityResponseDTO;
+import com.system.application.modules.school.service.SchoolCapacityQuery;
 import com.system.application.modules.school.service.SchoolService;
 import com.system.application.modules.licensing.schoolpayment.SchoolPayment;
 import com.system.application.modules.licensing.schoolpayment.dto.SchoolPaymentRequest;
@@ -37,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -49,6 +52,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
     private final BillingDiscountService billingDiscountService;
     private final SchoolPaymentService schoolPaymentService;
     private final SchoolService schoolService;
+    private final SchoolCapacityQuery schoolCapacityQuery;
     private final UserService userService;
     private final PaymentGateway paymentGateway;
 
@@ -58,6 +62,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
             BillingDiscountService billingDiscountService,
             SchoolPaymentService schoolPaymentService,
             SchoolService schoolService,
+            SchoolCapacityQuery schoolCapacityQuery,
             UserService userService,
             @Qualifier("mercadopago") PaymentGateway paymentGateway
     ) {
@@ -66,6 +71,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         this.billingDiscountService = billingDiscountService;
         this.schoolPaymentService = schoolPaymentService;
         this.schoolService = schoolService;
+        this.schoolCapacityQuery = schoolCapacityQuery;
         this.userService = userService;
         this.paymentGateway = paymentGateway;
     }
@@ -153,7 +159,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
 
     @Override
     @Transactional
-    public SchoolSubscriptionCheckoutResponse create(UUID userId, SchoolSubscriptionRequest request) {
+    public SchoolSubscriptionCheckoutResponse createCheckout(UUID userId, SchoolSubscriptionRequest request) {
         School school = schoolService.findByUserId(userId);
         User user = userService.findById(userId);
 
@@ -163,6 +169,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         SchoolPlan schoolPlan = schoolPlanService.findById(request.schoolPlanId());
         ensureSchoolPlanExistIsActive(schoolPlan);
         ensureSchoolCanSubscribe(school.getId());
+        ensureSchoolFitsPlanLimits(school, schoolPlan);
 
         BigDecimal discountForMonth = billingDiscountService.findBestDiscountFor(request.months());
         BigDecimal basePrice = schoolPlan.getMonthlyPrice().multiply(BigDecimal.valueOf(request.months()));
@@ -186,8 +193,8 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         log.info("Assinatura criada com status pendente. [schoolSubscriptionId={}] [schoolId={}] [planName={}]",
                 subscription.getId(), school.getId(), subscription.getPlanName());
 
-        String title = "Licenca - " + subscription.getPlanName();
-        String description = "Pagamento da licenca " + subscription.getPlanName();
+        String title = "Licença - " + subscription.getPlanName();
+        String description = "Pagamento da Licença " + subscription.getPlanName();
 
         CheckoutRequest checkoutRequest = new CheckoutRequest(
                 subscription.getId(),
@@ -263,8 +270,6 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         ensureSubscriptionBelongsToSchool(school, subscription);
 
         if (!(subscription.getStatus() == SubscriptionStatus.ACTIVE)) {
-            // TODO: verificar e testar
-
             SchoolPayment payment = schoolPaymentService.findBySchoolSubscriptionId(subscription.getId());
 
             boolean isExpired = subscription.getStatus().equals(SubscriptionStatus.EXPIRED);
@@ -292,6 +297,40 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
 
         log.info("Assinatura cancelada com sucesso. [schoolSubscriptionId={}] [schoolId={}]",
                 schoolSubscriptionId, school.getId());
+    }
+
+    @Override
+    @Transactional
+    public void reactiveById(UUID userId, UUID schoolSubscriptionId) {
+        log.info("Iniciando reativacao da assinatura. [requisitanteId={}] [schoolSubscriptionId={}]",
+                userId, schoolSubscriptionId);
+
+        School school = schoolService.findByUserId(userId);
+        SchoolSubscription subscription = findById(schoolSubscriptionId);
+        ensureSubscriptionBelongsToSchool(school, subscription);
+        ensureSchoolCanSubscribe(school.getId());
+
+        if (LocalDate.now().isAfter(subscription.getEndDate())) {
+            log.warn("Licenca fora do prazo de ativacao. [schoolSubscriptionId={}] [now={}] [endDate={}]",
+                    schoolSubscriptionId, LocalDate.now(), subscription.getEndDate());
+            throw new BusinessException("Não foi possível re-ativar uma licença que está fora do prazo válido.");
+        }
+
+        if (!subscription.getStatus().equals(SubscriptionStatus.CANCELED)) {
+            log.warn("Licenca esta com o status de cancelada, nap pode ser ativada. [schoolSubscriptionId={}] [paymentId={}] [status={}]",
+                    schoolSubscriptionId, subscription.getId(), subscription.getStatus());
+            throw new BusinessException("Não é possível re-ativar uma licença que não é cancelada");
+        }
+
+        SchoolPayment payment = schoolPaymentService.findBySchoolSubscriptionId(subscription.getId());
+
+        if (!(payment.getStatus().equals(PaymentStatus.PAID) || payment.getPaidAt() != null)) {
+            log.warn("Licenca nao é ativada por nunca ter sido efetuado o pagamento. [schoolSubscriptionId={}] [paymentId={}] [status={}]",
+                    schoolSubscriptionId, payment.getId(), payment.getStatus());
+            throw new BusinessException("Não é possivel re-ativar uma licença que não foi paga.");
+        }
+
+        subscription.setStatus(SubscriptionStatus.ACTIVE);
     }
 
     private PaymentMethod mapPaymentMethod(String paymentTypeId) {
@@ -323,14 +362,65 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         }
     }
 
+    private void ensureSchoolFitsPlanLimits(School school, SchoolPlan schoolPlan) {
+        SchoolCapacityResponseDTO capacity = schoolCapacityQuery.getCapacity(school.getId());
+
+        if (capacity.schoolAdmins() > schoolPlan.getMaxSchoolAdmin()) {
+            log.warn("Plano não corresponde com a capacitadade do plano em administradores [schoolId={}] [planName={}]",
+                    schoolPlan.getId(), schoolPlan.getName());
+            throw new BusinessException(
+                    String.format(
+                            "A escola possui %d administradores, mas o plano selecionado permite no máximo %d.",
+                            capacity.schoolAdmins(),
+                            schoolPlan.getMaxSchoolAdmin()
+                    )
+            );
+        }
+
+        if (capacity.collaborators() > schoolPlan.getMaxCollaborators()) {
+            log.warn("Plano não corresponde com a capacitadade do plano em colaboradores [schoolId={}] [planName={}]",
+                    schoolPlan.getId(), schoolPlan.getName());
+            throw new BusinessException(
+                    String.format(
+                            "A escola possui %d colaboradores, mas o plano selecionado permite no máximo %d.",
+                            capacity.collaborators(),
+                            schoolPlan.getMaxCollaborators()
+                    )
+            );
+        }
+
+        if (capacity.legalGuardians() > schoolPlan.getMaxLegalGuardian()) {
+            log.warn("Plano não corresponde com a capacitadade do plano em responsaveis [schoolId={}] [planName={}]",
+                    schoolPlan.getId(), schoolPlan.getName());
+            throw new BusinessException(
+                    String.format(
+                            "A escola possui %d reponsáveis, mas o plano selecionado permite no máximo %d.",
+                            capacity.legalGuardians(),
+                            schoolPlan.getMaxLegalGuardian()
+                    )
+            );
+        }
+
+        if (capacity.students() > schoolPlan.getMaxStudents()) {
+            log.warn("Plano não corresponde com a capacitadade do plano em estudantes [schoolId={}] [planName={}]",
+                    schoolPlan.getId(), schoolPlan.getName());
+            throw new BusinessException(
+                    String.format(
+                            "A escola possui %d estudantes, mas o plano selecionado permite no máximo %d.",
+                            capacity.students(),
+                            schoolPlan.getMaxStudents()
+                    )
+            );
+        }
+    }
+
     private void ensureSchoolCanSubscribe(UUID schoolId) {
         boolean hasActiveSubscription =
                 schoolSubscriptionRepository.existsBySchoolIdAndStatus(schoolId, SubscriptionStatus.ACTIVE);
         if (hasActiveSubscription) {
-            log.warn("Escola tentou criar assinatura ja possuindo uma ativa. [schoolId={}]", schoolId);
-            throw new BusinessException("A escola já possui uma assinatura ativa. Para contratar um novo plano, cancele o plano atual primeiro.");
+            log.warn("Escola tentou criar/reativar assinatura ja possuindo uma ativa. [schoolId={}]", schoolId);
+            throw new BusinessException("A escola já possui uma assinatura ativa. Para contratar ou re-ativar um novo plano, cancele o plano atual primeiro.");
         }
-
         boolean hasPendingSubscription =
                 schoolSubscriptionRepository.existsBySchoolIdAndStatus(schoolId, SubscriptionStatus.PENDING_PAYMENT);
         if (hasPendingSubscription) {

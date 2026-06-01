@@ -39,7 +39,7 @@ public class SubjectServiceImpl implements SubjectService {
     private final SchoolService schoolService;
     private final CacheService cacheService;
 
-    private static final Duration SUBJECT_TTL = Duration.ofHours(20);
+    private static final Duration SUBJECT_TTL = Duration.ofHours(60);
 
     public SubjectServiceImpl(
             SubjectRepository subjectRepository,

@@ -180,8 +180,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
         School school = schoolService.findByUserId(userId);
 
-        ensureSchoolHasActiveSubscription(school.getId());
-
         Collaborator collaborator = findById(collaboratorId);
 
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
@@ -218,6 +216,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         School school = schoolService.findByUserId(userId);
         Collaborator collaborator = findById(collaboratorId);
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
+        ensureSchoolHasActiveSubscription(school.getId());
 
         collaborator.getUser().setPassword(passwordEncoder.encode(passwordRequest.newPassword()));
         collaboratorRepository.save(collaborator);
@@ -240,7 +239,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                 userId, collaboratorId);
 
         School school = schoolService.findByUserId(userId);
-        ensureSchoolHasActiveSubscription(school.getId());
 
         Collaborator collaborator = findById(collaboratorId);
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);

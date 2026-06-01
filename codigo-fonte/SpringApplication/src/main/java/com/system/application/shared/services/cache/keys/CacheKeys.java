@@ -98,4 +98,20 @@ public final class CacheKeys {
     public static String classSchedule(UUID schoolId, UUID classScheduleId, String suffix) {
         return "classSchedule::" + schoolId.toString() + "::" + classScheduleId.toString() + "::" + suffix;
     }
+
+    public static String billingDiscountPattern() {
+        return "billingDiscount::*";
+    }
+
+    public static String billingDiscount(String suffix) {
+        return "billingDiscount::" + suffix;
+    }
+
+    public static String schoolPlanPattern() {
+        return "schoolPlan::*";
+    }
+
+    public static String schoolPlan(String suffix) {
+        return "schoolPlan::" + suffix;
+    }
 }

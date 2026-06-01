@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.system.application.shared.dto.PageResponse;
+import io.lettuce.core.RedisException;
 import jakarta.persistence.QueryTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,10 @@ public class RedisServiceImpl implements CacheService {
             return Optional.empty();
         }
         catch (Exception e) {
+            if (e.getCause() instanceof RedisException) {
+                markAsUnavailable("get", key, e);
+                return Optional.empty();
+            }
             log.error("Erro ao converter lista do cache. [key={}] [type={}] [error={}]",
                     key, typeReference, e.getMessage());
             return Optional.empty();

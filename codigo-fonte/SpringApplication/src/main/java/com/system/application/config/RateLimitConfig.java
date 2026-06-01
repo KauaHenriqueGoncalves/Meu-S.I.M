@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RateLimitConfig extends OncePerRequestFilter {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
-    // limite mais restrito (alvo de brute force)
     private static final List<String> PUBLIC_RATE_LIMITED_PATHS =
             List.of(
                     "/api/v1/auth/login",
@@ -29,7 +28,6 @@ public class RateLimitConfig extends OncePerRequestFilter {
                     "/api/v1/school-admins"
             );
 
-    // limite mais generoso
     private static final List<String> PRIVATE_RATE_LIMITED_PATHS =
             List.of(
                     "/api/v1/students"
@@ -41,7 +39,6 @@ public class RateLimitConfig extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-
         String uri = request.getRequestURI();
 
         boolean isPublicLimited = PUBLIC_RATE_LIMITED_PATHS.stream()
@@ -64,7 +61,8 @@ public class RateLimitConfig extends OncePerRequestFilter {
 
         if (bucket.tryConsume(1)) {
             filterChain.doFilter(request, response);
-        } else {
+        }
+        else {
             response.setStatus(429);
             response.setContentType("application/json");
             response.getWriter().write("""
@@ -76,7 +74,6 @@ public class RateLimitConfig extends OncePerRequestFilter {
         }
     }
 
-    // 10 requisições a cada 5 minutos por IP+rota
     private Bucket buildPublicBucket() {
         return Bucket.builder()
                 .addLimit(Bandwidth.classic(
@@ -86,7 +83,6 @@ public class RateLimitConfig extends OncePerRequestFilter {
                 .build();
     }
 
-    // 100 requisições a cada 1 minuto por IP+rota
     private Bucket buildPrivateBucket() {
         return Bucket.builder()
                 .addLimit(Bandwidth.classic(
