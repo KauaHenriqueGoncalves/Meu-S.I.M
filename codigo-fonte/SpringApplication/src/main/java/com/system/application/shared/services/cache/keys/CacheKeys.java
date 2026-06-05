@@ -114,4 +114,20 @@ public final class CacheKeys {
     public static String schoolPlan(String suffix) {
         return "schoolPlan::" + suffix;
     }
+
+    public static String subscriptionPattern(UUID id) {
+        return "subscription::" + id.toString() + "*";
+    }
+
+    public static String subscription(UUID id, String suffix) {
+        return "subscription::" + id.toString() + "::" + suffix;
+    }
+
+    public static String subscription(UUID id, int page, int size) {
+        return "subscription::" + id.toString() + "::" + page + "::" + size + "::page";
+    }
+
+    public static String school(UUID id, String suffix) {
+        return "school::" + id.toString() + "::" + suffix;
+    }
 }

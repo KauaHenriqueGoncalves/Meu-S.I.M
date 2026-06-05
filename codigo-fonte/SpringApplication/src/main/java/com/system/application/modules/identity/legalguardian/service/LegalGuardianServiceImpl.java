@@ -176,8 +176,6 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
         LegalGuardian legalGuardian = findById(legalGuardianId);
         UUID schoolId = legalGuardian.getSchool().getId();
 
-        ensureSchoolHasActiveSubscription(schoolId);
-
         legalGuardian.getUser().setUsername(updateRequest.username());
         legalGuardian.getUser().setEmail(updateRequest.email());
         legalGuardian.getUser().setPhoneNumber(updateRequest.phoneNumber());
@@ -209,6 +207,8 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
         LegalGuardian legalGuardian = findById(legalGuardianId);
 
+        ensureSchoolHasActiveSubscription(legalGuardian.getSchool().getId());
+
         legalGuardian.getUser().setPassword(passwordEncoder.encode(updateRequest.newPassword()));
         legalGuardianRepository.save(legalGuardian);
 
@@ -230,7 +230,6 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
         School school = schoolService.findByUserId(userId);
 
-        ensureSchoolHasActiveSubscription(school.getId());
         ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
 
         legalGuardianRepository.deleteById(legalGuardianId);

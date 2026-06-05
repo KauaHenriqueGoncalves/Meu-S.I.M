@@ -1,5 +1,6 @@
 package com.system.application.modules.licensing.schoolsubscription.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.system.application.modules.licensing.billingdiscount.service.BillingDiscountService;
 import com.system.application.modules.licensing.schoolsubscription.dto.*;
 import com.system.application.modules.school.School;
@@ -27,6 +28,8 @@ import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
+import com.system.application.shared.services.cache.keys.CacheKeys;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +42,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -54,7 +59,10 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
     private final SchoolService schoolService;
     private final SchoolCapacityQuery schoolCapacityQuery;
     private final UserService userService;
+    private final CacheService cacheService;
     private final PaymentGateway paymentGateway;
+
+    private static final Duration SUBSCRIPTION_TTL = Duration.ofHours(80);
 
     public SchoolSubscriptionServiceImpl(
             SchoolSubscriptionRepository schoolSubscriptionRepository,
@@ -64,6 +72,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
             SchoolService schoolService,
             SchoolCapacityQuery schoolCapacityQuery,
             UserService userService,
+            CacheService cacheService,
             @Qualifier("mercadopago") PaymentGateway paymentGateway
     ) {
         this.schoolSubscriptionRepository = schoolSubscriptionRepository;
@@ -73,6 +82,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         this.schoolService = schoolService;
         this.schoolCapacityQuery = schoolCapacityQuery;
         this.userService = userService;
+        this.cacheService = cacheService;
         this.paymentGateway = paymentGateway;
     }
 
@@ -83,40 +93,56 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         log.info("Buscando assinaturas da escola. [requisitanteId={}] [schoolId={}] [page={}] [size={}]",
                 userId, school.getId(), page, size);
 
+        String key = CacheKeys.subscription(school.getId(), page, size);
+
+        Optional<PageResponse<SchoolSubscriptionResponse>> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Assinaturas da escola encontradas no cache. [schoolId={}] [total={}] [totalPages={}]",
+                    school.getId(), cacheResponse.get().totalElements(), cacheResponse.get().totalPages());
+            return cacheResponse.get();
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<SchoolSubscriptionResponse> response = schoolSubscriptionRepository
+
+        Page<SchoolSubscriptionResponse> responsePage = schoolSubscriptionRepository
                 .findBySchoolId(school.getId(), pageable)
-                .map(ss -> new SchoolSubscriptionResponse(
-                        ss.getId(),
-                        ss.getPlanName(),
-                        ss.getStartDate(),
-                        ss.getEndDate(),
-                        ss.getStatus()
-                ));
+                .map(SchoolSubscriptionResponse::of);
 
         log.info("Assinaturas da escola encontradas. [schoolId={}] [total={}] [totalPages={}]",
-                school.getId(), response.getTotalElements(), response.getTotalPages());
+                school.getId(), responsePage.getTotalElements(), responsePage.getTotalPages());
 
-        return PageResponse.from(response);
+        PageResponse<SchoolSubscriptionResponse> response = PageResponse.from(responsePage);
+
+        cacheService.set(key, response, SUBSCRIPTION_TTL);
+
+        return response;
     }
 
     @Override
     public SchoolSubscription findById(UUID schoolSubscriptionId) {
+        log.info("Procurando subscription por ID. [subscriptionId={}]", schoolSubscriptionId);
+
         return schoolSubscriptionRepository.findById(schoolSubscriptionId)
                 .orElseThrow(() -> {
                     log.warn("Assinatura da escola nao encontrada. [schoolSubscriptionId={}]",
                             schoolSubscriptionId);
-                    return new NotFoundObjectException("Nao encontrou a licenca da escola");
+                    return new NotFoundObjectException("Nao encontrou a licença da escola");
                 });
     }
 
     @Override
     public SchoolSubscription findActiveSubscriptionBySchoolId(UUID schoolId) {
+        log.info("Procurando subscription ativo pelo ID do reforco. [schoolId={}]", schoolId);
+
         return schoolSubscriptionRepository
                 .findBySchoolIdAndStatus(schoolId, SubscriptionStatus.ACTIVE)
                 .orElseThrow(() -> {
                     log.warn("Escola sem licenca ativa. [schoolId={}]", schoolId);
-                    return new SubscriptionException("A escola nao possui uma licenca ativa.");
+                    return new SubscriptionException("A escola não possui uma licença ativa.");
                 });
     }
 
@@ -127,12 +153,32 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         log.info("Buscando detalhes da assinatura. [requisitanteId={}] [schoolSubscriptionId={}] [schoolId={}]",
                 userId, schoolSubscriptionId, school.getId());
 
+        String key = CacheKeys.subscription(school.getId(), schoolSubscriptionId.toString() + "::detail");
+
+        Optional<SchoolSubscriptionDetailResponse> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Detalhes da assinatura da escola encontradas no cache. [schoolId={}] [subscriptionID={}]",
+                    school.getId(), cacheResponse.get().id());
+            return cacheResponse.get();
+        }
+
         SchoolSubscription subscription = findById(schoolSubscriptionId);
         ensureSubscriptionBelongsToSchool(school, subscription);
 
         SchoolPayment payment = schoolPaymentService.findBySchoolSubscriptionId(subscription.getId());
 
-        return SchoolSubscriptionDetailResponse.from(subscription, payment);
+        log.info("Detalhes da assinatura da escola encontradas. [schoolId={}] [subscriptionID={}]",
+                school.getId(), payment.getId());
+
+        SchoolSubscriptionDetailResponse response = SchoolSubscriptionDetailResponse.from(subscription, payment);
+
+        cacheService.set(key, response, SUBSCRIPTION_TTL);
+
+        return response;
     }
 
     @Override
@@ -142,19 +188,30 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         log.info("Buscando assinatura ativa da escola. [requisitanteId={}] [schoolId={}]",
                 userId, school.getId());
 
-        return schoolSubscriptionRepository
+        String key = CacheKeys.subscription(school.getId(), "active");
+
+        Optional<SubscriptionInfoResponse> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Assinatura ativa encontrada no cache. [requisitanteId={}] [schoolId={}]",
+                    userId, school.getId());
+            return cacheResponse.get();
+        }
+
+        SubscriptionInfoResponse response = schoolSubscriptionRepository
                 .findBySchoolIdAndStatus(school.getId(), SubscriptionStatus.ACTIVE)
-                .map(s -> new SubscriptionInfoResponse(
-                        s.getPlanName(),
-                        s.getMaxStudents(),
-                        s.getMaxCollaborators(),
-                        s.getMaxLegalGuardian(),
-                        s.getMaxSchoolAdmin()
-                ))
+                .map(SubscriptionInfoResponse::of)
                 .orElseThrow(() -> {
                     log.warn("Escola sem licenca ativa ao buscar info da assinatura. [schoolId={}]", school.getId());
                     return new SubscriptionException("A escola nao possui uma licença ativa.");
                 });
+
+        cacheService.set(key, response, Duration.ofHours(1));
+
+        return response;
     }
 
     @Override
@@ -221,6 +278,10 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         log.info("Checkout da assinatura gerado com sucesso. [schoolSubscriptionId={}] [preferenceId={}] [precoFinal={}]",
                 subscription.getId(), checkoutResponse.preferenceId(), finalPrice);
 
+        String key = CacheKeys.subscriptionPattern(school.getId());
+
+        cacheService.evictByPattern(key);
+
         return new SchoolSubscriptionCheckoutResponse(
                 checkoutRequest.title(),
                 checkoutRequest.amount(),
@@ -255,6 +316,10 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
 
         log.info("Assinatura ativada e pagamento confirmado. [schoolSubscriptionId={}] [paymentId={}] [metodo={}]",
                 subscription.getId(), payment.getId(), payment.getPaymentMethod());
+
+        String key = CacheKeys.subscriptionPattern(subscription.getSchool().getId());
+
+        cacheService.evictByPattern(key);
 
         return payment.getProviderPaymentId();
     }
@@ -297,6 +362,10 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
 
         log.info("Assinatura cancelada com sucesso. [schoolSubscriptionId={}] [schoolId={}]",
                 schoolSubscriptionId, school.getId());
+
+        String key = CacheKeys.subscriptionPattern(school.getId());
+
+        cacheService.evictByPattern(key);
     }
 
     @Override
@@ -331,6 +400,10 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         }
 
         subscription.setStatus(SubscriptionStatus.ACTIVE);
+
+        String key = CacheKeys.subscriptionPattern(school.getId());
+
+        cacheService.evictByPattern(key);
     }
 
     private PaymentMethod mapPaymentMethod(String paymentTypeId) {

@@ -181,7 +181,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         School school = schoolService.findByUserId(userId);
 
         Collaborator collaborator = findById(collaboratorId);
-
         ensureCollaboratorBelongsToSchool(school.getId(), collaborator);
 
         collaborator.getUser().setUsername(updateRequest.username());

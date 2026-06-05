@@ -1,5 +1,7 @@
 package com.system.application.modules.licensing.schoolsubscription.dto;
 
+import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
+
 public record SubscriptionInfoResponse(
 
         String planName,
@@ -8,4 +10,14 @@ public record SubscriptionInfoResponse(
         Integer maxLegalGuardian,
         Integer maxSchoolAdmin
 
-) { }
+) {
+    public static SubscriptionInfoResponse of(SchoolSubscription s) {
+        return new SubscriptionInfoResponse(
+                s.getPlanName(),
+                s.getMaxStudents(),
+                s.getMaxCollaborators(),
+                s.getMaxLegalGuardian(),
+                s.getMaxSchoolAdmin()
+        );
+    }
+}
