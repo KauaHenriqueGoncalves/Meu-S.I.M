@@ -5,6 +5,8 @@ import com.system.application.modules.identity.user.event.UserRegisteredEvent;
 import com.system.application.modules.identity.user.service.UserService;
 import com.system.application.integration.email.service.EmailSendService;
 import com.system.application.auth.verification.service.EmailVerificationService;
+import com.system.application.modules.school.School;
+import com.system.application.modules.school.service.SchoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,15 +25,18 @@ public class UserListener {
     private final EmailVerificationService emailVerificationService;
     private final EmailSendService emailSendService;
     private final UserService userService;
+    private final SchoolService schoolService;
 
     public UserListener(
             EmailVerificationService emailVerificationService,
             EmailSendService emailSendService,
-            UserService userService
+            UserService userService,
+            SchoolService schoolService
     ) {
         this.emailVerificationService = emailVerificationService;
         this.emailSendService = emailSendService;
         this.userService = userService;
+        this.schoolService = schoolService;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -39,10 +44,11 @@ public class UserListener {
         log.info("Evento de registro de usuario recebido. [userId={}]", event.userId());
 
         User user = userService.findById(event.userId());
+        School school = schoolService.findByUserId(user.getId());
         String token = emailVerificationService.createOrRefreshToken(user.getId());
         String link = backendUrl + "/auth/verify?token=" + token;
 
-        emailSendService.sendConfirmAccountEmail(user.getEmail(), user.getUsername(), link);
+        emailSendService.sendConfirmAccountEmail(user.getEmail(), user.getUsername(), school.getNameCode(), link);
 
         log.info("E-mail de confirmacao de conta enviado. [userId={}] [email={}]",
                 user.getId(), user.getEmail());

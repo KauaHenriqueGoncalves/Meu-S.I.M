@@ -28,7 +28,7 @@ public class EmailSendServiceImpl implements EmailSendService {
 
     @Override
     @Async("emailExecutor")
-    public void sendConfirmAccountEmail(String to, String name, String link) {
+    public void sendConfirmAccountEmail(String to, String name, String schoolCode, String link) {
         log.info("Enviando e-mail de confirmacao de conta. [destinatario={}] [nome={}]", to, name);
 
         try {
@@ -36,6 +36,8 @@ public class EmailSendServiceImpl implements EmailSendService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             Map<String, Object> variables = Map.of(
                     "name", name,
+                    "email", to,
+                    "schoolCode", schoolCode,
                     "confirmationLink", link
             );
             String html = templateService.process("email/confirm-account", variables);
