@@ -3,6 +3,7 @@ package com.system.application.modules.licensing.schoolsubscription.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.system.application.modules.licensing.billingdiscount.service.BillingDiscountService;
 import com.system.application.modules.licensing.schoolsubscription.dto.*;
+import com.system.application.modules.licensing.schoolsubscription.event.SubscriptionPaidEmailToAdminsEvent;
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.dto.SchoolCapacityResponseDTO;
 import com.system.application.modules.school.service.SchoolCapacityQuery;
@@ -34,6 +35,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -60,6 +62,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
     private final SchoolCapacityQuery schoolCapacityQuery;
     private final UserService userService;
     private final CacheService cacheService;
+    private final ApplicationEventPublisher eventPublisher;
     private final PaymentGateway paymentGateway;
 
     private static final Duration SUBSCRIPTION_TTL = Duration.ofHours(80);
@@ -73,6 +76,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
             SchoolCapacityQuery schoolCapacityQuery,
             UserService userService,
             CacheService cacheService,
+            ApplicationEventPublisher eventPublisher,
             @Qualifier("mercadopago") PaymentGateway paymentGateway
     ) {
         this.schoolSubscriptionRepository = schoolSubscriptionRepository;
@@ -83,6 +87,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         this.schoolCapacityQuery = schoolCapacityQuery;
         this.userService = userService;
         this.cacheService = cacheService;
+        this.eventPublisher = eventPublisher;
         this.paymentGateway = paymentGateway;
     }
 
@@ -179,6 +184,17 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         cacheService.set(key, response, SUBSCRIPTION_TTL);
 
         return response;
+    }
+
+    @Override
+    public SchoolSubscriptionDetailResponse findDetailById(UUID schoolSubscriptionId) {
+        log.info("Buscando detalhes da assinatura. [schoolSubscriptionId={}]",
+                schoolSubscriptionId);
+        SchoolSubscription subscription = findById(schoolSubscriptionId);
+        SchoolPayment payment = schoolPaymentService.findBySchoolSubscriptionId(subscription.getId());
+        log.info("Detalhes da assinatura da escola encontradas. [subscriptionID={}]",
+                payment.getId());
+        return SchoolSubscriptionDetailResponse.from(subscription, payment);
     }
 
     @Override
@@ -320,6 +336,13 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         String key = CacheKeys.subscriptionPattern(subscription.getSchool().getId());
 
         cacheService.evictByPattern(key);
+
+        eventPublisher.publishEvent(
+                new SubscriptionPaidEmailToAdminsEvent(
+                        subscription.getId(),
+                        subscription.getSchool().getId()
+                )
+        );
 
         return payment.getProviderPaymentId();
     }

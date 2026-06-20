@@ -1,5 +1,6 @@
 package com.system.application.modules.school.dto;
 
+import com.system.application.shared.validation.NoEmoji;
 import com.system.application.shared.validation.NoLeadingTrailingSpace;
 import com.system.application.shared.validation.ValidCnpj;
 import jakarta.validation.constraints.NotBlank;
@@ -12,11 +13,13 @@ public record SchoolRequest(
         @NotBlank(message = "Código da escola não pode ser vazio")
         @Size(min=5, max = 50, message = "Código da escola deve ser menor que 50 caracteres")
         @NoLeadingTrailingSpace
+        @NoEmoji(message = "Não é permitido o recebimento de emoji")
         String nameCode,
 
         @NotBlank(message = "Nome da escola não pode ser vazio")
         @Size(min=5, max = 50, message = "Nome da escola deve ser menor que 50 caracteres")
         @NoLeadingTrailingSpace
+        @NoEmoji(message = "Não é permitido o recebimento de emoji")
         String schoolName,
 
         @NotBlank(message = "Cnpj não pode ser vazio")

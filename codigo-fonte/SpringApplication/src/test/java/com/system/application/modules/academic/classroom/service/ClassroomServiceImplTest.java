@@ -19,6 +19,7 @@ import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -50,6 +51,7 @@ public class ClassroomServiceImplTest {
     @Mock private ClassTypeService classTypeService;
     @Mock private SubjectService subjectService;
     @Mock private StudentService studentService;
+    @Mock private CacheService cacheService;
 
     @InjectMocks
     private ClassroomServiceImpl classroomService;
@@ -349,8 +351,6 @@ public class ClassroomServiceImplTest {
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(null);
             when(classroomRepository.findById(classroomId)).thenReturn(Optional.of(classroom));
             when(classTypeService.findById(ClassType.Values.GROUP.getValue()))
                     .thenReturn(classTypeGroup);
@@ -377,8 +377,6 @@ public class ClassroomServiceImplTest {
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(null);
             when(classroomRepository.findById(classroomId)).thenReturn(Optional.of(classroom));
             when(classTypeService.findById(ClassType.Values.GROUP.getValue()))
                     .thenReturn(classTypeGroup);
@@ -398,8 +396,6 @@ public class ClassroomServiceImplTest {
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(null);
             when(classroomRepository.findById(classroomId))
                     .thenReturn(Optional.of(classroomDeOutraEscola));
 

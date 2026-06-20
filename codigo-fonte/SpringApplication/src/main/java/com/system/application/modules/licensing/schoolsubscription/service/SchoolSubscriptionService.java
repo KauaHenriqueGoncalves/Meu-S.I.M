@@ -11,6 +11,7 @@ public interface SchoolSubscriptionService {
     SchoolSubscription findById(UUID schoolSubscriptionId);
     SchoolSubscription findActiveSubscriptionBySchoolId(UUID schoolId);
     SchoolSubscriptionDetailResponse findDetailById(UUID userId, UUID schoolSubscriptionId);
+    SchoolSubscriptionDetailResponse findDetailById(UUID schoolSubscriptionId);
     SubscriptionInfoResponse findActiveSubscription(UUID userId);
     SchoolSubscriptionCheckoutResponse createCheckout(UUID userId, SchoolSubscriptionRequest request);
     String activeById(UUID schoolSubscriptionId, PaymentResult paymentResult);

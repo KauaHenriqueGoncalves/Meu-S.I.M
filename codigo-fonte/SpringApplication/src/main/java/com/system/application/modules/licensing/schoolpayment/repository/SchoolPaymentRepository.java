@@ -15,7 +15,6 @@ import java.util.UUID;
 @Repository
 public interface SchoolPaymentRepository extends JpaRepository<SchoolPayment, UUID> {
     Optional<SchoolPayment> findBySchoolSubscriptionId(UUID schoolSubscriptionId);
-    Optional<SchoolPayment> findByProviderPaymentId(String providerPaymentId);
 
     @Query("SELECT sp FROM SchoolPayment sp WHERE sp.status = :status AND sp.createdAt < :expiresAt")
     List<SchoolPayment> findExpiredPendingPayments(

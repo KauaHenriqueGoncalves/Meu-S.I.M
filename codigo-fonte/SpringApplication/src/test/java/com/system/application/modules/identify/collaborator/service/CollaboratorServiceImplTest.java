@@ -269,8 +269,6 @@ public class CollaboratorServiceImplTest {
         @DisplayName("deve atualizar os dados do colaborador com sucesso")
         void shouldUpdateCollaborator_whenValid() {
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(collaboratorRepository.findById(collaboratorId))
                     .thenReturn(Optional.of(collaborator));
             when(collaboratorRepository.save(any(Collaborator.class)))
@@ -287,6 +285,7 @@ public class CollaboratorServiceImplTest {
             assertThat(collaborator.getWorkload()).isEqualTo("12h");
             assertThat(collaborator.getDateOfBirth()).isEqualTo(LocalDate.of(1990, 5, 10));
             verify(collaboratorRepository).save(collaborator);
+            verify(schoolSubscriptionService, never()).findActiveSubscriptionBySchoolId(any());
         }
 
         @Test
@@ -299,28 +298,12 @@ public class CollaboratorServiceImplTest {
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(collaboratorRepository.findById(collaboratorId))
                     .thenReturn(Optional.of(collaboratorDeOutraEscola));
 
             assertThatThrownBy(() ->
                     collaboratorService.update(userId, collaboratorId, updateRequest)
             ).isInstanceOf(AccessDeniedException.class);
-
-            verify(collaboratorRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("deve lançar SubscriptionException quando escola não tiver licença ativa")
-        void shouldThrowSubscription_whenNoActiveSubscription() {
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenThrow(new SubscriptionException("Sem licença ativa"));
-
-            assertThatThrownBy(() ->
-                    collaboratorService.update(userId, collaboratorId, updateRequest))
-                    .isInstanceOf(SubscriptionException.class);
 
             verify(collaboratorRepository, never()).save(any());
         }
@@ -374,28 +357,12 @@ public class CollaboratorServiceImplTest {
         @DisplayName("deve excluir o colaborador com sucesso")
         void shouldDelete_whenValid() {
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(collaboratorRepository.findById(collaboratorId))
                     .thenReturn(Optional.of(collaborator));
 
             collaboratorService.deleteById(userId, collaboratorId);
 
             verify(collaboratorRepository).deleteById(collaboratorId);
-        }
-
-        @Test
-        @DisplayName("deve lançar SubscriptionException quando escola não tiver licença ativa")
-        void shouldThrowSubscription_whenNoActiveSubscription() {
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenThrow(new SubscriptionException("Sem licença ativa"));
-
-            assertThatThrownBy(() ->
-                    collaboratorService.deleteById(userId, collaboratorId))
-                    .isInstanceOf(SubscriptionException.class);
-
-            verify(collaboratorRepository, never()).deleteById(any());
         }
 
         @Test
@@ -408,8 +375,6 @@ public class CollaboratorServiceImplTest {
             );
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(collaboratorRepository.findById(collaboratorId))
                     .thenReturn(Optional.of(collaboratorDeOutraEscola));
 

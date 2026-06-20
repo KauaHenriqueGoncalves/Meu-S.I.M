@@ -1,5 +1,6 @@
 package com.system.application.modules.licensing.schoolplan.dto;
 
+import com.system.application.shared.validation.NoEmoji;
 import jakarta.validation.constraints.*;
 
 import java.io.Serial;
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 public record SchoolPlanRequest(
         @NotBlank(message = "O nome do plano é obrigatório")
         @Size(max = 50, message = "O nome do plano deve ter no máximo 50 caracteres")
+        @NoEmoji(message = "Não é permitido o recebimento de emoji")
         String name,
 
         @NotNull(message = "O preço mensal é obrigatório")
@@ -33,7 +35,6 @@ public record SchoolPlanRequest(
         @Min(value = 1, message = "O número máximo de administradores escolares deve ser no mínimo 1")
         Integer maxSchoolAdmin
 ) implements Serializable {
-
     @Serial
     private static final long serialVersionUID = 1L;
 }

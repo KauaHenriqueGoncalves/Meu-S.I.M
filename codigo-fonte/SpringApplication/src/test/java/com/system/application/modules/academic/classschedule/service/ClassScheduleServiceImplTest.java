@@ -15,6 +15,7 @@ import com.system.application.modules.school.service.SchoolService;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,6 +41,7 @@ public class ClassScheduleServiceImplTest {
     @Mock private SchoolSubscriptionService schoolSubscriptionService;
     @Mock private SchoolService schoolService;
     @Mock private ClassroomService classroomService;
+    @Mock private CacheService cacheService;
 
     @InjectMocks
     private ClassScheduleServiceImpl classScheduleService;

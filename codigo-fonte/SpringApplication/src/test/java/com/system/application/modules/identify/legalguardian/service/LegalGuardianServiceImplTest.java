@@ -257,8 +257,6 @@ public class LegalGuardianServiceImplTest {
                     .thenReturn(true);
             when(legalGuardianRepository.findById(legalGuardianId))
                     .thenReturn(Optional.of(legalGuardian));
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(legalGuardianRepository.save(any(LegalGuardian.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
@@ -283,24 +281,6 @@ public class LegalGuardianServiceImplTest {
             assertThatThrownBy(() ->
                     legalGuardianService.update(userId, legalGuardianId, updateRequest)
             ).isInstanceOf(AccessDeniedException.class);
-
-            verify(legalGuardianRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("deve lançar SubscriptionException quando escola não tiver licença ativa")
-        void shouldThrowSubscription_whenNoActiveSubscription() {
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
-                    .thenReturn(true);
-            when(legalGuardianRepository.findById(legalGuardianId))
-                    .thenReturn(Optional.of(legalGuardian));
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenThrow(new SubscriptionException("Sem licença ativa"));
-
-            assertThatThrownBy(() ->
-                    legalGuardianService.update(userId, legalGuardianId, updateRequest))
-                    .isInstanceOf(SubscriptionException.class);
 
             verify(legalGuardianRepository, never()).save(any());
         }
@@ -350,8 +330,6 @@ public class LegalGuardianServiceImplTest {
         @DisplayName("deve excluir o responsável com sucesso")
         void shouldDelete_whenValid() {
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
                     .thenReturn(true);
 
@@ -361,25 +339,9 @@ public class LegalGuardianServiceImplTest {
         }
 
         @Test
-        @DisplayName("deve lançar SubscriptionException quando escola não tiver licença ativa")
-        void shouldThrowSubscription_whenNoActiveSubscription() {
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenThrow(new SubscriptionException("Sem licença ativa"));
-
-            assertThatThrownBy(() ->
-                    legalGuardianService.deleteById(userId, legalGuardianId))
-                    .isInstanceOf(SubscriptionException.class);
-
-            verify(legalGuardianRepository, never()).deleteById(any());
-        }
-
-        @Test
         @DisplayName("deve lançar AccessDeniedException quando responsável não pertencer à escola do usuário")
         void shouldThrowAccessDenied_whenLegalGuardianBelongsToDifferentSchool() {
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
                     .thenReturn(false);
 

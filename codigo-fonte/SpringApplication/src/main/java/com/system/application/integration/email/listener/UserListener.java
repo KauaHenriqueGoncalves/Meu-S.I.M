@@ -1,5 +1,6 @@
 package com.system.application.integration.email.listener;
 
+import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.user.User;
 import com.system.application.modules.identity.user.event.UserRegisteredEvent;
 import com.system.application.modules.identity.user.service.UserService;
@@ -42,14 +43,25 @@ public class UserListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserRegistered(UserRegisteredEvent event) {
         log.info("Evento de registro de usuario recebido. [userId={}]", event.userId());
-
         User user = userService.findById(event.userId());
-        School school = schoolService.findByUserId(user.getId());
+        School school = null;
+        boolean isAdmin = user.getRole().stream()
+                .anyMatch(role ->(role.getId() == Role.Values.SYSTEM_ADMIN.getValue()));
+        if (!isAdmin) {
+            school = schoolService.findByUserId(user.getId());
+        }
         String token = emailVerificationService.createOrRefreshToken(user.getId());
         String link = backendUrl + "/auth/verify?token=" + token;
-
-        emailSendService.sendConfirmAccountEmail(user.getEmail(), user.getUsername(), school.getNameCode(), link);
-
+        if (school == null) {
+            emailSendService.sendConfirmAccountEmail(user.getEmail(), user.getUsername(), "Não possui código", link);
+            log.info("E-mail enviado para conta de Admin. [userId={}] [email={}] [role={}]",
+                    user.getId(), user.getEmail(), user.getRole());
+        }
+        else {
+            emailSendService.sendConfirmAccountEmail(user.getEmail(), user.getUsername(), school.getNameCode(), link);
+            log.info("E-mail enviado para conta de usuário da aplicação. [userId={}] [email={}] [role={}]",
+                    user.getId(), user.getEmail(), user.getRole());
+        }
         log.info("E-mail de confirmacao de conta enviado. [userId={}] [email={}]",
                 user.getId(), user.getEmail());
     }
