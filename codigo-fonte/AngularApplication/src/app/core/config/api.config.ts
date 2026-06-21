@@ -30,7 +30,8 @@ export class ApiConfig {
         subscription: {
             base: '/school-subscriptions',
             active: '/school-subscriptions/active',
-            cancel: '/school-subscriptions/{id}/cancel'
+            cancel: '/school-subscriptions/{id}/cancel',
+            reative: '/school-subscriptions/{id}/reactive'
         },
         user: {
             base: '/users',

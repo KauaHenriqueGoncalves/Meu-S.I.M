@@ -394,7 +394,7 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
     @Override
     @Transactional
     public void reactiveById(UUID userId, UUID schoolSubscriptionId) {
-        log.info("Iniciando reativacao da assinatura. [requisitanteId={}] [schoolSubscriptionId={}]",
+        log.info("Iniciando reativacao da licença. [requisitanteId={}] [schoolSubscriptionId={}]",
                 userId, schoolSubscriptionId);
 
         School school = schoolService.findByUserId(userId);
@@ -423,6 +423,9 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
         }
 
         subscription.setStatus(SubscriptionStatus.ACTIVE);
+
+        log.info("Reativação da licença feita com sucesso. [requisitanteId={}] [schoolSubscriptionId={}]",
+                userId, schoolSubscriptionId);
 
         String key = CacheKeys.subscriptionPattern(school.getId());
 

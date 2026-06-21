@@ -223,6 +223,27 @@
         opacity: 0.7
         cursor: not-allowed
 
+.btn-success-solid
+    background: var(--color-primary-600)
+    color: var(--white)
+    border: none
+    padding: 0.8rem 2rem
+    border-radius: 8px
+    font-weight: 600
+    font-size: 1.05rem
+    cursor: pointer
+    min-width: 200px
+    display: flex
+    justify-content: center
+    align-items: center
+    height: 44px
+    &:hover:not(:disabled)
+        background: var(--color-primary-700) 
+    &:disabled
+        opacity: 0.7
+        cursor: not-allowed
+        transform: none
+        
 .btn-primary-large
     background: var(--color-primary-600)
     color: var(--white)
@@ -477,11 +498,10 @@
 
     .action-bar
         padding-top: 1.5rem
-        flex-direction: column-reverse
-        
-        .action-left, .action-right
+
+        .action-left-btns, .action-right
             width: 100%
-        
+
         button
             width: 100%
 

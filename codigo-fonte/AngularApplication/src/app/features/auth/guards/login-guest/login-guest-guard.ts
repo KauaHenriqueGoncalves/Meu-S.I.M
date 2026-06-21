@@ -7,9 +7,9 @@ export const loginGuest: CanActivateFn = (route, state) => {
   const router = inject(Router);
   
   if (authStore.getToken()) {
-      router.navigate(['/app/dashboard']);
-      return false;
-    }
+    router.navigate(['/app/dashboard']);
+    return false;
+  }
   
   return true;
 };

@@ -27,6 +27,7 @@ export class SubscriptionDetail implements OnInit {
 
   isCanceling = false;
   isPaying = false;
+  isReactitvating = false;
 
   showCancelModal = false;
   cancelConfirmationText = '';
@@ -141,5 +142,47 @@ export class SubscriptionDetail implements OnInit {
     if (!this.detail) return false;
     return this.detail.subscriptionStatus !== SubscriptionStatus.CANCELED &&
       this.detail.subscriptionStatus !== SubscriptionStatus.EXPIRED;
+  }
+
+  canReactitvate(): boolean {
+    if (!this.detail) return false;
+    const isCanceled = this.detail.subscriptionStatus === SubscriptionStatus.CANCELED;
+    if (!isCanceled) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(this.detail.startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(this.detail.endDate);
+    end.setHours(23, 59, 59, 999);
+    return today >= start && today <= end;
+  }
+
+  reactivateSubscription(): void {
+    this.isReactitvating = true;
+
+    if (!this.detail) return;
+
+    this.subscriptionApi.reactivateSubscription(this.detail?.id)
+    .pipe(
+      timeout(10000),
+      catchError((error) => {
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.isReactitvating = false;
+        this.cdr.detectChanges();
+      })
+    )
+    .subscribe({
+      next: (res: any) => {
+        window.location.reload();
+      },
+      error: (err) => {
+        this.notificationService.notify({
+          type: 'error',
+          text: err.error?.message || 'Erro inesperado, tente novamente mais tarde'
+        });
+      }
+    });
   }
 }
