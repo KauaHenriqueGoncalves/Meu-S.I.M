@@ -8,6 +8,7 @@ import { dashboardRoutes } from './features/dashboard/dashboard.routes';
 import { roleGuard } from './core/auth/guard/role-guard';
 import { subscriptionRoutes } from './features/subscription/subscription.routes';
 import { subscriptionPaymentRoutes } from './features/subscriptionpayment/subscription-payment.routes';
+import { collaboratorRoutes } from './features/collaborator/collaborator.routes';
 
 export const routes: Routes = [
     {
@@ -39,6 +40,11 @@ export const routes: Routes = [
                 path: '',
                 canMatch: [roleGuard('school_admin')],
                 children: dashboardRoutes
+            },
+            {
+                path: '',
+                canMatch: [roleGuard('school_admin')],
+                children: collaboratorRoutes  
             },
             {
                 path: '',

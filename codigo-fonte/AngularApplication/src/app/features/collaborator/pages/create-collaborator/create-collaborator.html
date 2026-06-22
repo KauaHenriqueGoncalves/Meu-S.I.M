@@ -1,0 +1,145 @@
+<div class="create-container">
+    <div class="page-header">
+        <button class="btn-back" (click)="goBack()">        
+            <app-svg-arrow-left color="current" [size]="18" />
+            Voltar
+        </button>
+        <div class="title-area">
+            <h1>Novo Colaborador</h1>
+            <p>Preencha os dados abaixo para adicionar um novo membro à equipe.</p>
+        </div>
+    </div>
+
+    <form [formGroup]="collaboratorForm" (ngSubmit)="onSubmit()" class="form-layout">
+
+        <div class="main-column">
+            <div class="form-card" formGroupName="userRequest">
+                <div class="card-header">
+                    <h2>Dados Pessoais</h2>
+                </div>
+                <div class="card-body">
+
+                    <div class="avatar-section">
+                        <div class="avatar-placeholder">
+                            <span class="icon">📷</span>
+                        </div>
+                        <div class="avatar-info">
+                            <span class="label">Foto de Perfil</span>
+                            <span class="hint">Adição de imagem disponível em breve.</span>
+                        </div>
+                    </div>
+
+                    <div class="inputs-grid-fluid">
+                        <div class="form-group span-2" [class.has-error]="isFieldInvalid(userForm, 'username')">
+                            <label for="username">Nome Completo *</label>
+                            <input type="text" id="username" formControlName="username"
+                                placeholder="Ex: Layza de Souza Fraga">
+                            @if (userForm.get('username')?.hasError('required')) { <span class="error-text">Nome é
+                                obrigatório</span> }
+                            @if (userForm.get('username')?.hasError('minlength')) { <span class="error-text">Mínimo de 3
+                                caracteres</span> }
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid(userForm, 'cpf')">
+                            <label for="cpf">CPF *</label>
+                            <input type="text" id="cpf" formControlName="cpf" placeholder="Apenas números">
+                            @if (isFieldInvalid(userForm, 'cpf')) { <span class="error-text">CPF é obrigatório</span> }
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid(userForm, 'email')">
+                            <label for="email">E-mail *</label>
+                            <input type="email" id="email" formControlName="email" placeholder="exemplo@email.com">
+                            @if (isFieldInvalid(userForm, 'email')) { <span class="error-text">E-mail inválido</span> }
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid(userForm, 'phoneNumber')">
+                            <label for="phoneNumber">Telefone *</label>
+                            <input type="text" id="phoneNumber" formControlName="phoneNumber"
+                                placeholder="(99) 99999-9999">
+                            @if (isFieldInvalid(userForm, 'phoneNumber')) { <span class="error-text">Telefone é
+                                obrigatório</span> }
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid(userForm, 'password')">
+                            <label for="password">Senha de Acesso *</label>
+                            <input type="password" id="password" formControlName="password"
+                                placeholder="Mínimo de 6 caracteres">
+                            @if (userForm.get('password')?.hasError('required')) { <span class="error-text">Senha é
+                                obrigatória</span> }
+                            @if (userForm.get('password')?.hasError('minlength')) { <span class="error-text">Mínimo de 6
+                                caracteres</span> }
+                        </div>
+
+                        <div class="form-group span-full">
+                            <label for="address">Endereço Completo</label>
+                            <input type="text" id="address" formControlName="address"
+                                placeholder="Ex: Rua Minas Gerais, 789, Belo Horizonte - MG">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-column">
+
+            <div class="form-card" formGroupName="collaboratorRequest">
+                <div class="card-header">
+                    <h2>Informações Profissionais</h2>
+                </div>
+                <div class="card-body">
+                    <div class="inputs-grid-stacked">
+                        <div class="form-group" [class.has-error]="isFieldInvalid(colabForm, 'dateOfBirth')">
+                            <label for="dateOfBirth">Data de Nascimento *</label>
+                            <input type="date" id="dateOfBirth" formControlName="dateOfBirth" [min]="minDate"
+                                [max]="maxDate">
+                            @if (colabForm.get('dateOfBirth')?.hasError('required')) { <span class="error-text">Data é
+                                obrigatória</span> }
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid(colabForm, 'specialty')">
+                            <label for="specialty">Especialidade / Disciplina *</label>
+                            <input type="text" id="specialty" formControlName="specialty"
+                                placeholder="Ex: Multidisciplinar">
+                            @if (colabForm.get('specialty')?.hasError('required')) { <span class="error-text">Campo
+                                obrigatório</span> }
+                            @if (colabForm.get('specialty')?.hasError('minlength')) { <span class="error-text">Mínimo 3
+                                caracteres</span> }
+                            @if (colabForm.get('specialty')?.hasError('maxlength')) { <span class="error-text">Máximo 30
+                                caracteres</span> }
+                            @if (colabForm.get('specialty')?.hasError('noSpace')) { <span class="error-text">Remova
+                                espaços no início/fim</span> }
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid(colabForm, 'workload')">
+                            <label for="workload">Carga Horária *</label>
+                            <input type="text" id="workload" formControlName="workload" placeholder="Ex: 8h, 20h">
+                            @if (colabForm.get('workload')?.hasError('required')) { <span class="error-text">Campo
+                                obrigatório</span> }
+                            @if (colabForm.get('workload')?.hasError('pattern')) { <span class="error-text">Formato
+                                inválido (Use: '8h', '12h')</span> }
+                            @if (colabForm.get('workload')?.hasError('noSpace')) { <span class="error-text">Remova
+                                espaços no início/fim</span> }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-card">
+                <p class="actions-hint">Revise os dados antes de confirmar o cadastro do novo colaborador.</p>
+                <div class="buttons-row">
+                    <button type="button" class="btn-cancel" (click)="goBack()" [disabled]="isSubmitting">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-submit" [disabled]="collaboratorForm.invalid || isSubmitting">
+                        @if (isSubmitting) {
+                        Salvando...
+                        } @else {
+                        Salvar Colaborador
+                        }
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>

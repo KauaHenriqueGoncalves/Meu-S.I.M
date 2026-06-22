@@ -24,7 +24,7 @@ export const MENU_CONFIG: Record<Role, MenuItem[]> = {
       expanded: false,
       children: [
         { label: 'Administradores', route: '/school-admin' },
-        { label: 'Colaboradores', route: '/collaborators' },
+        { label: 'Colaboradores', route: '/app/collaborators' },
         { label: 'Responsáveis', route: '/legal-guardians' },
       ]
     },

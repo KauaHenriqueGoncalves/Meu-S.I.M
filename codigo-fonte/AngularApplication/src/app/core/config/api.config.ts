@@ -36,6 +36,10 @@ export class ApiConfig {
         user: {
             base: '/users',
         },
+        collaborator: {
+            base: '/collaborators',
+            changePassword: '/collaborators/{id}/password'
+        },
         schoolAdmin: {
             base: '/school-admins',
         },
