@@ -8,12 +8,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 public record CreateCollaboratorRequest(
-
         @Valid @NotNull UserRequest userRequest,
         @Valid @NotNull CollaboratorRequest collaboratorRequest
-
 ) implements Serializable {
-
     @Serial
     private static final long serialVersionUID = 1L;
 }

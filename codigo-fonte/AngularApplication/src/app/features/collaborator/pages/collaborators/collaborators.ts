@@ -51,14 +51,12 @@ export class Collaborators implements OnInit {
     ).subscribe(name => {
       this.searchName = name;
       this.currentPage = 0; // Volta para a primeira página ao buscar
-      //this.loadCollaborators();
-      this.loadMockData();
+      this.loadCollaborators();
     });
   }
 
   ngOnInit(): void {
-    this.loadMockData();
-    //this.loadCollaborators();
+    this.loadCollaborators();
   }
 
   onSearch(event: any): void {
@@ -122,8 +120,7 @@ export class Collaborators implements OnInit {
   changePage(page: number): void {
     if (page >= 0 && page < this.totalPages) {
       this.currentPage = page;
-      //this.loadCollaborators();
-      this.loadMockData();
+      this.loadCollaborators();
     }
   }
 

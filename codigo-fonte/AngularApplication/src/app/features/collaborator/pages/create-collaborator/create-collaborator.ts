@@ -1,18 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CollaboratorApi } from '../../api/collaborator.api';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { cpfValidator } from '../../../../shared/validation/cpf.validator';
-import { finalize } from 'rxjs';
+import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { CreateCollaboratorRequestDto } from '../../dto/create-collaborator-request.dto';
 import { ArrowLeftSvg } from '../../../../shared/components/svg/icon-arrow-left.svg';
+import { PhotoSvg } from '../../../../shared/components/svg/photo.svg';
+import { NoEmojiDirective } from '../../../../shared/directives/no-emoji.directive';
+import { NoSpecialCharacteresDirective } from '../../../../shared/directives/no-special-characteres.directive';
+import { PhoneOnlyDirective } from '../../../../shared/directives/phone-only.directive';
+import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only.directive';
+import { SpinnerToButton } from '../../../../shared/components/spinner-to-button/spinner-to-button';
 
 @Component({
   selector: 'app-create-collaborator',
   imports: [
     ReactiveFormsModule,
-    ArrowLeftSvg
+    NoEmojiDirective,
+    NoSpecialCharacteresDirective,
+    PhoneOnlyDirective,
+    NumbersOnlyDirective,
+    ArrowLeftSvg,
+    PhotoSvg,
+    SpinnerToButton
   ],
   templateUrl: './create-collaborator.html',
   styleUrl: './create-collaborator.sass',
@@ -21,6 +33,8 @@ export class CreateCollaborator implements OnInit {
   collaboratorForm!: FormGroup;
   isSubmitting = false;
 
+  showPassword = false;
+
   minDate = '1950-01-01';
   maxDate = new Date().toISOString().split('T')[0];
 
@@ -28,7 +42,8 @@ export class CreateCollaborator implements OnInit {
     private fb: FormBuilder,
     private collaboratorApi: CollaboratorApi,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   get userForm(): FormGroup {
@@ -77,9 +92,9 @@ export class CreateCollaborator implements OnInit {
           Validators.required
         ]],
         specialty: ['', [
-            Validators.required, 
-            Validators.minLength(3),
-            Validators.maxLength(30)
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(30)
         ]],
         workload: ['', [
           Validators.required,
@@ -130,8 +145,13 @@ export class CreateCollaborator implements OnInit {
 
     this.collaboratorApi.create(payload)
       .pipe(
+        timeout(10000),
+        catchError((error) => {
+          return throwError(() => error);
+        }),
         finalize(() => {
           this.isSubmitting = false;
+          this.cdr.detectChanges();
         })
       )
       .subscribe({

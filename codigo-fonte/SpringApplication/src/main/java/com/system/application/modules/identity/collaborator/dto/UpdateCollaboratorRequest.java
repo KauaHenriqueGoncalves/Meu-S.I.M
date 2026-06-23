@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 public record UpdateCollaboratorRequest(
-
         @NotBlank(message = "Nome não pode ser vazio")
         @Size(max = 100, message = "Nome deve ser menor que 100 caracteres")
         @NoLeadingTrailingSpace
@@ -45,9 +44,7 @@ public record UpdateCollaboratorRequest(
         @Pattern(regexp = "^(\\d{1,2})h$", message = "Carga horária deve estar no formato '8h', '12h', etc.")
         @NoLeadingTrailingSpace
         String workload
-
 ) implements Serializable {
-
         @Serial
         private static final long serialVersionUID = 1L;
 }

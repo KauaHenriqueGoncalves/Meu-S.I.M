@@ -11,7 +11,6 @@
     </div>
 
     <form [formGroup]="collaboratorForm" (ngSubmit)="onSubmit()" class="form-layout">
-
         <div class="main-column">
             <div class="form-card" formGroupName="userRequest">
                 <div class="card-header">
@@ -21,7 +20,9 @@
 
                     <div class="avatar-section">
                         <div class="avatar-placeholder">
-                            <span class="icon">📷</span>
+                            <span class="icon">
+                                <app-svg-photo color="#c2c2c2" [size]="30" />
+                            </span>
                         </div>
                         <div class="avatar-info">
                             <span class="label">Foto de Perfil</span>
@@ -32,48 +33,65 @@
                     <div class="inputs-grid-fluid">
                         <div class="form-group span-2" [class.has-error]="isFieldInvalid(userForm, 'username')">
                             <label for="username">Nome Completo *</label>
-                            <input type="text" id="username" formControlName="username"
-                                placeholder="Ex: Layza de Souza Fraga">
-                            @if (userForm.get('username')?.hasError('required')) { <span class="error-text">Nome é
-                                obrigatório</span> }
-                            @if (userForm.get('username')?.hasError('minlength')) { <span class="error-text">Mínimo de 3
-                                caracteres</span> }
+                            <input type="text" id="username" formControlName="username" placeholder="Nome Completo" noEmoji noSpecialCharacteres>
+                            @if (userForm.get('username')?.hasError('maxlength')) { 
+                                <span class="error-text">Máximo de 100 caracteres</span> 
+                            }
                         </div>
 
                         <div class="form-group" [class.has-error]="isFieldInvalid(userForm, 'cpf')">
                             <label for="cpf">CPF *</label>
-                            <input type="text" id="cpf" formControlName="cpf" placeholder="Apenas números">
-                            @if (isFieldInvalid(userForm, 'cpf')) { <span class="error-text">CPF é obrigatório</span> }
+                            <input type="text" id="cpf" formControlName="cpf" maxlength="11" placeholder="Apenas números" numbersOnly>
+                            @if (isFieldInvalid(userForm, 'cpf')) { 
+                                <span class="error-text">CPF inválido</span> 
+                            }
                         </div>
 
                         <div class="form-group" [class.has-error]="isFieldInvalid(userForm, 'email')">
                             <label for="email">E-mail *</label>
-                            <input type="email" id="email" formControlName="email" placeholder="exemplo@email.com">
-                            @if (isFieldInvalid(userForm, 'email')) { <span class="error-text">E-mail inválido</span> }
+                            <input type="email" id="email" formControlName="email" placeholder="exemplo@email.com" noEmoji>
+                            @if (isFieldInvalid(userForm, 'email')) { 
+                                <span class="error-text">E-mail inválido</span> 
+                            }
+                            @if (userForm.get('email')?.hasError('maxLength')) {
+                                <span class="error-text">Máximo de 255 caracteres</span> 
+                            }
                         </div>
 
                         <div class="form-group" [class.has-error]="isFieldInvalid(userForm, 'phoneNumber')">
                             <label for="phoneNumber">Telefone *</label>
-                            <input type="text" id="phoneNumber" formControlName="phoneNumber"
-                                placeholder="(99) 99999-9999">
-                            @if (isFieldInvalid(userForm, 'phoneNumber')) { <span class="error-text">Telefone é
-                                obrigatório</span> }
+                            <input type="text" id="phoneNumber" formControlName="phoneNumber" placeholder="(99) 99999-9999" appPhoneOnly >
+                            @if (userForm.get('phoneNumber')?.hasError('maxlength')) {
+                                <span class="error-text">Máximo de 20 caracteres</span> 
+                            }
                         </div>
 
                         <div class="form-group" [class.has-error]="isFieldInvalid(userForm, 'password')">
                             <label for="password">Senha de Acesso *</label>
-                            <input type="password" id="password" formControlName="password"
-                                placeholder="Mínimo de 6 caracteres">
-                            @if (userForm.get('password')?.hasError('required')) { <span class="error-text">Senha é
-                                obrigatória</span> }
-                            @if (userForm.get('password')?.hasError('minlength')) { <span class="error-text">Mínimo de 6
-                                caracteres</span> }
+                            <div class="input-wrapper">
+                                <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" noEmoji/>
+                                <button type="button" class="btn-toggle-password" (click)="showPassword = !showPassword">
+                                    @if (showPassword) {
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    } @else {
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                                    }
+                                </button>
+                            </div>
+                            @if (userForm.get('password')?.hasError('minlength')) { 
+                                <span class="error-text">Mínimo de 6 caracteres</span> 
+                            }
+                            @if (userForm.get('password')?.hasError('maxlength')) { 
+                                <span class="error-text">Máximo de 20 caracteres</span> 
+                            }
                         </div>
 
-                        <div class="form-group span-full">
+                        <div class="form-group span-full" [class.has-error]="isFieldInvalid(userForm, 'address')">
                             <label for="address">Endereço Completo</label>
-                            <input type="text" id="address" formControlName="address"
-                                placeholder="Ex: Rua Minas Gerais, 789, Belo Horizonte - MG">
+                            <input type="text" id="address" formControlName="address" placeholder="Ex: Rua Minas Gerais, 789, Belo Horizonte - MG">
+                            @if (userForm.get('address')?.hasError('maxlength')) { 
+                                <span class="error-text">Máximo de 100 caracteres</span> 
+                            }
                         </div>
                     </div>
                 </div>
@@ -81,7 +99,6 @@
         </div>
 
         <div class="side-column">
-
             <div class="form-card" formGroupName="collaboratorRequest">
                 <div class="card-header">
                     <h2>Informações Profissionais</h2>
@@ -90,35 +107,26 @@
                     <div class="inputs-grid-stacked">
                         <div class="form-group" [class.has-error]="isFieldInvalid(colabForm, 'dateOfBirth')">
                             <label for="dateOfBirth">Data de Nascimento *</label>
-                            <input type="date" id="dateOfBirth" formControlName="dateOfBirth" [min]="minDate"
-                                [max]="maxDate">
-                            @if (colabForm.get('dateOfBirth')?.hasError('required')) { <span class="error-text">Data é
-                                obrigatória</span> }
+                            <input type="date" id="dateOfBirth" lang="pt-BR" formControlName="dateOfBirth" [min]="minDate" [max]="maxDate">
                         </div>
 
                         <div class="form-group" [class.has-error]="isFieldInvalid(colabForm, 'specialty')">
                             <label for="specialty">Especialidade / Disciplina *</label>
-                            <input type="text" id="specialty" formControlName="specialty"
-                                placeholder="Ex: Multidisciplinar">
-                            @if (colabForm.get('specialty')?.hasError('required')) { <span class="error-text">Campo
-                                obrigatório</span> }
-                            @if (colabForm.get('specialty')?.hasError('minlength')) { <span class="error-text">Mínimo 3
-                                caracteres</span> }
-                            @if (colabForm.get('specialty')?.hasError('maxlength')) { <span class="error-text">Máximo 30
-                                caracteres</span> }
-                            @if (colabForm.get('specialty')?.hasError('noSpace')) { <span class="error-text">Remova
-                                espaços no início/fim</span> }
+                            <input type="text" id="specialty" formControlName="specialty" placeholder="Ex: Multidisciplinar">
+                            @if (colabForm.get('specialty')?.hasError('minlength')) { 
+                                <span class="error-text">Mínimo 3 caracteres</span> 
+                            }
+                            @if (colabForm.get('specialty')?.hasError('maxlength')) { 
+                                <span class="error-text">Máximo 30 caracteres</span> 
+                            }
                         </div>
 
                         <div class="form-group" [class.has-error]="isFieldInvalid(colabForm, 'workload')">
-                            <label for="workload">Carga Horária *</label>
-                            <input type="text" id="workload" formControlName="workload" placeholder="Ex: 8h, 20h">
-                            @if (colabForm.get('workload')?.hasError('required')) { <span class="error-text">Campo
-                                obrigatório</span> }
-                            @if (colabForm.get('workload')?.hasError('pattern')) { <span class="error-text">Formato
-                                inválido (Use: '8h', '12h')</span> }
-                            @if (colabForm.get('workload')?.hasError('noSpace')) { <span class="error-text">Remova
-                                espaços no início/fim</span> }
+                            <label for="workload">Carga Horária Semanal *</label>
+                            <input type="text" id="workload" formControlName="workload" placeholder="Ex: 8h, 20h" noEmoji noSpecialCharacteres>
+                            @if (colabForm.get('workload')?.hasError('pattern')) { 
+                                <span class="error-text">Formato inválido (Use: '8h', '12h')</span> 
+                            }
                         </div>
                     </div>
                 </div>
@@ -132,14 +140,13 @@
                     </button>
                     <button type="submit" class="btn-submit" [disabled]="collaboratorForm.invalid || isSubmitting">
                         @if (isSubmitting) {
-                        Salvando...
+                            <app-spinner-to-button />
                         } @else {
-                        Salvar Colaborador
+                            Salvar Colaborador
                         }
                     </button>
                 </div>
             </div>
-
         </div>
     </form>
 </div>
