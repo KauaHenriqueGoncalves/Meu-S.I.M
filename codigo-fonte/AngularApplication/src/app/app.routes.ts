@@ -38,7 +38,7 @@ export const routes: Routes = [
         children: [
             {
                 path: '',
-                canMatch: [roleGuard('school_admin')],
+                canMatch: [roleGuard('school_admin', 'collaborator')],
                 children: dashboardRoutes
             },
             {

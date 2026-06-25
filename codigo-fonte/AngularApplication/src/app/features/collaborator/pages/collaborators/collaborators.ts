@@ -44,13 +44,12 @@ export class Collaborators implements OnInit {
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef
   ) {
-    // Evita requisições a cada letra digitada na busca
     this.searchSubject.pipe(
-      debounceTime(400),
+      debounceTime(500),
       distinctUntilChanged()
     ).subscribe(name => {
       this.searchName = name;
-      this.currentPage = 0; // Volta para a primeira página ao buscar
+      this.currentPage = 0;
       this.loadCollaborators();
     });
   }
@@ -61,29 +60,6 @@ export class Collaborators implements OnInit {
 
   onSearch(event: any): void {
     this.searchSubject.next(event.target.value);
-  }
-
-  loadMockData(): void {
-    this.isLoading = false;
-    // this.isPaginating = true;
-    this.collaborators = [
-      { id: '1', username: 'Ricardo Silva', specialty: '', workload: '' },
-      { id: '2', username: 'Ana Beatriz Souza', specialty: 'Língua Portuguesa e Literatura', workload: '20h semanais' },
-      { id: '3', username: 'Carlos Eduardo Oliveira', specialty: 'Física e Química', workload: '30h semanais' },
-      { id: '4', username: 'Mariana Costa', specialty: 'História e Geografia', workload: '25h semanais' },
-      { id: '5', username: 'Lucas Ferreira', specialty: 'Biologia', workload: '35h semanais' },
-      { id: '6', username: 'Juliana Pires', specialty: 'Inglês Intermediário', workload: '15h semanais' },
-      { id: '7', username: 'Roberto Almeida Jr.', specialty: 'Programação e Lógica', workload: '40h semanais' },
-      { id: '8', username: 'Fernanda Lima', specialty: 'Educação Infantil', workload: '30h semanais' },
-      { id: '2', username: 'Ana Beatriz Souza', specialty: 'Língua Portuguesa e Literatura', workload: '20h semanais' },
-      { id: '3', username: 'Carlos Eduardo Oliveira', specialty: 'Física e Química', workload: '30h semanais' },
-      { id: '4', username: 'Mariana Costa', specialty: 'História e Geografia', workload: '25h semanais' },
-      { id: '5', username: 'Lucas Ferreira', specialty: 'Biologia', workload: '35h semanais' },
-      { id: '6', username: 'Juliana Pires', specialty: 'Inglês Intermediário', workload: '15h semanais' },
-      { id: '7', username: 'Roberto Almeida Jr.', specialty: 'Programação e Lógica', workload: '40h semanais' },
-    ];
-    this.totalElements = 8;
-    this.totalPages = 0;
   }
 
   loadCollaborators(): void {
@@ -129,8 +105,10 @@ export class Collaborators implements OnInit {
   }
 
   goToDetails(id: string): void {
-    console.log('indo para detalhes do collaborator: ' + id)
-    // this.router.navigate(['/app/collaborators/detail'], { state: { id } });
+    this.router.navigate(
+      ['/app/details-collaborator'], 
+      { state: { id } }
+    );
   }
 
   getInitials(name: string): string {
