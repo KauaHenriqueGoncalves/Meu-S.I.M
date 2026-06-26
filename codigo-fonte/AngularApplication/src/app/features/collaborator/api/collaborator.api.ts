@@ -7,7 +7,7 @@ import { Observable, shareReplay } from 'rxjs';
 import { CollaboratorDetailResponseDto } from '../dto/collaborator-detail-response.dto';
 import { CreateCollaboratorRequestDto } from '../dto/create-collaborator-request.dto';
 import { CacheResetService } from '../../../core/services/cache-reset/cache-reset.service';
-import { UpdateCollaboratorRequestDto } from '../dto/update-cpllaborator-request.dto';
+import { UpdateCollaboratorRequestDto } from '../dto/update-collaborator-request.dto';
 import { UserChangePasswordRequestDto } from '../../user/dto/user-change-password-request.dto';
 
 @Injectable({

@@ -11,7 +11,7 @@ import { SpinnerToButton } from '../../../../shared/components/spinner-to-button
 import { Router } from '@angular/router';
 import { CollaboratorApi } from '../../api/collaborator.api';
 import { CollaboratorDetailResponseDto } from '../../dto/collaborator-detail-response.dto';
-import { UpdateCollaboratorRequestDto } from '../../dto/update-cpllaborator-request.dto';
+import { UpdateCollaboratorRequestDto } from '../../dto/update-collaborator-request.dto';
 import { finalize, timeout } from 'rxjs';
 import { UserChangePasswordRequestDto } from '../../../user/dto/user-change-password-request.dto';
 import { WhatsappSvg } from '../../../../shared/components/svg/whatsapp.svg';

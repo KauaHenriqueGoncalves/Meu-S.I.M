@@ -7,7 +7,11 @@ export const MENU_CONFIG: Record<Role, MenuItem[]> = {
   ],
 
   school_admin: [
-    { label: 'Início', icon: 'dashboard', route: '/app/dashboard' },
+    { 
+      label: 'Início', 
+      icon: 'dashboard', 
+      route: '/app/dashboard' 
+    },
     {
       label: 'Acadêmico',
       icon: 'academic',
@@ -23,9 +27,9 @@ export const MENU_CONFIG: Record<Role, MenuItem[]> = {
       icon: 'users',
       expanded: false,
       children: [
-        { label: 'Administradores', route: '/school-admin' },
+        { label: 'Administradores', route: '/app/school-admins' },
         { label: 'Colaboradores', route: '/app/collaborators' },
-        { label: 'Responsáveis', route: '/legal-guardians' },
+        { label: 'Responsáveis', route: '/app/legal-guardians' },
       ]
     },
     {

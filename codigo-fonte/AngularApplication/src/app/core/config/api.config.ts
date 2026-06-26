@@ -40,6 +40,10 @@ export class ApiConfig {
             base: '/collaborators',
             changePassword: '/collaborators/{id}/password'
         },
+        legalGuardian: {
+            base: '/legal-guardians',
+            changePassword: '/legal-guardians/{id}/password'
+        },
         schoolAdmin: {
             base: '/school-admins',
         },

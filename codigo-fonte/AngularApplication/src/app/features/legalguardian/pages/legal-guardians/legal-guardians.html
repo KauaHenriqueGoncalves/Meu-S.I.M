@@ -1,0 +1,102 @@
+<div class="list-container">
+    <div class="page-header">
+        <div class="title-row">
+            <div class="title-area">
+                <h1>Responsáveis</h1>
+                <p>Gerencie os responsáveis do seu reforço escolar.</p>
+            </div>
+            <div class="action-right">
+                <button class="btn-primary-solid" (click)="goToCreate()">
+                    <app-svg-plus color="#ecfdf5" [size]="20"/>
+                    <span>Novo Responsável</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-row">
+            <div class="search-box">
+                <span class="icon-loupe">
+                    <app-svg-loupe color="#ddd" [size]="20" />
+                </span>
+                <input type="text" placeholder="Buscar responsável por nome..." (input)="onSearch($event)"
+                    [disabled]="isLoading && legalGuardians.length === 0" noEmoji noSpecialCharacteres>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading) {
+        <div class="legal-guardian-grid">
+            @for (i of [1,2,3,4,5,6]; track i) {
+                <div class="lg-card skeleton-loading">
+                    <div class="card-header">
+                        <div class="sk-avatar"></div>
+                        <div class="sk-info">
+                            <div class="sk-item sk-title"></div>
+                            <div class="sk-item sk-text"></div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="sk-item sk-btn"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    @else {
+        @if (legalGuardians.length > 0) {
+            <div class="legal-guardian-grid">
+                @for (lg of legalGuardians; track lg.id) {
+                    <div class="lg-card">
+                        <div class="card-body">
+                            <div class="avatar">
+                                {{ getInitials(lg.username) }}
+                            </div>
+                            <div class="info">
+                                <h3>{{ lg.username }}</h3>
+                                <span class="degreeOfKinship">{{ lg.degreeOfKinship || 'Sem grau de parentesco' }}</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-outline-secondary" (click)="goToDetails(lg.id)">
+                                Ver Detalhes
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (totalPages > 1) {
+                <div class="pagination-container">
+                    <button class="btn-page" [disabled]="currentPage === 0 || isPaginating" (click)="changePage(currentPage - 1)">
+                        @if (isPaginating) {
+                            <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                        } @else {
+                            Anterior
+                        }
+                    </button>
+                    
+                    <div class="page-info">
+                        <span class="numbers">
+                            Página <strong>{{ currentPage + 1 }}</strong> de {{ totalPages }}
+                        </span>
+                        <span class="total">({{ totalElements }} registros)</span>
+                    </div>
+
+                    <button class="btn-page" [disabled]="currentPage === totalPages - 1 || isPaginating" (click)="changePage(currentPage + 1)">
+                        @if (isPaginating) {
+                            <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                        } @else {
+                            Próximo
+                        }
+                    </button>
+                </div>
+            }
+        }
+        @else {
+            <div class="empty-state">
+                <h3>Nenhum Responsável encontrado</h3>
+                <p>Você ainda não cadastrou nenhum Responsável ou a busca não retornou resultados.</p>
+            </div>
+        }
+    }
+</div>
