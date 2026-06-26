@@ -1,0 +1,429 @@
+.create-container
+    display: flex
+    flex-direction: column
+    height: 100%
+    width: 100%
+    padding: 1rem 0
+    animation: fadeIn 0.4s ease-out
+
+.page-header
+    margin-bottom: 2rem
+    padding: 0rem 0 2rem
+    border-bottom: 1px solid var(--border-light, #e5e7eb)
+
+    .btn-back
+        background: transparent
+        border: none
+        color: var(--text-back-btn)
+        font-weight: 400
+        font-size: .9rem
+        display: flex
+        align-items: center
+        gap: 8px
+        cursor: pointer
+        padding: 0
+        margin: .25rem 0 1.5rem
+        transition: color 0.2s
+
+        &:hover
+            color: var(--color-primary-600)
+
+    .title-area
+        h1
+            font-size: 1.8rem
+            color: var(--text-333, #1f2937)
+            margin: 0 0 0.5rem 0
+
+        p
+            color: var(--text-666, #6b7280)
+            font-size: 1rem
+            margin: 0
+
+// Layout Principal Dividido
+.form-layout
+    display: grid
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) // Esquerda ocupa 2/3, Direita 1/3
+    gap: 2rem
+    align-items: start
+    flex: 1
+
+.main-column, .side-column
+    display: flex
+    flex-direction: column
+    gap: 2rem
+
+// Cards Estilizados
+.form-card
+    background: var(--white, #ffffff)
+    border: 1px solid var(--border-color, #e5e7eb)
+    border-radius: 12px
+    overflow: hidden
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03)
+    display: flex
+    flex-direction: column
+
+    .card-header
+        background: var(--bg-light, #f9fafb)
+        padding: 1.25rem 1.5rem
+        border-bottom: 1px solid var(--border-color, #e5e7eb)
+
+        h2
+            font-size: 1.1rem
+            margin: 0
+            color: var(--text-333, #1f2937)
+            font-weight: 600
+
+    .card-body
+        padding: 1.5rem
+        flex: 1
+
+// Avatar
+.avatar-section
+    display: flex
+    align-items: center
+    gap: 1.5rem
+    margin-bottom: 2rem
+    padding-bottom: 1.5rem
+    border-bottom: 1px dashed var(--border-color, #e5e7eb)
+
+    .avatar-placeholder
+        width: 80px
+        height: 80px
+        border-radius: 50%
+        background: var(--bg-light, #f3f4f6)
+        border: 2px dashed var(--border-color, #cbd5e1)
+        display: flex
+        align-items: center
+        justify-content: center
+        color: #94a3b8
+        font-size: 1.8rem
+
+    .avatar-info
+        display: flex
+        flex-direction: column
+        
+        .label
+            font-weight: 600
+            color: var(--text-333, #334155)
+            font-size: 1rem
+        
+        .hint
+            font-size: 0.9rem
+            color: #94a3b8
+            margin-top: 0.25rem
+
+// Grids Internos
+.inputs-grid-fluid
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))
+    gap: 1.5rem
+
+.inputs-grid-stacked
+    display: flex
+    flex-direction: column
+    gap: 1.5rem
+
+.form-group
+    display: flex
+    flex-direction: column
+    gap: 0.4rem
+    position: relative
+
+    // Permite que alguns campos sejam maiores que outros dinamicamente
+    &.span-2
+        grid-column: span 2
+        @media (max-width: 1200px)
+            grid-column: span 1
+
+    &.span-full
+        grid-column: 1 / -1
+
+    label
+        font-size: 0.9rem
+        font-weight: 600
+        color: var(--text-666, #4b5563)
+
+    input
+        width: 100%
+        padding: 0.8rem 1rem
+        border: 1px solid var(--border-color, #d1d5db)
+        border-radius: 8px
+        font-size: 0.95rem
+        color: var(--text-333, #1f2937)
+        transition: all 0.2s ease
+        background: #fff
+
+        &::placeholder
+            color: #9ca3af
+
+        &:focus
+            border-color: var(--color-primary-600, #16a34a)
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1)
+            outline: none
+            
+        &[type="date"]
+            color: var(--text-333, #1f2937)
+            font-family: inherit
+
+    // Validações e Erros
+    &.has-error
+        input
+            border-color: #ef4444
+            background: #fef2f2
+            
+            &:focus
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1)
+                
+    .input-wrapper
+        position: relative
+        display: flex
+        align-items: center
+        width: 100%
+
+        input
+            width: 100%
+            padding-right: 45px
+
+        .btn-toggle-password
+            position: absolute
+            right: 15px
+            background: transparent
+            border: none
+            cursor: pointer
+            color: #888
+            display: flex
+            align-items: center
+            justify-content: center
+            padding: 0
+            transition: color 0.2s ease
+
+            &:hover
+                color: var(--color-primary-600)
+
+    .error-text
+        color: #ef4444
+        font-size: 0.8rem
+        font-weight: 500
+        margin-top: 0.2rem
+
+// Card de Documentação
+.documentation-card
+    margin-top: 0.5rem
+
+.upload-zone
+    border: 2px dashed var(--border-color, #cbd5e1)
+    border-radius: 10px
+    padding: 2.5rem 1.5rem
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    gap: 1.25rem
+    background: var(--bg-light, #f9fafb)
+    text-align: center
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+        background: #f1f5f9
+        border-color: var(--color-primary-600, #16a34a)
+        
+        .icon-wrapper
+            color: var(--color-primary-600, #16a34a)
+            transform: translateY(-2px)
+
+    .icon-wrapper
+        width: 56px
+        height: 56px
+        border-radius: 50%
+        background: #ffffff
+        display: flex
+        align-items: center
+        justify-content: center
+        color: #94a3b8
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05)
+        transition: all 0.2s ease
+
+    .placeholder-text
+        display: flex
+        flex-direction: column
+        align-items: center
+        gap: 0.4rem
+
+        .main-hint
+            font-weight: 600
+            color: var(--text-333, #334155)
+            font-size: 1rem
+
+        .sub-hint
+            font-size: 0.85rem
+            color: #94a3b8
+
+        .badge-soon
+            margin-top: 0.6rem
+            display: inline-block
+            padding: 0.25rem 0.75rem
+            font-size: 0.75rem
+            font-weight: 600
+            color: var(--color-primary-700, #15803d)
+            background: rgba(22, 163, 74, 0.08)
+            border-radius: 20px
+
+// Lista de Arquivos
+.files-list
+    margin-top: 2rem
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+    h4
+        margin: 0 0 0.5rem 0
+        font-size: 0.9rem
+        color: var(--text-666, #4b5563)
+        font-weight: 600
+
+    .file-item
+        display: flex
+        align-items: center
+        justify-content: space-between
+        padding: 0.75rem 1rem
+        border: 1px solid var(--border-color, #e5e7eb)
+        border-radius: 8px
+        background: #fff
+        animation: fadeIn 0.3s ease-out
+
+        .file-info
+            display: flex
+            align-items: center
+            gap: 1rem
+            overflow: hidden
+
+            .file-icon
+                color: #94a3b8
+                display: flex
+                align-items: center
+
+            .file-details
+                display: flex
+                flex-direction: column
+                overflow: hidden
+                
+                .file-name
+                    font-size: 0.9rem
+                    font-weight: 500
+                    color: var(--text-333, #1f2937)
+                    white-space: nowrap
+                    overflow: hidden
+                    text-overflow: ellipsis
+                    max-width: 250px
+
+                .file-size
+                    font-size: 0.8rem
+                    color: #9ca3af
+
+        .btn-remove
+            background: transparent
+            border: none
+            color: #ef4444
+            padding: 0.4rem
+            cursor: pointer
+            border-radius: 6px
+            display: flex
+            align-items: center
+            justify-content: center
+            transition: background 0.2s ease
+
+            &:hover
+                background: #fef2f2
+
+// Card de Ações
+.actions-card
+    background: var(--bg-light, #f9fafb)
+    border: 1px solid var(--border-color, #e5e7eb)
+    border-radius: 12px
+    padding: 1.5rem
+    display: flex
+    flex-direction: column
+    gap: 1.25rem
+
+    .actions-hint
+        margin: 0
+        font-size: 0.9rem
+        color: var(--text-666, #6b7280)
+        line-height: 1.4
+
+    .buttons-row
+        display: flex
+        flex-direction: column
+        gap: 0.75rem
+
+    button
+        height: 48px
+        padding: 0 1.5rem
+        border-radius: 8px
+        font-weight: 600
+        font-size: 1rem
+        cursor: pointer
+        transition: all 0.2s
+        display: flex
+        align-items: center
+        justify-content: center
+        width: 100%
+
+    .btn-cancel
+        background: transparent
+        border: 1px solid var(--border-color, #d1d5db)
+        color: var(--text-333, #374151)
+
+        &:hover:not(:disabled)
+            background: var(--border-color, #e5e7eb)
+
+    .btn-submit
+        background: var(--color-primary-600, #16a34a)
+        border: none
+        color: #fff
+        box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2)
+
+        &:hover:not(:disabled)
+            background: var(--color-primary-700, #15803d)
+            transform: translateY(-1px)
+
+        &:disabled
+            background: #9ca3af
+            box-shadow: none
+            cursor: not-allowed
+
+@keyframes fadeIn
+    from 
+        opacity: 0 
+        transform: translateY(10px)
+    to 
+        opacity: 1
+        transform: translateY(0)
+
+@media (max-width: 1024px)
+    .form-layout
+        grid-template-columns: 1fr // Quebra para 1 coluna
+        gap: 1.5rem
+    
+    .actions-card
+        .buttons-row
+            flex-direction: row-reverse // Salvar na direita, Cancelar na esquerda
+            
+        button
+            width: auto
+            flex: 1
+
+@media (max-width: 640px)
+    .create-container
+        padding: 1rem
+
+    .inputs-grid-fluid
+        grid-template-columns: 1fr
+
+    .actions-card 
+        .buttons-row
+            flex-direction: column-reverse
+
+            button
+                padding: .9rem 0
