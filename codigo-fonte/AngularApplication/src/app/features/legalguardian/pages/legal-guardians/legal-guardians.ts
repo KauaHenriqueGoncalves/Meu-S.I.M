@@ -99,11 +99,10 @@ export class LegalGuardians implements OnInit {
   }
 
   goToDetails(id: string): void {
-    console.log('ir para a tela de detalhes, id: ' + id);
-    // this.router.navigate(
-    //   ['/app/details-collaborator'], 
-    //   { state: { id } }
-    // );
+    this.router.navigate(
+      ['/app/details-legal-guardian'], 
+      { state: { id } }
+    );
   }
 
   getInitials(name: string): string {

@@ -88,7 +88,7 @@
 
                         <div class="form-group span-full" [class.has-error]="isFieldInvalid(userForm, 'address')">
                             <label for="address">Endereço Completo</label>
-                            <input type="text" id="address" formControlName="address" placeholder="Ex: Rua Minas Gerais, 789, Belo Horizonte - MG">
+                            <input type="text" id="address" formControlName="address" placeholder="Ex: Rua Minas Gerais, 789, Belo Horizonte - MG" noEmoji>
                             @if (userForm.get('address')?.hasError('maxlength')) { 
                                 <span class="error-text">Máximo de 100 caracteres</span> 
                             }

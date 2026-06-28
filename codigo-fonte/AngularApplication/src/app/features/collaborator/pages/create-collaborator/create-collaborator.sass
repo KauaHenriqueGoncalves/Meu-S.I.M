@@ -234,7 +234,7 @@
         font-weight: 600
         font-size: 1rem
         cursor: pointer
-        transition: all 0.2s
+        transition: background 0.2s, color 0.2s, border 0.2s
         display: flex
         align-items: center
         justify-content: center
@@ -247,6 +247,9 @@
 
         &:hover:not(:disabled)
             background: var(--border-color, #e5e7eb)
+
+        &:active
+            transform: scale(.98)
 
     .btn-submit
         background: var(--color-primary-600, #16a34a)
@@ -262,6 +265,9 @@
             background: #9ca3af
             box-shadow: none
             cursor: not-allowed
+
+        &:active
+            transform: scale(.98)
 
 @keyframes fadeIn
     from 

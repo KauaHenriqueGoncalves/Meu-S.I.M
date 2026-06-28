@@ -1,4 +1,4 @@
-.create-container
+.detail-container
     display: flex
     flex-direction: column
     height: 100%
@@ -93,7 +93,7 @@
             width: 42px
             height: 24px
             cursor: pointer
-            
+
             input
                 opacity: 0
                 width: 0
@@ -108,7 +108,7 @@
                 background-color: #d1d5db
                 border-radius: 24px
                 transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1)
-                
+
                 &::before
                     content: ""
                     position: absolute
@@ -126,12 +126,11 @@
                     background-color: var(--color-primary-600, #16a34a)
                     &::before
                         transform: translateX(18px)
-    
 
     .card-body
         padding: 1.5rem
         flex: 1
-        
+
     .card-footer
         padding: 1.5rem
         background: var(--bg-light, #f9fafb)
@@ -317,7 +316,7 @@
 
     &:hover:not(:disabled)
         background: var(--color-primary-700)
-        
+
     &:disabled
         background: transparent
         color: var(--text-333)
@@ -329,10 +328,10 @@
 
 .danger-card
     border-color: #fca5a5 !important
-    
+
     .card-header
         border-bottom-color: #fca5a5 !important
-        
+
     .card-footer
         border-top-color: #fca5a5 !important
 
@@ -358,6 +357,146 @@
 
     &:disabled
         background: #ef9a9a
+        cursor: not-allowed
+
+.mt-2
+    margin-top: 1rem
+
+.mt-3
+    margin-top: 1.5rem
+
+.upload-zone
+    border: 2px dashed var(--border-color, #cbd5e1)
+    border-radius: 10px
+    padding: 2.5rem 1.5rem
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    gap: 1.25rem
+    background: var(--bg-light, #f9fafb)
+    text-align: center
+    cursor: pointer
+    transition: border-color 0.1s ease, background 0.1s ease
+
+    &:hover
+        background: #f1f5f9
+        border-color: var(--color-primary-600)
+
+        .icon-wrapper
+            color: var(--color-primary-600)
+
+    &:active
+        border-color: var(--color-primary-200)
+
+    .placeholder-text
+        display: flex
+        flex-direction: column
+        align-items: center
+        gap: 0.4rem
+
+        .main-hint
+            font-weight: 600
+            color: var(--text-333, #334155)
+            font-size: 1rem
+
+        .sub-hint
+            font-size: 0.85rem
+            color: #94a3b8
+
+        .badge-soon
+            margin-top: 0.6rem
+            display: inline-block
+            padding: 0.25rem 0.75rem
+            font-size: 0.75rem
+            font-weight: 600
+            color: var(--color-primary-700)
+            background: rgba(22, 163, 74, 0.08)
+            border-radius: 20px
+
+.list-title
+    margin: 0 0 0.5rem 0
+    font-size: 0.9rem
+    color: var(--text-666, #4b5563)
+    font-weight: 600
+
+.empty-text
+    margin: 0 0 0.5rem 0
+    font-size: 0.9rem
+    color: var(--text-666, #64748b)
+    font-style: italic
+
+.file-list
+    margin-top: 2rem
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+.file-item
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.75rem 1rem
+    border: 1px solid var(--border-color, #e2e8f0)
+    border-radius: 8px
+    background: #fff
+
+    &.new-file
+        background: #f0fdf4
+        border-color: #bbf7d0
+
+    .file-info
+        display: flex
+        align-items: center
+        gap: 1rem
+        overflow: hidden
+
+    .file-icon
+        display: flex
+        align-items: center
+
+    .file-details
+        display: flex
+        flex-direction: column
+        overflow: hidden
+        flex: 1
+
+    .file-name
+        font-size: 0.9rem
+        font-weight: 500
+        color: var(--text-333, #1e293b)
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+        max-width: 250px
+
+    .file-size
+        font-size: 0.8rem
+        color: #9ca3af
+
+    .file-actions
+        display: flex
+        align-items: center
+        gap: 0.5rem
+
+.btn-icon
+    background: transparent
+    padding: 0.4rem
+    cursor: pointer
+    border-radius: 6px
+    display: flex
+    align-items: center
+    justify-content: center
+    transition: background 0.2s ease
+
+    &:active
+        transform: scale(.94)
+
+    &:hover:not(:disabled)
+        background: var(--bg-light, #f1f5f9)
+
+    &:disabled
+        opacity: 0.5
         cursor: not-allowed
 
 .modal-overlay
@@ -395,7 +534,7 @@
     display: flex
     gap: 1rem
     background: #f9fafb
-    
+
     button
         flex: 1
         height: 44px
@@ -407,7 +546,7 @@
     .btn-cancel
         background: #e5e7eb
         color: #374151
-    
+
         &:hover
             opacity: .8
 
@@ -477,11 +616,21 @@
     width: 100%
     border-radius: 8px
 
+.skeleton-upload-area
+    height: 120px
+    border-radius: 8px
+    width: 100%
+
+.skeleton-file-item
+    height: 60px
+    border-radius: 8px
+    width: 100%
+
 @keyframes fadeIn
-    from 
-        opacity: 0 
+    from
+        opacity: 0
         transform: translateY(10px)
-    to 
+    to
         opacity: 1
         transform: translateY(0)
 
@@ -495,7 +644,7 @@
     .form-layout
         grid-template-columns: 1fr
         gap: 1.5rem
-    
+
     .title-area
         flex-direction: column
         align-items: flex-start
@@ -509,13 +658,16 @@
 
     .inputs-grid-fluid
         grid-template-columns: 1fr
-        
+
     .avatar-section
         flex-direction: column
         align-items: stretch
-        
+
         .btn-whatsapp
             justify-content: center
 
     .danger-card
         margin-bottom: 2rem
+
+    .file-item .file-name
+        max-width: 100px

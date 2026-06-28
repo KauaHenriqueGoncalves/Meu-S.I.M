@@ -8,12 +8,13 @@ import { LegalGuardianDetailResponseDto } from '../dto/legal-guardian-detail-res
 import { CreateLegalGuardianRequestDto } from '../dto/create-legal-guardian-request.dto';
 import { UpdateLegalGuardianRequestDto } from '../dto/update-legal-guardian-request.dto';
 import { UserChangePasswordRequestDto } from '../../user/dto/user-change-password-request.dto';
+import { PageResponse } from '../../../shared/models/page-response.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LegalGuardianApi {
-  private cacheViewSimple = new Map<string, Observable<LegalGuardianViewSimpleResponseDto[]>>();
+  private cacheViewSimple = new Map<string, Observable<PageResponse<LegalGuardianViewSimpleResponseDto>>>();
   private cacheDetail = new Map<string, Observable<LegalGuardianDetailResponseDto>>();
 
   constructor(
@@ -23,13 +24,13 @@ export class LegalGuardianApi {
     this.cacheReset.register(() => this.refreshAllCaches());
   }
 
-  findAll(name: string, page: number, size: number): Observable<LegalGuardianViewSimpleResponseDto[]> {
+  findAll(name: string, page: number, size: number): Observable<PageResponse<LegalGuardianViewSimpleResponseDto>> {
     const key: string = `${name}-${page}-${size}`;
 
     if (!this.cacheViewSimple.has(key)) {
-      const request$ = this.apiService.get<LegalGuardianViewSimpleResponseDto[]>(
+      const request$ = this.apiService.get<PageResponse<LegalGuardianViewSimpleResponseDto>>(
         `${ApiConfig.endpoints.legalGuardian.base}?name=${name}&page=${page}&size=${size}`
-      ).pipe(shareReplay(1)) as unknown as Observable<LegalGuardianViewSimpleResponseDto[]>
+      ).pipe(shareReplay(1)) as unknown as Observable<PageResponse<LegalGuardianViewSimpleResponseDto>>
       this.cacheViewSimple.set(key, request$);
     }
 

@@ -13,6 +13,9 @@ import { NoEmojiDirective } from '../../../../shared/directives/no-emoji.directi
 import { NoSpecialCharacteresDirective } from '../../../../shared/directives/no-special-characteres.directive';
 import { NumbersOnlyDirective } from '../../../../shared/directives/numbers-only.directive';
 import { PhoneOnlyDirective } from '../../../../shared/directives/phone-only.directive';
+import { UploadSvg } from '../../../../shared/components/svg/upload.svg';
+import { FileSvg } from '../../../../shared/components/svg/file.svg';
+import { TrashSvg } from '../../../../shared/components/svg/trash.svg';
 
 @Component({
   selector: 'app-create-legal-guardian',
@@ -20,6 +23,9 @@ import { PhoneOnlyDirective } from '../../../../shared/directives/phone-only.dir
     ReactiveFormsModule,
     ArrowLeftSvg,
     PhotoSvg,
+    UploadSvg,
+    FileSvg,
+    TrashSvg,
     SpinnerToButton,
     NoEmojiDirective,
     NoSpecialCharacteresDirective,
@@ -39,6 +45,7 @@ export class CreateLegalGuardian implements OnInit {
 
   selectedFiles: File[] = [];
   maxFiles: number = 5;
+  maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
   constructor(
     private fb: FormBuilder,
@@ -109,42 +116,35 @@ export class CreateLegalGuardian implements OnInit {
   }
 
   onFileSelected(event: Event): void {
-    const element = event.currentTarget as HTMLInputElement;
-    const files: FileList | null = element.files;
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.handleFiles(input.files);
+    }
+    input.value = ''; // Reseta o input
+  }
 
-    if (!files) return;
-
-    const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
-
+  handleFiles(files: FileList): void {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      const fileSizeInBytes: number = file.size;
-
-      if (fileSizeInBytes > maxSizeInBytes) {
-        this.notificationService.notify({
+      if (this.selectedFiles.length >= this.maxFiles) {
+        this.notificationService.notify({ 
           type: 'error',
-          text: `O arquivo selecionado é muito grande. Máximo permitido: 5MB.`
+          text: `Limite máximo de ${this.maxFiles} arquivos atingido.` 
+        });
+        break;
+      }
+
+      if (file.size > this.maxSizeInBytes) {
+        this.notificationService.notify({ 
+          type: 'error', 
+          text: `O arquivo selecionado é muito grande. Máximo permitido: 5MB.` 
         });
         continue;
       }
 
-      if (this.selectedFiles?.length >= this.maxFiles) {
-        this.notificationService.notify({
-          type: 'error',
-          text: 'Apenas é suportado o total de 5 arquivos.'
-        });
-        return;
-      }
-
-      this.selectedFiles.push(files[i]);
+      this.selectedFiles.push(file);
     }
-
-    if (element) {
-      element.value = '';
-    }
-
-    this.moveScroolToDown(this.container);
   }
 
   removeFile(index: number): void {
