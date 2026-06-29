@@ -11,6 +11,10 @@ import { subscriptionPaymentRoutes } from './features/subscriptionpayment/subscr
 import { collaboratorRoutes } from './features/collaborator/collaborator.routes';
 import { schoolAdminRoutes } from './features/schooladmin/schooladmin.routes';
 import { legalGuardianRoutes } from './features/legalguardian/legal-guardian.routes';
+import { subjectRoutes } from './features/subject/subject.routes';
+import { studentRoutes } from './features/student/student.routes';
+import { classroomRoutes } from './features/classroom/classroom.routes';
+import { configurationRoutes } from './features/configuration/configuration.routes';
 
 export const routes: Routes = [
     {
@@ -46,6 +50,21 @@ export const routes: Routes = [
             {
                 path: '',
                 canMatch: [roleGuard('school_admin')],
+                children: classroomRoutes
+            },
+            {
+                path: '',
+                canMatch: [roleGuard('school_admin')],
+                children: subjectRoutes
+            },
+            {
+                path: '',
+                canMatch: [roleGuard('school_admin')],
+                children: studentRoutes
+            },
+            {
+                path: '',
+                canMatch: [roleGuard('school_admin')],
                 children: collaboratorRoutes  
             },
             {
@@ -63,6 +82,11 @@ export const routes: Routes = [
                 canMatch: [roleGuard('school_admin', 'dfasdfasdcasdf')],
                 children: subscriptionRoutes
             },
+            {
+                path: '',
+                canMatch: [roleGuard('school_admin', 'collaborator', 'legal_guardian')],
+                children: configurationRoutes
+            }
         ]
     },
     {

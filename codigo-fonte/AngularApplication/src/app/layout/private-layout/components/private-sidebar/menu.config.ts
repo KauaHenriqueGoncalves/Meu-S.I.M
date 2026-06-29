@@ -17,9 +17,9 @@ export const MENU_CONFIG: Record<Role, MenuItem[]> = {
       icon: 'academic',
       expanded: false,
       children: [
-        { label: 'Turmas', route: '/classrooms' },
-        { label: 'Estudantes', route: '/students' },
-        { label: 'Disciplinas', route: '/subjects' },
+        { label: 'Turmas', route: '/app/classrooms' },
+        { label: 'Estudantes', route: '/app/students' },
+        { label: 'Disciplinas', route: '/app/subjects' },
       ]
     },
     {

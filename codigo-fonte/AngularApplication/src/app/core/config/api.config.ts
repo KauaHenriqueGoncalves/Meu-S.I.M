@@ -27,6 +27,9 @@ export class ApiConfig {
             base: '/school-plans',
             toClient: '/school-plans/to-client',
         },
+        subject: {
+            base: '/subjects'
+        },
         subscription: {
             base: '/school-subscriptions',
             active: '/school-subscriptions/active',

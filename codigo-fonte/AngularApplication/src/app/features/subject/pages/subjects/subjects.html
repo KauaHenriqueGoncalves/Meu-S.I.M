@@ -1,0 +1,154 @@
+<div class="list-container">
+    <div class="page-header">
+        <div class="title-row">
+            <div class="title-area">
+                <h1>Disciplinas</h1>
+                <p>Gerencie as matérias disponíveis para as turmas do reforço.</p>
+            </div>
+            <div class="action-right">
+                <button class="btn-primary-solid" (click)="openModal()">
+                    <app-svg-plus color="#fff" [size]="20" />
+                    <span>Nova Disciplina</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading) {
+        <div class="subject-grid">
+            @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="subject-card skeleton-loading">
+                <div class="card-body">
+                    <div class="sk-info">
+                        <div class="sk-item sk-title"></div>
+                    </div>
+                    <div class="sk-actions-row">
+                        <div class="sk-item sk-circle-btn"></div>
+                        <div class="sk-item sk-circle-btn"></div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    }
+    @else {
+        @if (subjects.length > 0) {
+            <div class="subject-grid">
+                @for (subject of subjects; track subject.id) {
+                    <div class="subject-card">
+                        <div class="card-body">
+                            <div class="info">
+                                <h3>{{ subject.name }}</h3>
+                            </div>
+                            <div class="actions-wrapper">
+                                <button class="btn-action-outline" (click)="openModal(subject)" title="Editar Disciplina">
+                                    <app-svg-edit color="currentColor" [size]="18" />
+                                </button>
+                                <button class="btn-action-outline btn-delete-action" (click)="openDeleteModal(subject.id)"
+                                    title="Excluir Disciplina">
+                                    <app-svg-trash color="#ef4444" [size]="20" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (totalPages > 1) {
+            <div class="pagination-container">
+                <button class="btn-page" [disabled]="currentPage === 0 || isPaginating" (click)="changePage(currentPage - 1)">
+                    @if (isPaginating) {
+                    <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                    } @else {
+                    Anterior
+                    }
+                </button>
+
+                <div class="page-info">
+                    <span class="numbers">
+                        Página <strong>{{ currentPage + 1 }}</strong> de {{ totalPages }}
+                    </span>
+                    <span class="total">({{ totalElements }} registros)</span>
+                </div>
+
+                <button class="btn-page" [disabled]="currentPage === totalPages - 1 || isPaginating"
+                    (click)="changePage(currentPage + 1)">
+                    @if (isPaginating) {
+                    <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                    } @else {
+                    Próximo
+                    }
+                </button>
+            </div>
+            }
+        }
+        @else {
+            <div class="empty-state">
+                <h3>Nenhuma disciplina encontrada</h3>
+                <p>Você ainda não cadastrou nenhuma disciplina.</p>
+            </div>
+        }
+    }
+</div>
+
+@if (isModalOpen) {
+    <div class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>{{ editingId ? 'Editar Disciplina' : 'Nova Disciplina' }}</h3>
+            </div>
+            <form [formGroup]="subjectForm" (ngSubmit)="onSaveSubject()">
+                <div class="modal-body">
+                    <div class="form-group" [class.has-error]="isFieldInvalid('name')">
+                        <label for="name">Nome da Disciplina *</label>
+                        <input id="name" type="text" formControlName="name" placeholder="Ex: Matemática, Português..."
+                            noEmoji>
+                        @if (subjectForm.get('name')?.hasError('minlength')) {
+                            <span class="error-text">Mínimo de 2 caracteres</span>
+                        }
+                        @if (subjectForm.get('name')?.hasError('maxlength')) {
+                            <span class="error-text">Máximo de 50 caracteres</span>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="closeModal()"
+                        [disabled]="isSubmitting">Cancelar</button>
+                    <button type="submit" class="btn-confirm-primary" [disabled]="subjectForm.invalid || isSubmitting || !isFormChanged">
+                        @if (isSubmitting) {
+                            <app-spinner-to-button color="#fff" [size]="18" />
+                        } @else {
+                            Salvar Alterações
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@if (isDeleteModalOpen) {
+<div class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 class="text-danger">Confirmar Exclusão</h3>
+        </div>
+        <div class="modal-body">
+            <p>Você tem certeza que deseja excluir esta disciplina permanentemente? Esta ação não poderá ser revertida.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="closeDeleteModal()" [disabled]="isSubmitting">
+                Cancelar
+            </button>
+            <button class="btn-confirm-danger" (click)="confirmDelete()" [disabled]="isSubmitting">
+                @if (isSubmitting) {
+                <app-spinner-to-button />
+                } @else {
+                Confirmar Exclusão
+                }
+            </button>
+        </div>
+    </div>
+</div>
+}

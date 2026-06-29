@@ -121,6 +121,7 @@ export class CreateLegalGuardian implements OnInit {
       this.handleFiles(input.files);
     }
     input.value = ''; // Reseta o input
+    this.moveScroolToDown(this.container);
   }
 
   handleFiles(files: FileList): void {
