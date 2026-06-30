@@ -19,6 +19,7 @@ import { UploadSvg } from '../../../../shared/components/svg/upload.svg';
 import { FileSvg } from '../../../../shared/components/svg/file.svg';
 import { TrashSvg } from '../../../../shared/components/svg/trash.svg';
 import { DownloadSvg } from '../../../../shared/components/svg/download.svg';
+import { Files } from '../../../../core/config/files-allow.config';
 
 @Component({
   selector: 'app-details-legal-guardian',
@@ -162,7 +163,7 @@ export class DetailsLegalGuardian implements OnInit {
 
   loadFiles(): void {
     this.isFilesLoading = true;
-    
+
     // MOCK: Simulando chamada na API
     setTimeout(() => {
       this.isFilesLoading = false;
@@ -308,9 +309,9 @@ export class DetailsLegalGuardian implements OnInit {
 
   onDownloadFile(file: any): void {
     // MOCK: Simulação de download.
-    this.notificationService.notify({ 
-      type: 'success', 
-      text: `Iniciando download de ${file.name}...` 
+    this.notificationService.notify({
+      type: 'success',
+      text: `Iniciando download de ${file.name}...`
     });
   }
 
@@ -338,9 +339,9 @@ export class DetailsLegalGuardian implements OnInit {
       this.uploadedFiles = [...this.uploadedFiles, ...newSavedFiles];
       this.selectedFiles = []; // Limpa fila
       this.isUploadingFiles = false;
-      this.notificationService.notify({ 
-        type: 'success', 
-        text: 'Arquivos enviados com sucesso!' 
+      this.notificationService.notify({
+        type: 'success',
+        text: 'Arquivos enviados com sucesso!'
       });
       this.cdr.detectChanges();
     }, 2000);
@@ -356,9 +357,9 @@ export class DetailsLegalGuardian implements OnInit {
     // MOCK: Simulando exclusão na API
     setTimeout(() => {
       this.uploadedFiles = this.uploadedFiles.filter(f => f.id !== fileId);
-      this.notificationService.notify({ 
-        type: 'success', 
-        text: 'Arquivo removido com sucesso.' 
+      this.notificationService.notify({
+        type: 'success',
+        text: 'Arquivo removido com sucesso.'
       });
       this.cdr.detectChanges();
     }, 1000);
@@ -372,18 +373,29 @@ export class DetailsLegalGuardian implements OnInit {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      if (this.selectedFiles.length + this.uploadedFiles.length >= this.maxFiles) {
-        this.notificationService.notify({ 
+      const fileArray = file.name.split('.');
+      const extension = fileArray[fileArray.length - 1];
+
+      if (!Files.allow.includes(extension)) {
+        this.notificationService.notify({
           type: 'error',
-          text: `Limite máximo de ${this.maxFiles} arquivos atingido.` 
+          text: `Extensão de arquivo .${extension.toUpperCase()} não é permitida.`
+        });
+        continue;
+      }
+
+      if (this.selectedFiles.length + this.uploadedFiles.length >= this.maxFiles) {
+        this.notificationService.notify({
+          type: 'error',
+          text: `Limite máximo de ${this.maxFiles} arquivos atingido.`
         });
         break;
       }
 
       if (file.size > this.maxSizeInBytes) {
-        this.notificationService.notify({ 
-          type: 'error', 
-          text: `O arquivo selecionado é muito grande. Máximo permitido: 5MB.` 
+        this.notificationService.notify({
+          type: 'error',
+          text: `O arquivo selecionado é muito grande. Máximo permitido: 5MB.`
         });
         continue;
       }

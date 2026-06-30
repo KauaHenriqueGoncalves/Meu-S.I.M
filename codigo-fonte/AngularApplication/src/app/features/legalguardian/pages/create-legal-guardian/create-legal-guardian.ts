@@ -16,6 +16,7 @@ import { PhoneOnlyDirective } from '../../../../shared/directives/phone-only.dir
 import { UploadSvg } from '../../../../shared/components/svg/upload.svg';
 import { FileSvg } from '../../../../shared/components/svg/file.svg';
 import { TrashSvg } from '../../../../shared/components/svg/trash.svg';
+import { Files } from '../../../../core/config/files-allow.config';
 
 @Component({
   selector: 'app-create-legal-guardian',
@@ -128,12 +129,23 @@ export class CreateLegalGuardian implements OnInit {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
+      const fileArray = file.name.split('.');
+      const extension = fileArray[fileArray.length - 1];
+
+      if (!Files.allow.includes(extension)) {
+        this.notificationService.notify({ 
+          type: 'error',
+          text: `Extensão de arquivo .${extension.toUpperCase()} não é permitida.` 
+        });
+        continue;
+      }
+
       if (this.selectedFiles.length >= this.maxFiles) {
         this.notificationService.notify({ 
           type: 'error',
           text: `Limite máximo de ${this.maxFiles} arquivos atingido.` 
         });
-        break;
+        continue;
       }
 
       if (file.size > this.maxSizeInBytes) {

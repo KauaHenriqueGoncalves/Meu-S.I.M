@@ -27,6 +27,10 @@ export class ApiConfig {
             base: '/school-plans',
             toClient: '/school-plans/to-client',
         },
+        student: {
+            base: '/students',
+            legalGuardian: '/students/legal-guardian'
+        },
         subject: {
             base: '/subjects'
         },

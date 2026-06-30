@@ -104,7 +104,7 @@
                 
                 <div class="card-body">
                     <div class="upload-zone" (click)="fileInput.click()" role="button" tabindex="0">
-                        <input #fileInput type="file" multiple accept=".pdf, image/jpeg, image/png" (change)="onFileSelected($event)" style="display: none;">
+                        <input #fileInput type="file" multiple accept=".pdf, .docx, image/jpeg, image/png" (change)="onFileSelected($event)" style="display: none;">
                         <div class="icon-wrapper">
                             <app-svg-upload color="var(--color-primary-700)" [size]="34" />
                         </div>
