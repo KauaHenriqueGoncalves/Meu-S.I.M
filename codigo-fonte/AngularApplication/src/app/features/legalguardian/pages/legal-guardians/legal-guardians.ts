@@ -90,7 +90,7 @@ export class LegalGuardians implements OnInit {
   changePage(page: number): void {
     if (page >= 0 && page < this.totalPages) {
       this.currentPage = page;
-      this.loadLegalGuardians()
+      this.loadLegalGuardians();
     }
   }
 

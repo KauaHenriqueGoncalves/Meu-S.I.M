@@ -1,0 +1,173 @@
+<div class="create-container" #container>
+    <div class="page-header">
+        <button class="btn-back" (click)="goBack()">        
+            <app-svg-arrow-left color="current" [size]="18" />
+            Voltar
+        </button>
+        <div class="title-area">
+            <h1>Novo Estudante</h1>
+            <p>Preencha os dados abaixo para matricular um novo aluno no reforço.</p>
+        </div>
+    </div>
+
+    <form [formGroup]="studentForm" (ngSubmit)="onSubmit()" class="form-layout">
+        <div class="main-column">
+            <div class="form-card">
+                <div class="card-header">
+                    <h2>Dados do Estudante</h2>
+                </div>
+                <div class="card-body">
+                    <div class="avatar-section">
+                        <div class="avatar-group">
+                            <div class="avatar-placeholder">
+                                <span class="icon">
+                                    <app-svg-photo color="#c2c2c2" [size]="30" />
+                                </span>
+                            </div>
+                            <div class="avatar-info">
+                                <span class="label">Foto de Perfil</span>
+                                <span class="hint">Adição de imagem disponível em breve.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="inputs-grid-fluid">
+                        <div class="form-group span-2" [class.has-error]="isFieldInvalid('name')">
+                            <label for="name">Nome Completo *</label>
+                            <input type="text" id="name" formControlName="name" placeholder="Nome do aluno" noEmoji noSpecialCharacteres>
+                            @if (studentForm.get('name')?.hasError('minlength')) { 
+                                <span class="error-text">Mínimo de 3 caracteres</span> 
+                            }
+                            @if (studentForm.get('name')?.hasError('maxlength')) { 
+                                <span class="error-text">Máximo de 100 caracteres</span> 
+                            }
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid('dateOfBirth')">
+                            <label for="dateOfBirth">Data de Nascimento *</label>
+                            <input type="date" id="dateOfBirth" lang="pt-BR" formControlName="dateOfBirth" [min]="minDate" [max]="maxDate">
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid('grade')">
+                            <label for="grade">Série / Ano Escolar *</label>
+                            <input type="text" id="grade" formControlName="grade" placeholder="Ex: 6º Ano Fundamental" noEmoji>
+                            @if (studentForm.get('grade')?.hasError('minlength')) { 
+                                <span class="error-text">Mínimo de 1 caracteres</span> 
+                            }
+                            @if (studentForm.get('grade')?.hasError('maxlength')) { 
+                                <span class="error-text">Máximo de 20 caracteres</span> 
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card documentation-card">
+                <div class="card-header">
+                    <h2>Documentação do Responsável</h2>
+                </div>
+                
+                <div class="card-body">
+                    <div class="upload-zone" (click)="fileInput.click()" role="button" tabindex="0">
+                        <input #fileInput type="file" multiple accept=".pdf, .docx, image/jpeg, image/png" (change)="onFileSelected($event)" style="display: none;">
+                        <div class="icon-wrapper">
+                            <app-svg-upload color="var(--color-primary-700)" [size]="34" />
+                        </div>
+                        <div class="placeholder-text">
+                            <span class="main-hint">Clique aqui para selecionar os arquivos</span>
+                            <span class="sub-hint">Formatos suportados: PDF, PNG, JPG</span>
+                            <span class="badge-soon">O envio será habilitado nas próximas atualizações</span>
+                        </div>
+                    </div>
+
+                    @if (selectedFiles.length > 0) {
+                        <div class="files-list">
+                            <h4>Arquivos Selecionados ({{ selectedFiles.length }}/{{ maxFiles }}).</h4>
+                            
+                            @for (file of selectedFiles; track $index) {
+                                <div class="file-item">
+                                    <div class="file-info">
+                                        <div class="file-icon">
+                                            <app-svg-file color="#94a3b8" [size]="22" />
+                                        </div>
+                                        <div class="file-details">
+                                            <span class="file-name" [title]="file.name">{{ file.name }}</span>
+                                            <span class="file-size">{{ formatBytes(file.size) }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="button" class="btn-remove" (click)="removeFile($index)" title="Remover arquivo">
+                                        <app-svg-trash color="#ef4444" [size]="20" />
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="side-column"> 
+            <div class="form-card">
+                <div class="card-header">
+                    <h2>Vínculo Familiar</h2>
+                </div>
+                <div class="card-body">
+                    <p class="section-desc">Selecione o Responsável Legal associado a este estudante.</p>
+                    <div class="form-group" [class.has-error]="isFieldInvalid('legalGuardianId')">
+                        <label>Responsável *</label>                
+                        @if (!selectedGuardian) {
+                            <div class="search-dropdown-container">
+                                <input type="text" placeholder="Buscar por nome (escreva as iniciais)..." (input)="onSearchGuardianInput($event)">
+                                
+                                @if (isSearchingGuardian) {
+                                    <div class="search-indicator">Buscando...</div>
+                                }
+
+                                @if (suggestedGuardians.length > 0) {
+                                    <ul class="dropdown-list">
+                                        @for (g of suggestedGuardians; track g.id) {
+                                            <li class="dropdown-item" (click)="selectGuardian(g)">
+                                                <div class="g-name">{{ g.username }}</div>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        } 
+                        @else {
+                            <div class="selected-chip">
+                                <div class="chip-info">
+                                    <div class="chip-avatar">{{ selectedGuardian.username.charAt(0).toUpperCase() }}</div>
+                                    <span class="chip-name">{{ selectedGuardian.username }}</span>
+                                </div>
+                                <button type="button" class="btn-clear" (click)="clearGuardianSelection()" title="Remover">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
+                            </div>
+                        }
+
+                        @if (isFieldInvalid('legalGuardianId')) { 
+                            <span class="error-text">É necessário selecionar um responsável.</span> 
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-card">
+                <p class="actions-hint">Revise os dados antes de confirmar a matrícula do estudante.</p>
+                <div class="buttons-row">
+                    <button type="button" class="btn-cancel" (click)="goBack()" [disabled]="isSubmitting">Cancelar</button>
+                    <button type="submit" class="btn-submit" [disabled]="studentForm.invalid || isSubmitting">
+                        @if (isSubmitting) { 
+                            <app-spinner-to-button /> 
+                        } 
+                        @else { 
+                            Salvar Estudante 
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
