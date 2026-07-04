@@ -43,7 +43,6 @@ export class CreateStudent implements OnInit {
   selectedFiles: File[] = [];
   maxFiles = 5;
   maxSizeInBytes = 5 * 1024 * 1024; // 5MB
-  isDragging = false;
 
   searchGuardianSubject = new Subject<string>();
   suggestedGuardians: LegalGuardianViewSimpleResponseDto[] = [];

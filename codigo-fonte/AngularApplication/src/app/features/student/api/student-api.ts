@@ -87,6 +87,10 @@ export class StudentApi {
     ) as Observable<any>;
   }
 
+  cleanCacheDetail(): void {
+    this.cacheDetail.clear();
+  }
+
   refreshCaches(): void {
     this.cachePage.clear();
     this.cacheDetail.clear();

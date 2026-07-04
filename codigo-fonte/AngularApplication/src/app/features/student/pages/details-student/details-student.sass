@@ -162,6 +162,32 @@
     font-weight: 500
     margin-top: 0.2rem
 
+.btn-submit, .btn-secondary
+    height: 48px
+    border-radius: 8px
+    font-weight: 600
+    font-size: 1rem
+    cursor: pointer
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 100%
+
+.btn-submit
+    background: var(--color-primary-600)
+    border: none
+    color: #fff
+
+    &:hover:not(:disabled)
+        background: var(--color-primary-700)
+
+    &:active
+        transform: scale(.99)
+
+    &:disabled
+        background: #a3aab4
+        cursor: not-allowed
+
 // --- AUTOCOMPLETE: RESPONSÁVEL LEGAL ---
 .search-dropdown-container
     position: relative
@@ -208,7 +234,7 @@
                 font-size: 0.9rem
                 font-weight: 500
                 color: var(--text-333, #1f2937)
-
+ 
 .selected-chip
     display: flex
     align-items: center
@@ -244,6 +270,10 @@
         white-space: nowrap
         overflow: hidden
         text-overflow: ellipsis
+        cursor: pointer
+
+        &:hover
+            text-decoration: underline
 
     .btn-clear
         background: transparent
@@ -259,6 +289,12 @@
 
         &:hover
             background: #fef2f2
+
+.mt-2
+    margin-top: 1rem
+
+.mt-3
+    margin-top: 1.5rem
 
 .upload-zone
     border: 2px dashed var(--border-color, #cbd5e1)
@@ -277,7 +313,7 @@
     &:hover
         background: #f1f5f9
         border-color: var(--color-primary-600)
-        
+
         .icon-wrapper
             color: var(--color-primary-600)
 
@@ -309,71 +345,90 @@
             background: rgba(22, 163, 74, 0.08)
             border-radius: 20px
 
-.files-list
+.list-title
+    margin: 0 0 0.5rem 0
+    font-size: 0.9rem
+    color: var(--text-666, #4b5563)
+    font-weight: 600
+
+.empty-text
+    margin: 0 0 0.5rem 0
+    font-size: 0.9rem
+    color: var(--text-666, #64748b)
+    font-style: italic
+
+.file-list
     margin-top: 2rem
     display: flex
     flex-direction: column
     gap: 0.75rem
 
-    h4
-        margin: 0 0 0.5rem 0
-        font-size: 0.9rem
-        color: var(--text-666, #4b5563)
-        font-weight: 600
+.file-item
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.75rem 1rem
+    border: 1px solid var(--border-color, #e2e8f0)
+    border-radius: 8px
+    background: #fff
 
-    .file-item
+    &.new-file
+        background: #f0fdf4
+        border-color: #bbf7d0
+
+    .file-info
         display: flex
         align-items: center
-        justify-content: space-between
-        padding: 0.75rem 1rem
-        border: 1px solid var(--border-color, #e5e7eb)
-        border-radius: 8px
-        background: #fff
-        animation: fadeIn 0.3s ease-out
+        gap: 1rem
+        overflow: hidden
 
-        .file-info
-            display: flex
-            align-items: center
-            gap: 1rem
-            overflow: hidden
+    .file-icon
+        display: flex
+        align-items: center
 
-            .file-icon
-                display: flex
-                align-items: center
+    .file-details
+        display: flex
+        flex-direction: column
+        overflow: hidden
+        flex: 1
 
-            .file-details
-                display: flex
-                flex-direction: column
-                overflow: hidden
-                
-                .file-name
-                    font-size: 0.9rem
-                    font-weight: 500
-                    color: var(--text-333, #1f2937)
-                    white-space: nowrap
-                    overflow: hidden
-                    text-overflow: ellipsis
-                    max-width: 250px
+    .file-name
+        font-size: 0.9rem
+        font-weight: 500
+        color: var(--text-333, #1e293b)
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+        max-width: 250px
 
-                .file-size
-                    font-size: 0.8rem
-                    color: #9ca3af
+    .file-size
+        font-size: 0.8rem
+        color: #9ca3af
 
-        .btn-remove
-            background: transparent
-            padding: 0.4rem
-            cursor: pointer
-            border-radius: 6px
-            display: flex
-            align-items: center
-            justify-content: center
-            transition: background 0.2s ease
+    .file-actions
+        display: flex
+        align-items: center
+        gap: 0.5rem   
 
-            &:hover
-                background: #fef2f2
-            
-            &:active
-                transform: scale(.94)
+.btn-icon
+    background: transparent
+    padding: 0.4rem
+    cursor: pointer
+    border-radius: 6px
+    display: flex
+    align-items: center
+    justify-content: center
+    transition: background 0.2s ease
+
+    &:active
+        transform: scale(.94)
+
+    &:hover:not(:disabled)
+        background: var(--bg-light, #f1f5f9)
+
+    &:disabled
+        opacity: 0.5
+        cursor: not-allowed
 
 .actions-card
     background: var(--bg-light, #f9fafb)
@@ -433,6 +488,64 @@
             box-shadow: none
             cursor: not-allowed
 
+.skeleton-shimmer
+    background: linear-gradient(90deg, #e3e4e6 25%, #d6d7da 50%, #f3f4f6 75%)
+    background-size: 200% 100%
+    animation: shimmer 1.5s infinite ease-in-out
+    border-radius: 6px
+
+.skeleton-card
+    border-color: #e5e7eb !important
+    box-shadow: none !important
+
+.skeleton-title
+    width: 180px
+    height: 1.25rem
+
+.skeleton-toggle-box
+    width: 70px
+    height: 1.5rem
+    border-radius: 12px
+
+.skeleton-avatar
+    width: 80px
+    height: 80px
+    border-radius: 50%
+
+.skeleton-info-block
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    flex: 1
+
+.skeleton-text-sm
+    width: 100px
+    height: 0.85rem
+
+.skeleton-text-lg
+    width: 220px
+    height: 1.1rem
+
+.skeleton-label
+    width: 90px
+    height: 0.85rem
+    margin-bottom: 0.25rem
+
+.skeleton-input
+    height: 44px
+    width: 100%
+    border-radius: 8px
+
+.skeleton-upload-area
+    height: 120px
+    border-radius: 8px
+    width: 100%
+
+.skeleton-file-item
+    height: 60px
+    border-radius: 8px
+    width: 100%
+
 @keyframes fadeIn
     from 
         opacity: 0 
@@ -440,6 +553,12 @@
     to 
         opacity: 1
         transform: translateY(0)
+
+@keyframes shimmer
+    0%
+        background-position: -200% 0
+    100%
+        background-position: 200% 0
 
 @media (max-width: 1024px)
     .form-layout

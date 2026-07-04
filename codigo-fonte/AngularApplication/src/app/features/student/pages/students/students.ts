@@ -97,11 +97,10 @@ export class Students implements OnInit {
   }
 
   goToDetails(id: string): void {
-    console.log(`Navigating to details page for student with ID: ${id}`);
-    // this.router.navigate(
-    //   ['/app/details-legal-guardian'], 
-    //   { state: { id } }
-    // );
+    this.router.navigate(
+      ['/app/details-student'], 
+      { state: { id } }
+    );
   }
 
   getInitials(name: string): string {

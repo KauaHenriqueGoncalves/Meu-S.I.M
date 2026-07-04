@@ -118,7 +118,7 @@
                         <label>Responsável *</label>                
                         @if (!selectedGuardian) {
                             <div class="search-dropdown-container">
-                                <input type="text" placeholder="Buscar por nome (escreva as iniciais)..." (input)="onSearchGuardianInput($event)">
+                                <input type="text" placeholder="Buscar por nome (escreva as iniciais)..." (input)="onSearchGuardianInput($event)" noEmoji>
                                 
                                 @if (isSearchingGuardian) {
                                     <div class="search-indicator">Buscando...</div>

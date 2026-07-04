@@ -1,6 +1,8 @@
 package com.system.application.modules.identity.legalguardian.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.system.application.modules.academic.student.dto.StudentResponse;
+import com.system.application.modules.academic.student.service.StudentQuery;
 import com.system.application.modules.identity.legalguardian.LegalGuardian;
 import com.system.application.modules.identity.legalguardian.dto.*;
 import com.system.application.modules.identity.legalguardian.repository.LegalGuardianRepository;
@@ -30,6 +32,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,6 +43,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
             LoggerFactory.getLogger(LegalGuardianServiceImpl.class);
 
     private final LegalGuardianRepository legalGuardianRepository;
+    private final StudentQuery studentQuery;
     private final SchoolSubscriptionService schoolSubscriptionService;
     private final UserService userService;
     private final SchoolService schoolService;
@@ -49,6 +54,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
     public LegalGuardianServiceImpl(
             LegalGuardianRepository legalGuardianRepository,
+            StudentQuery studentQuery,
             SchoolSubscriptionService schoolSubscriptionService,
             UserService userService,
             SchoolService schoolService,
@@ -56,6 +62,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
             CacheService cacheService
     ) {
         this.legalGuardianRepository = legalGuardianRepository;
+        this.studentQuery = studentQuery;
         this.schoolSubscriptionService = schoolSubscriptionService;
         this.userService = userService;
         this.schoolService = schoolService;
@@ -187,14 +194,21 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
         log.info("Responsável atualizado com sucesso. [legalGuardianId={}] [schoolId={}]",
                 legalGuardianId, schoolId);
 
+        List<StudentResponse> studentsByLegalGuardian =
+                this.studentQuery.findAllStudentByLegalGuardianId(legalGuardian.getId());
+
         String keySchool = CacheKeys.legalGuardianPattern(schoolId);
         String keyUser = CacheKeys.legalGuardianPattern(legalGuardianId);
+        List<String> keysByStudent = studentsByLegalGuardian.stream()
+                .map(s -> CacheKeys.student(s.id(), "detailResponse"))
+                .toList();
 
         log.info("Apagando todos os cache de Responsáveis ligado à escola. [keySchool={}] [keyUser={}]",
                 keySchool,  keyUser);
 
         cacheService.evictByPattern(keySchool);
         cacheService.evictByPattern(keyUser);
+        keysByStudent.forEach(cacheService::delete);
     }
 
     @Override

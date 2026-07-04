@@ -9,6 +9,7 @@ import { CreateLegalGuardianRequestDto } from '../dto/create-legal-guardian-requ
 import { UpdateLegalGuardianRequestDto } from '../dto/update-legal-guardian-request.dto';
 import { UserChangePasswordRequestDto } from '../../user/dto/user-change-password-request.dto';
 import { PageResponse } from '../../../shared/models/page-response.model';
+import { StudentApi } from '../../student/api/student-api';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,7 @@ export class LegalGuardianApi {
 
   constructor(
     private apiService: ApiService,
+    private studentApi: StudentApi,
     private cacheReset: CacheResetService
   ) {
     this.cacheReset.register(() => this.refreshAllCaches());
@@ -60,6 +62,7 @@ export class LegalGuardianApi {
 
   update(id: string, data: UpdateLegalGuardianRequestDto): Observable<any> {
     this.refreshAllCaches();
+    this.studentApi.cleanCacheDetail();
     return this.apiService.put(
       `${ApiConfig.endpoints.legalGuardian.base}/${id}`,
       data
@@ -80,6 +83,10 @@ export class LegalGuardianApi {
     return this.apiService.delete(
       `${ApiConfig.endpoints.legalGuardian.base}/${id}`
     ) as Observable<any>;
+  }
+
+  cleanViewSimpleCache(): void {
+    this.cacheViewSimple.clear();
   }
 
   refreshAllCaches(): void {
