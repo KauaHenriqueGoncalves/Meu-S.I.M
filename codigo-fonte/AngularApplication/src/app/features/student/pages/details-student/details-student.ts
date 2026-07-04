@@ -17,6 +17,7 @@ import { TrashSvg } from '../../../../shared/components/svg/trash.svg';
 import { SpinnerToButton } from '../../../../shared/components/spinner-to-button/spinner-to-button';
 import { UpdateStudentRequestDto } from '../../dto/update-student-request.dto';
 import { DownloadSvg } from '../../../../shared/components/svg/download.svg';
+import { CancelSvg } from '../../../../shared/components/svg/cancel.svg';
 
 @Component({
   selector: 'app-details-student',
@@ -25,6 +26,7 @@ import { DownloadSvg } from '../../../../shared/components/svg/download.svg';
     SpinnerToButton,
     ArrowLeftSvg,
     PhotoSvg,
+    CancelSvg,
     UploadSvg,
     FileSvg,
     DownloadSvg,
@@ -188,7 +190,7 @@ export class DetailsStudent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/app/students']);
+    window.history.back();
   }
 
   goToLegalGuardianDetails(): void {
@@ -266,7 +268,29 @@ export class DetailsStudent implements OnInit {
   }
 
   onDeleteStudent(): void {
-    console.log('Delete student clicked');
+    this.isDeleting = true;
+    this.studentApi.deleteById(this.studentId)
+    .pipe(
+        finalize(() => {
+          this.isDeleting = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.notify({
+            type: 'success',
+            text: 'Estudante excluído com sucesso!'
+          });
+          this.router.navigate(['/app/students']);
+        },
+        error: (err) => {
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro ao excluir o estudante. Por favor, tente novamente mais tarde.'
+          });
+        }
+      });
   }
 
   onDownloadFile(file: any): void {
@@ -318,6 +342,7 @@ export class DetailsStudent implements OnInit {
       this.cdr.detectChanges();
     }, 1000);
   }
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) {

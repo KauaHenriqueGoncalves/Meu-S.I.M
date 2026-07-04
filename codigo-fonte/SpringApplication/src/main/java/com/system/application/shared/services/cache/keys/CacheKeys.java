@@ -60,6 +60,14 @@ public final class CacheKeys {
         return "student::" + id.toString() + "::" + suffix;
     }
 
+    public static String student(UUID schoolId, UUID id, String suffix) {
+        return "student::" + schoolId.toString() + "::" + id.toString() + "::" + suffix;
+    }
+
+    public static String studentPatternByLegalGuardian(UUID schoolId) {
+        return "student::" + schoolId.toString() + "::*::byLegalGuardian";
+    }
+
     public static String student(UUID id, int page, int size, String name) {
         return "student::" +
                 id.toString() + "::" +

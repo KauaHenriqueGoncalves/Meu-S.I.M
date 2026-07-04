@@ -147,7 +147,8 @@ export class SubscriptionDetail implements OnInit {
   canReactitvate(): boolean {
     if (!this.detail) return false;
     const isCanceled = this.detail.subscriptionStatus === SubscriptionStatus.CANCELED;
-    if (!isCanceled) return false;
+    const isFailed = this.detail.paymentStatus === PaymentStatus.FAILED;
+    if (!isCanceled || isFailed) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const start = new Date(this.detail.startDate);

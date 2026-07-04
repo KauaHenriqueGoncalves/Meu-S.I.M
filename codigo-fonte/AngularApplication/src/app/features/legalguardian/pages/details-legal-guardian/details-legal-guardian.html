@@ -65,6 +65,15 @@
             <div class="side-column">
                 <div class="form-card skeleton-card">
                     <div class="card-header">
+                        <div class="skeleton-shimmer skeleton-title" style="width: 60%"></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="skeleton-shimmer skeleton-student-item"></div>
+                        <div class="skeleton-shimmer skeleton-student-item mt-2"></div>
+                    </div>
+                </div>
+                <div class="form-card skeleton-card">
+                    <div class="card-header">
                         <div class="skeleton-shimmer skeleton-title"></div>
                     </div>
                     <div class="card-body">
@@ -269,6 +278,46 @@
             </div>
 
             <div class="side-column">
+                <div class="form-card">
+                    <div class="card-header">
+                        <h2>Estudantes Vinculados</h2>
+                    </div>
+                    <div class="card-body">
+                        @if (isStudentsLoading) {
+                            <div class="skeleton-shimmer skeleton-student-item"></div>
+                            <div class="skeleton-shimmer skeleton-student-item mt-2"></div>
+                        } 
+                        @else if (students.length === 0) {
+                            <div class="empty-students-state">
+                                <div class="icon-box">
+                                    <app-svg-file color="#94a3b8" [size]="28" />
+                                </div>
+                                <p class="empty-text">Nenhum estudante vinculado a este responsável.</p>
+                            </div>
+                        }
+                        @else {
+                            <div class="student-list">
+                                @for (student of students; track student.id) {
+                                    <a (click)="goToStudents(student.id)" class="student-item-link">
+                                        <div class="student-info">
+                                            <div class="student-avatar-mini">
+                                                {{ student.name.charAt(0).toUpperCase() }}
+                                            </div>
+                                            <div class="student-details">
+                                                <span class="student-name">{{ student.name }}</span>
+                                                <span class="student-sub">{{ student.grade }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="arrow-icon">
+                                            <app-svg-angle-down color="currentColor" [size]="18"/>
+                                        </span>
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
                 <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="form-card">
                     <div class="card-header">
                         <h2>Segurança e Acesso</h2>

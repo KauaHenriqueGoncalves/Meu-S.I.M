@@ -8,6 +8,7 @@ import { PageResponse } from '../../../shared/models/page-response.model';
 import { StudentResponseDto } from '../dto/student-response.dto';
 import { ApiConfig } from '../../../core/config/api.config';
 import { StudentDetailRequestDto } from '../dto/student-detail-request.dto';
+import { LegalGuardianApi } from '../../legalguardian/api/legal-guardian-api';
 
 @Injectable({
   providedIn: 'root',
@@ -73,6 +74,7 @@ export class StudentApi {
 
   update(id: string, data: UpdateStudentRequestDto): Observable<any> {
     this.refreshCaches();
+    LegalGuardianApi.getInstance().cleanDetailCache();
     return this.apiService.put<UpdateStudentRequestDto>(
       `${ApiConfig.endpoints.student.base}/${id}`,
       data
@@ -97,3 +99,5 @@ export class StudentApi {
     this.cacheLegalGuardian.clear();
   }
 }
+
+

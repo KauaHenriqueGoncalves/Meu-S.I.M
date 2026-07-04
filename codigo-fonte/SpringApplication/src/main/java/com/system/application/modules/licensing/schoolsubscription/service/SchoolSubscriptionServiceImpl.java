@@ -399,8 +399,10 @@ public class SchoolSubscriptionServiceImpl implements SchoolSubscriptionService 
 
         School school = schoolService.findByUserId(userId);
         SchoolSubscription subscription = findById(schoolSubscriptionId);
+        SchoolPlan schoolPlan = schoolPlanService.findById(subscription.getSchoolPlan().getId());
         ensureSubscriptionBelongsToSchool(school, subscription);
         ensureSchoolCanSubscribe(school.getId());
+        ensureSchoolFitsPlanLimits(school, schoolPlan);
 
         if (LocalDate.now().isAfter(subscription.getEndDate())) {
             log.warn("Licenca fora do prazo de ativacao. [schoolSubscriptionId={}] [now={}] [endDate={}]",

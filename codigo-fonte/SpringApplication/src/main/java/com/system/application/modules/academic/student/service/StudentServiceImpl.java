@@ -65,6 +65,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Transactional
     public PageResponse<StudentResponse> findAllResponseBySchool(UUID userId, String name, int page, int size) {
         School school = schoolService.findByUserId(userId);
 
@@ -110,7 +111,7 @@ public class StudentServiceImpl implements StudentService {
 
         ensureLegalGuardianBelongsToUserSchool(school.getId(), legalGuardian);
 
-        String key = CacheKeys.student(legalGuardianId, "byLegalGuardian");
+        String key = CacheKeys.student(school.getId(), legalGuardianId, "byLegalGuardian");
 
         Optional<List<StudentResponse>> cacheResponse = cacheService.get(key, new TypeReference<>(){});
 
@@ -237,12 +238,14 @@ public class StudentServiceImpl implements StudentService {
 
         String keySchool = CacheKeys.studentPattern(school.getId());
         String keyUser = CacheKeys.studentPattern(student.getId());
+        String keyByLegalGuardian = CacheKeys.studentPatternByLegalGuardian(school.getId());
 
         log.info("Apagando todos os cache de student ligado à escola. [keySchool={}] [keyUser={}]",
                 keySchool, keyUser);
 
         cacheService.evictByPattern(keySchool);
         cacheService.evictByPattern(keyUser);
+        cacheService.evictByPattern(keyByLegalGuardian);
     }
 
     @Override

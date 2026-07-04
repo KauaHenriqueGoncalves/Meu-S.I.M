@@ -17,6 +17,7 @@ import { Files } from '../../../../core/config/files-allow.config';
 import { UploadSvg } from '../../../../shared/components/svg/upload.svg';
 import { FileSvg } from '../../../../shared/components/svg/file.svg';
 import { TrashSvg } from '../../../../shared/components/svg/trash.svg';
+import { CancelSvg } from '../../../../shared/components/svg/cancel.svg';
 
 @Component({
   selector: 'app-create-student',
@@ -27,6 +28,7 @@ import { TrashSvg } from '../../../../shared/components/svg/trash.svg';
     UploadSvg,
     FileSvg,
     TrashSvg,
+    CancelSvg,
     SpinnerToButton,
     NoEmojiDirective,
     NoSpecialCharacteresDirective

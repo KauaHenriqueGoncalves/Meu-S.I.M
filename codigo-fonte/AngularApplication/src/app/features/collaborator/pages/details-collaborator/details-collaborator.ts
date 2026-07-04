@@ -180,7 +180,7 @@ export class DetailsCollaborator implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/app/collaborators']);
+    window.history.back();
   }
 
   onUpdateDetails(): void {

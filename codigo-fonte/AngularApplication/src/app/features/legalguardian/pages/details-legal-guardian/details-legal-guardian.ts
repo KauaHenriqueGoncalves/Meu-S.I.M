@@ -20,6 +20,9 @@ import { FileSvg } from '../../../../shared/components/svg/file.svg';
 import { TrashSvg } from '../../../../shared/components/svg/trash.svg';
 import { DownloadSvg } from '../../../../shared/components/svg/download.svg';
 import { Files } from '../../../../core/config/files-allow.config';
+import { StudentApi } from '../../../student/api/student-api';
+import { StudentResponseDto } from '../../../student/dto/student-response.dto';
+import { AngleDownSvg } from '../../../../shared/components/svg/angle-down.svg';
 
 @Component({
   selector: 'app-details-legal-guardian',
@@ -31,6 +34,7 @@ import { Files } from '../../../../core/config/files-allow.config';
     NumbersOnlyDirective,
     ArrowLeftSvg,
     PhotoSvg,
+    AngleDownSvg,
     SpinnerToButton,
     WhatsappSvg,
     UploadSvg,
@@ -63,11 +67,15 @@ export class DetailsLegalGuardian implements OnInit {
   maxFiles: number = 5;
   maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
+  students: StudentResponseDto[] = [];
+  isStudentsLoading = false;
+
   showDeleteModal = false;
 
   constructor(
     private fb: FormBuilder,
     private legalGuardianApi: LegalGuardianApi,
+    private studentApi: StudentApi,
     private router: Router,
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef
@@ -88,6 +96,7 @@ export class DetailsLegalGuardian implements OnInit {
     this.initForm();
     this.loadLegalGuardian();
     this.loadFiles();
+    this.loadStudents();
   }
 
   get isFormChanged(): boolean {
@@ -171,6 +180,26 @@ export class DetailsLegalGuardian implements OnInit {
     }, 1500);
   }
 
+  loadStudents(): void {
+    this.isStudentsLoading = true;
+    this.studentApi.findByLegalGuardian(this.legalGuardianId)
+      .subscribe({
+        next: (data: StudentResponseDto[]) => {
+          this.students = data;
+          this.isStudentsLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro ao carregar estudantes.'
+          });
+          this.isStudentsLoading = false;
+          this.cdr.detectChanges();
+        } 
+      });
+  }
+
   openWhatsApp(): void {
     if (!this.currentPhone) {
       this.notificationService.notify({
@@ -190,7 +219,21 @@ export class DetailsLegalGuardian implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/app/legal-guardians']);
+    window.history.back();
+  }
+
+  goToStudents(id: string): void {
+    if (!id) {
+      this.notificationService.notify({
+        type: 'warning',
+        text: 'Nenhum estudante selecionado.'
+      });
+      return;
+    }
+
+    this.router.navigate(['/app/details-student'],
+      { state: { id: id } }
+    );
   }
 
   onUpdateDetails(): void {
@@ -299,9 +342,13 @@ export class DetailsLegalGuardian implements OnInit {
           this.router.navigate(['/app/legal-guardians']);
         },
         error: (err) => {
+          let message: string = err.error?.message || 'Erro ao excluir o responsável.';
+          if (err.status === 409) {
+            message = 'Não é possível excluir o responsável pois ele está associado a um estudante.';
+          }
           this.notificationService.notify({
             type: 'error',
-            text: err.error?.message || 'Erro ao excluir o responsável.'
+            text: message
           });
         }
       });
