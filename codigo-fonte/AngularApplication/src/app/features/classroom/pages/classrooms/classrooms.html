@@ -1,1 +1,100 @@
-<p>classrooms works!</p>
+<div class="list-container">
+    <div class="page-header">
+        <div class="title-row">
+            <div class="title-area">
+                <h1>Turmas</h1>
+                <p>Gerencie as turmas, disciplinas e horários do seu reforço escolar.</p>
+            </div>
+            <div class="action-right">
+                <button class="btn-primary-solid" (click)="goToCreate()">
+                    <app-svg-plus color="#ecfdf5" [size]="20"/>
+                    <span>Nova Turma</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading) {
+        <div class="classroom-grid">
+            @for (i of [1,2,3,4,5,6]; track i) {
+                <div class="course-card skeleton-loading">
+                    <div class="card-body">
+                        <div class="sk-item sk-tag"></div>
+                        <div class="sk-item sk-title"></div>
+                        <div class="sk-item sk-type"></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="sk-item sk-btn"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    @else {
+        @if (classrooms.length > 0) {
+            <div class="classroom-grid">
+                @for (classroom of classrooms; track classroom.id) {
+                    <div class="course-card">
+                        <div class="card-body">
+                            <div class="subject-tag">
+                                <span>{{ classroom.subjectName }}</span>
+                            </div>
+                            
+                            <h3 class="course-name" [title]="classroom.name">
+                                {{ classroom.name }}
+                            </h3>
+                            
+                            <div class="course-type">
+                                <app-svg-book color="#9ca3af" [size]="16"/>
+                                <span>{{ classroom.classTypeName }}</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-outline-secondary" (click)="goToDetails(classroom.id)">
+                                Ver Detalhes
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (totalPages > 1) {
+                <div class="pagination-container">
+                    <button class="btn-page" [disabled]="currentPage === 0 || isPaginating" (click)="changePage(currentPage - 1)">
+                        @if (isPaginating) {
+                            <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                        } @else {
+                            Anterior
+                        }
+                    </button>
+                    
+                    <div class="page-info">
+                        <span class="numbers">
+                            Página <strong>{{ currentPage + 1 }}</strong> de {{ totalPages }}
+                        </span>
+                        <span class="total">({{ totalElements }} registros)</span>
+                    </div>
+
+                    <button class="btn-page" [disabled]="currentPage === totalPages - 1 || isPaginating" (click)="changePage(currentPage + 1)">
+                        @if (isPaginating) {
+                            <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                        } @else {
+                            Próximo
+                        }
+                    </button>
+                </div>
+            }
+        }
+        @else {
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--border-color, #cbd5e1)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+                    <path d="M8 7h6"></path>
+                    <path d="M8 11h8"></path>
+                </svg>
+                <h3>Nenhuma Turma encontrada</h3>
+                <p>Você ainda não cadastrou nenhuma Turma ou a busca não retornou resultados.</p>
+            </div>
+        }
+    }
+</div>

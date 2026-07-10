@@ -18,19 +18,6 @@ export class LegalGuardianApi {
   private cacheViewSimple = new Map<string, Observable<PageResponse<LegalGuardianViewSimpleResponseDto>>>();
   private cacheDetail = new Map<string, Observable<LegalGuardianDetailResponseDto>>();
 
-  private static instance: LegalGuardianApi;
-
-  public static getInstance(): LegalGuardianApi {
-    if (!this.instance) {
-      this.instance = new LegalGuardianApi(
-        new ApiService(null as any), 
-        new StudentApi(new ApiService(null as any), new CacheResetService()), 
-        new CacheResetService()
-      );
-    }
-    return this.instance;
-  }
-
   constructor(
     private apiService: ApiService,
     private studentApi: StudentApi,

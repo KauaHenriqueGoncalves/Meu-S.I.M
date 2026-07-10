@@ -23,6 +23,15 @@ export class ApiConfig {
             base: '/billing-discounts',
             toClient: '/billing-discounts/to-client',
         },
+        classroom: {
+            base: '/classrooms',
+            byStudent: '/classrooms/student',
+            addStudent: '/classrooms/{id}/add-student',
+            removeStudent: '/classrooms/{id}/remove-student',
+        },
+        classType: {
+            base: '/class-types'
+        },
         schoolPlan: {
             base: '/school-plans',
             toClient: '/school-plans/to-client',

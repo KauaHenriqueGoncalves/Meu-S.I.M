@@ -161,7 +161,7 @@
         gap: 1.5rem
 
     .avatar-placeholder
-        width: 80px
+        min-width: 80px
         height: 80px
         border-radius: 50%
         background: var(--bg-light, #f3f4f6)
@@ -318,8 +318,8 @@
         background: var(--color-primary-700)
 
     &:disabled
-        background: transparent
-        color: var(--text-333)
+        background: #a3aab4
+        color: var(--white)
         opacity: 0.5
         cursor: not-allowed
 
@@ -749,7 +749,7 @@
         align-items: flex-start
 
 @media (max-width: 640px)
-    .create-container
+    .detail-container
         padding: 1rem
 
     .card-header.header-with-actions
