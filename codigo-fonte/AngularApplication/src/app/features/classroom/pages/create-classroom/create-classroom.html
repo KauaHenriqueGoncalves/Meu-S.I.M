@@ -1,1 +1,110 @@
-<p>create-classroom works!</p>
+<div class="create-container">
+    <div class="page-header">
+        <button class="btn-back" (click)="goBack()">
+            <app-svg-arrow-left color="current" [size]="18" />
+            Voltar
+        </button>
+        <div class="title-area">
+            <h1>Criar Nova Turma</h1>
+            <p>Preencha os detalhes para abrir uma nova sala de reforço escolar.</p>
+        </div>
+    </div>
+
+    <form [formGroup]="classroomForm" (ngSubmit)="onSubmit()" class="form-layout">
+        <div class="main-column">
+            <div class="form-card">
+                <div class="card-header">
+                    <h2>Informações da Turma</h2>
+                </div>
+                <div class="card-body inputs-grid-fluid">
+                    <div class="form-group span-2" [class.has-error]="isFieldInvalid(classroomForm, 'name')">
+                        <label for="name">Nome da Turma *</label>
+                        <input type="text" id="name" formControlName="name" placeholder="Ex: Matemática - 1º Ano - Manhã" noEmoji>
+                        @if (classroomForm.get('name')?.hasError('minLength')) {
+                            <span class="error-text">Mínimo de 3 caracteres</span>
+                        }
+                        @if (classroomForm.get('name')?.hasError('maxLength')) {
+                            <span class="error-text">Máximo de 60 caracteres</span>
+                        }
+                    </div>
+
+                    <div class="form-group custom-class-type" [class.has-error]="isFieldInvalid(classroomForm, 'classTypeId')">
+                        <label for="classTypeId">Tipo de Turma *</label>
+                        <select id="classTypeId" formControlName="classTypeId">
+                            <option [ngValue]="null" disabled>Selecione um tipo</option>
+                            @for (type of classTypes; track type.id) {
+                                <option [value]="type.id">{{ getFriendlyClassTypeName(type.name) }}</option>
+                            }
+                        </select>
+                        @if (isFieldInvalid(classroomForm, 'classTypeId')) {
+                            <span class="error-text">Informe o tipo da turma</span>
+                        }
+                    </div>
+
+                    <div class="form-group custom-maxStudent" [class.has-error]="isFieldInvalid(classroomForm, 'maxStudents')">
+                        <label for="maxStudents">Capacidade de Alunos *</label>
+                        <input type="number" id="maxStudents" formControlName="maxStudents" min="1" max="200" placeholder="Máximo de estudantes">
+                    </div>
+
+                    <div class="form-group span-2 custom-subject-dropdown" [class.has-error]="isFieldInvalid(classroomForm, 'subjectId')">
+                        <label>Disciplina *</label>
+                        <div class="input-wrapper select-trigger" (click)="toggleSubjectDropdown()">
+                            <input type="text" readonly [value]="selectedSubjectName || 'Selecione ou pesquise...'" style="cursor: pointer;">
+                            <app-svg-angle-down class="btn-toggle-password" color="var(--text-666)" [size]="16"/>
+                        </div>
+                        @if (isFieldInvalid(classroomForm, 'subjectId')) {
+                            <span class="error-text">Informe a disciplina da turma</span>
+                        }
+                        @if (isSubjectDropdownOpen) {
+                            <div class="dropdown-menu">
+                                <ul class="dropdown-list">
+                                    @if (filteredSubjects.length === 0) {
+                                        <li class="empty-state">
+                                            Nenhuma disciplina encontrada.
+                                        </li>
+                                    }
+                                    @else {
+                                        @for (subject of filteredSubjects; track subject.id) {
+                                            <li (click)="selectSubject(subject)">
+                                                {{ subject.name }}
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="form-group span-2" [class.has-error]="isFieldInvalid(classroomForm, 'description')" noEmoji>
+                        <label for="description">Descrição</label>
+                        <textarea id="description" formControlName="description" rows="4" placeholder="Descreva algo desta turma..."></textarea>
+                        @if (isFieldInvalid(classroomForm, 'description')) {
+                            <span class="error-text">Máximo de 200 caracteres</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-column">
+            <div class="actions-card">
+                <p class="actions-hint">
+                    Certifique-se de preencher todos os campos obrigatórios marcados com asterisco (*) antes de salvar a
+                    nova turma.
+                </p>
+                <div class="buttons-row">
+                    <button type="button" class="btn-cancel" (click)="goBack()" [disabled]="isSubmitting">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-submit" [disabled]="classroomForm.invalid || isSubmitting">
+                        @if (isSubmitting) {
+                            <app-spinner-to-button />
+                        } @else {
+                            Salvar Turma
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

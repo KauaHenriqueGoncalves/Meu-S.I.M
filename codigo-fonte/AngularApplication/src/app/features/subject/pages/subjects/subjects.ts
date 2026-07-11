@@ -206,9 +206,13 @@ export class Subjects implements OnInit {
           });
         },
         error: (err) => {
+          let message: string = err.error?.message || 'Erro ao excluir a disciplina.';
+          if (err.status === 409) {
+            message = 'Não é possível excluir a disciplina pois ele está associado a uma turma.';
+          }
           this.notificationService.notify({
             type: 'error',
-            text: err.error?.message || 'Erro ao excluir disciplina.'
+            text: message
           });
         }
       });

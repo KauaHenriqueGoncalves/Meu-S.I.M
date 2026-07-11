@@ -8,6 +8,7 @@ import { NotificationService } from '../../../../core/services/notification/noti
 import { PageResponse } from '../../../../shared/models/page-response.model';
 import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { BookSvg } from '../../../../shared/components/svg/book.svg';
+import { ClassTypeService } from '../../../classtype/service/class-type.service';
 
 @Component({
   selector: 'app-classrooms',
@@ -32,6 +33,7 @@ export class Classrooms implements OnInit {
   constructor(
     private classroomApi: ClassroomApi,
     private router: Router,
+    private classTypeService: ClassTypeService,
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef
   ) { }
@@ -40,48 +42,39 @@ export class Classrooms implements OnInit {
     this.loadClassrooms();
   }
 
+  getFriendlyClassTypeName(dbName: string): string {
+    return this.classTypeService.getFriendlyClassTypeName(dbName);
+  }
+
   loadClassrooms(): void {
     this.isLoading = true;
     this.isPaginating = true;
     this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.classrooms = [
-        { id: '1', classTypeName: 'Isoladossssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss', subjectName: 'Portuguesssssssssssssss ssssssssssssssssssssssssssssssssss', name: 'Turma 1ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss' },
-        { id: '2', classTypeName: 'Isolado', subjectName: 'Portugues', name: 'Turma 1' },
-        { id: '3', classTypeName: 'Isolado', subjectName: 'Portugues', name: 'Turma 1' },
-        { id: '4', classTypeName: 'Isolado', subjectName: 'Portugues', name: 'Turma 1' },
-        { id: '5', classTypeName: 'Isolado', subjectName: 'Portugues', name: 'Turma 1' },
-      ];
-      this.isLoading = false;
-      this.isPaginating = false;
-      this.cdr.detectChanges();
-    }, 2500);
-    // this.classroomApi.findAll(this.currentPage, this.pageSize)
-    //   .pipe(
-    //     timeout(10000),
-    //     catchError((error) => {
-    //       return throwError(() => error);
-    //     }),
-    //     finalize(() => {
-    //       this.isLoading = false;
-    //       this.isPaginating = false;
-    //       this.cdr.detectChanges();
-    //     })
-    //   )
-    //   .subscribe({
-    //     next: (res: PageResponse<ClassroomViewSimpleResponseDto>) => {
-    //       this.classrooms = res.content;
-    //       this.totalElements = res.totalElements;
-    //       this.totalPages = res.totalPages;
-    //     },
-    //     error: (err) => {
-    //       this.notificationService.notify({
-    //         type: 'error',
-    //         text: err.error?.message || 'Erro ao carregar turmas'
-    //       });
-    //     }
-    //   });
+    this.classroomApi.findAll(this.currentPage, this.pageSize)
+      .pipe(
+        timeout(10000),
+        catchError((error) => {
+          return throwError(() => error);
+        }),
+        finalize(() => {
+          this.isLoading = false;
+          this.isPaginating = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res: PageResponse<ClassroomViewSimpleResponseDto>) => {
+          this.classrooms = res.content;
+          this.totalElements = res.totalElements;
+          this.totalPages = res.totalPages;
+        },
+        error: (err) => {
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro ao carregar turmas'
+          });
+        }
+      });
   }
 
   changePage(page: number): void {
