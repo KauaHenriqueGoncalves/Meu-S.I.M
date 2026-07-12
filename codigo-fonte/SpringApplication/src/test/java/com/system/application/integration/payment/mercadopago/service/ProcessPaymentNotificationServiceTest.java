@@ -65,7 +65,7 @@ public class ProcessPaymentNotificationServiceTest {
     }
 
     @Nested
-    @DisplayName("processPayment() — tipos ignorados")
+    @DisplayName("processPayment() - tipos ignorados")
     final class IgnoredTypes {
         @Test
         @DisplayName("deve ignorar notificação quando tipo não for aceito")
@@ -96,7 +96,7 @@ public class ProcessPaymentNotificationServiceTest {
     }
 
     @Nested
-    @DisplayName("processPayment() — payment.created")
+    @DisplayName("processPayment() - payment.created")
     final class PaymentCreated {
         @Test
         @DisplayName("deve ativar assinatura e expirar preferência quando pagamento for aprovado")
@@ -160,8 +160,7 @@ public class ProcessPaymentNotificationServiceTest {
 
             when(mercadoPagoClient.getPaymentStatus(123456789L)).thenReturn(invalidRefPayment);
 
-            assertThatThrownBy(() ->
-                    processPaymentService.processPayment(123456789L, "payment.created"))
+            assertThatThrownBy(() -> processPaymentService.processPayment(123456789L, "payment.created"))
                     .isInstanceOf(PaymentGatewayException.class)
                     .hasMessageContaining("123456789");
 
@@ -171,7 +170,7 @@ public class ProcessPaymentNotificationServiceTest {
     }
 
     @Nested
-    @DisplayName("processPayment() — payment.updated")
+    @DisplayName("processPayment() - payment.updated")
     final class PaymentUpdated {
         @Test
         @DisplayName("deve processar normalmente quando tipo for payment.updated")

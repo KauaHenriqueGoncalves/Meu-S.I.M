@@ -22,7 +22,7 @@ public final class User implements Serializable {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "username", length = 100, nullable = false)
+    @Column(name = "username", nullable = false, length = 100)
     private String username;
 
     @Column(name = "email", nullable = false, unique = true)
@@ -50,8 +50,8 @@ public final class User implements Serializable {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
+            joinColumns = @JoinColumn(name = "user_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false)
     )
     private Set<Role> role;
 

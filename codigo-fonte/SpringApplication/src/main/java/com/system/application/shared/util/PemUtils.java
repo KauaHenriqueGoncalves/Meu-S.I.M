@@ -9,10 +9,13 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 public final class PemUtils {
-    private PemUtils() {}
+    private static PemUtils instance = null;
 
     public static PemUtils getInstance() {
-        return new PemUtils();
+        if(instance == null) {
+            instance = new PemUtils();
+        }
+        return instance;
     }
 
     public PublicKey readPublicKey(InputStream input) throws Exception {

@@ -32,11 +32,12 @@ public class LegalGuardianController {
     public ResponseEntity<PageResponse<LegalGuardianResponse>> findAllResponse(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "3") int size,
+            @RequestParam(value = "name", defaultValue = "") String name,
             JwtAuthenticationToken token
     ) {
         UUID userId = UUID.fromString(token.getName());
         PageResponse<LegalGuardianResponse> response =
-                legalGuardianService.findAllResponseBySchool(userId, page, size);
+                legalGuardianService.findAllResponseBySchool(userId, name, page, size);
         return ResponseEntity.ok(response);
     }
 

@@ -75,11 +75,11 @@ class PemUtilsTest {
     }
 
     @Test
-    @DisplayName("getInstance() deve retornar instâncias diferentes a cada chamada")
+    @DisplayName("getInstance() deve retornar mesmas instâncias a cada chamada")
     void testGetInstanceReturnsDifferentInstances() {
         PemUtils instance1 = PemUtils.getInstance();
         PemUtils instance2 = PemUtils.getInstance();
-        assertNotSame(instance1, instance2);
+        assertSame(instance1, instance2);
     }
 
     @Test

@@ -8,7 +8,6 @@ import { Router } from '@angular/router';
   styleUrl: './verify-account-success.sass',
 })
 export class VerifyAccountSuccess {
-
   constructor(
     private router: Router
   ) { }

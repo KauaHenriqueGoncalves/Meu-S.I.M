@@ -19,10 +19,10 @@ public final class BillingDiscount implements Serializable {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "months")
+    @Column(name = "months", nullable = false)
     private Integer months;
 
-    @Column(name = "discount_percent", precision = 5, scale = 2)
+    @Column(name = "discount_percent", precision = 5, scale = 2, nullable = false)
     private BigDecimal discountPercent;
 
     public BillingDiscount() {

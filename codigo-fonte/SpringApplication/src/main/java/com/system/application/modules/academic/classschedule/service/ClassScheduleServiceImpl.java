@@ -1,5 +1,6 @@
 package com.system.application.modules.academic.classschedule.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.system.application.modules.academic.classschedule.ClassSchedule;
 import com.system.application.modules.academic.classschedule.dto.ClassScheduleRequest;
 import com.system.application.modules.academic.classschedule.dto.ClassScheduleResponse;
@@ -12,13 +13,17 @@ import com.system.application.modules.school.service.SchoolService;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
+import com.system.application.shared.services.cache.keys.CacheKeys;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,17 +35,22 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
     private final SchoolSubscriptionService schoolSubscriptionService;
     private final SchoolService schoolService;
     private final ClassroomService classroomService;
+    private final CacheService cacheService;
+
+    private static final Duration CLASSSCHEDULE_TTL = Duration.ofHours(60);
 
     public ClassScheduleServiceImpl(
             ClassScheduleRepository classScheduleRepository,
             SchoolSubscriptionService schoolSubscriptionService,
             SchoolService schoolService,
-            ClassroomService classroomService
+            ClassroomService classroomService,
+            CacheService cacheService
     ) {
         this.classScheduleRepository = classScheduleRepository;
         this.schoolSubscriptionService = schoolSubscriptionService;
         this.schoolService = schoolService;
         this.classroomService = classroomService;
+        this.cacheService = cacheService;
     }
 
     @Override
@@ -49,6 +59,19 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
 
         log.info("Buscando horários da turma. [requisitanteId={}] [classroomId={}] [schoolId={}]",
                 userId, classroomId, school.getId());
+
+        String key = CacheKeys.classSchedule(school.getId(), classroomId, "List");
+
+        Optional<List<ClassScheduleResponse>> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Horários da turma encontrados no cache. [classroomId={}] [total={}]",
+                    classroomId, cacheResponse.get().size());
+            return cacheResponse.get();
+        }
 
         Classroom classroom = classroomService.findById(classroomId);
         ensureClassroomBelongsSchool(school.getId(), classroom);
@@ -60,21 +83,22 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
                         .comparing((ClassSchedule c) -> c.getWeekday().getOrder())
                         .thenComparing(ClassSchedule::getStartTime)
                 )
-                .map(c -> new ClassScheduleResponse(
-                        c.getId(),
-                        c.getWeekday().getDescription(),
-                        c.getStartTime(),
-                        c.getEndTime()
-                )).toList();
+                .map(ClassScheduleResponse::of)
+                .toList();
 
         log.info("Horários da turma encontrados. [classroomId={}] [total={}]",
                 classroomId, response.size());
+
+        cacheService.set(key, response, CLASSSCHEDULE_TTL);
 
         return response;
     }
 
     @Override
     public ClassSchedule findById(UUID classScheduleId) {
+        log.info("Buscando Horario da classe pelo id. [classScheduleId={}]",
+                classScheduleId);
+
         return classScheduleRepository.findById(classScheduleId)
                 .orElseThrow(() -> {
                     log.warn("Horário de turma não encontrado. [classScheduleId={}]", classScheduleId);
@@ -107,6 +131,13 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
         log.info("Horário de turma cadastrado com sucesso. [classScheduleId={}] [classroomId={}] [diaSemana={}] [inicio={}] [fim={}]",
                 classSchedule.getId(), classroomId, request.weekday(), request.startTime(), request.endTime());
 
+        String key = CacheKeys.classSchedulePattern(school.getId());
+
+        log.info("Apagando todos os cache de horario de classe ligado à escola e classe. [school={}] [key={}]",
+                school.getId(), key);
+
+        cacheService.evictByPattern(key);
+
         return classSchedule;
     }
 
@@ -129,6 +160,13 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
 
         log.info("Horário de turma atualizado com sucesso. [classScheduleId={}] [classroomId={}] [diaSemana={}] [inicio={}] [fim={}]",
                 classScheduleId, classroomId, updateRequest.weekday(), updateRequest.startTime(), updateRequest.endTime());
+
+        String key = CacheKeys.classSchedulePattern(school.getId());
+
+        log.info("Apagando todos os cache de horario de classe ligado à escola e classe. [school={}] [key={}]",
+                school.getId(), key);
+
+        cacheService.evictByPattern(key);
     }
 
     @Override
@@ -148,6 +186,13 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
 
         log.info("Horário de turma excluído com sucesso. [classScheduleId={}] [classroomId={}] [schoolId={}]",
                 classScheduleId, classroomId, school.getId());
+
+        String key = CacheKeys.classSchedulePattern(school.getId());
+
+        log.info("Apagando todos os cache de horario de classe ligado à escola e classe. [school={}] [key={}]",
+                school.getId(), key);
+
+        cacheService.evictByPattern(key);
     }
 
     private void ensureClassroomBelongsSchool(UUID schoolId, Classroom classroom) {

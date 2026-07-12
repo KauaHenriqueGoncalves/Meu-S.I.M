@@ -1,0 +1,44 @@
+<div class="status-page-wrapper">
+    <div class="status-card">
+        <div class="icon-wrapper failure">
+            <svg 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-linecap="round" 
+                stroke-linejoin="round">
+
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        </div>
+
+        <h1>Pagamento Recusado</h1>
+        <p class="description">Não foi possível processar seu pagamento. Tente novamente.</p>
+
+        @if (paymentId || externalReference) {
+            <div class="transaction-details">
+                @if (paymentId) {
+                    <div class="detail-row">
+                        <span class="label">ID da Transação:</span>
+                        <span class="value">{{ paymentId }}</span>
+                    </div>
+                }
+                @if (externalReference) {
+                    <div class="detail-row">
+                        <span class="label">Referência:</span>
+                        <span class="value">{{ externalReference.split('-')[0] + '-' + externalReference.split('-')[1] + '-' + externalReference.split('-')[2] + '...' }}</span>
+                    </div>
+                }
+            </div>
+        }
+        
+        <button class="action-btn" (click)="viewDetail()">
+            Tentar Novamente
+        </button>
+        <button class="action-btn btn-outline" (click)="goToMySubscription()">
+            Ir para as minhas Licenças
+        </button>
+    </div>
+</div>

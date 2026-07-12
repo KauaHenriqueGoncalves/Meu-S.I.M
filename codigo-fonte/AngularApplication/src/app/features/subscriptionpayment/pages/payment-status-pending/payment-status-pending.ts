@@ -1,0 +1,29 @@
+import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+
+@Component({
+  selector: 'app-payment-status-pending',
+  imports: [],
+  templateUrl: './payment-status-pending.html',
+  styleUrl: './../payment-status.sass',
+})
+export class PaymentStatusPending {
+  paymentId: string | null = null;
+  externalReference: string | null = null;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) { }
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.paymentId = params['payment_id'];
+      this.externalReference = params['external_reference'];
+    });
+  }
+
+  goToMySubscription(): void {
+    this.router.navigate(['/app/my-subscriptions']);
+  }
+}

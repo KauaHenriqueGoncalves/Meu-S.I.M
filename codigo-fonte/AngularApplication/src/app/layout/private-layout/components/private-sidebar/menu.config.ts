@@ -7,15 +7,19 @@ export const MENU_CONFIG: Record<Role, MenuItem[]> = {
   ],
 
   school_admin: [
-    { label: 'Início', icon: 'dashboard', route: '/app/dashboard' },
+    { 
+      label: 'Início', 
+      icon: 'dashboard', 
+      route: '/app/dashboard' 
+    },
     {
       label: 'Acadêmico',
       icon: 'academic',
       expanded: false,
       children: [
-        { label: 'Turmas', route: '/classrooms' },
-        { label: 'Estudantes', route: '/students' },
-        { label: 'Disciplinas', route: '/subjects' },
+        { label: 'Turmas', route: '/app/classrooms' },
+        { label: 'Estudantes', route: '/app/students' },
+        { label: 'Disciplinas', route: '/app/subjects' },
       ]
     },
     {
@@ -23,9 +27,9 @@ export const MENU_CONFIG: Record<Role, MenuItem[]> = {
       icon: 'users',
       expanded: false,
       children: [
-        { label: 'Administradores', route: '/school-admin' },
-        { label: 'Colaboradores', route: '/collaborators' },
-        { label: 'Responsáveis', route: '/legal-guardians' },
+        { label: 'Administradores', route: '/app/school-admins' },
+        { label: 'Colaboradores', route: '/app/collaborators' },
+        { label: 'Responsáveis', route: '/app/legal-guardians' },
       ]
     },
     {

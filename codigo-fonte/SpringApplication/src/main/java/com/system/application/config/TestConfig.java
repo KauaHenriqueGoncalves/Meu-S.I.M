@@ -1,7 +1,6 @@
 package com.system.application.config;
 
 import com.system.application.modules.identity.systemadmin.service.SystemAdminService;
-import com.system.application.modules.identity.user.dto.UserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;

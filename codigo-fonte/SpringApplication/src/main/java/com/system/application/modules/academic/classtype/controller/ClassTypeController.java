@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
+import java.util.List;
 
 @RestController
 @RequestMapping("/class-types")
@@ -23,8 +23,8 @@ public class ClassTypeController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_school_admin', 'SCOPE_collaborator', 'SCOPE_legal_guardian')")
-    public ResponseEntity<Set<ClassType>> findAll() {
-        Set<ClassType> types = classTypeService.findAll();
+    public ResponseEntity<List<ClassType>> findAll() {
+        List<ClassType> types = classTypeService.findAll();
         return ResponseEntity.ok(types);
     }
 }

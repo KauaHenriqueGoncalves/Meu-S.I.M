@@ -1,0 +1,43 @@
+<div class="status-page-wrapper">
+    <div class="status-card">
+        <div class="icon-wrapper success">
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="32" 
+                height="32" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="3" 
+                stroke-linecap="round" 
+                stroke-linejoin="round">
+
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+
+        <h1>Pagamento Aprovado!</h1>
+        <p class="description">Sua licença foi ativada com sucesso. Você já pode acessar todos os recursos da plataforma.</p>
+
+        @if (paymentId || externalReference) {
+            <div class="transaction-details">
+                @if (paymentId) {
+                    <div class="detail-row">
+                        <span class="label">ID da Transação:</span>
+                        <span class="value">{{ paymentId }}</span>
+                    </div>
+                }
+                @if (externalReference) {
+                    <div class="detail-row">
+                        <span class="label">Referência:</span>
+                        <span class="value">{{ externalReference.split('-')[0] + '-' + externalReference.split('-')[1] + '-' + externalReference.split('-')[2] + '...' }}</span>
+                    </div>
+                }
+            </div>
+        }
+
+        <button class="action-btn" (click)="goToMySubscription()">
+            Ir para as minhas Licenças
+        </button>
+    </div>
+</div>

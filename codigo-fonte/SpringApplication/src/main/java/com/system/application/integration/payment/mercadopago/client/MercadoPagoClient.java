@@ -32,6 +32,9 @@ public class MercadoPagoClient {
     @Value("${api.v1.mercado.pago.notification}")
     private String notificationUrl;
 
+    @Value("${web.site.url.front-end}")
+    private String frontendUrl;
+
     @PostConstruct
     public void init() {
         MercadoPagoConfig.setAccessToken(accessToken);
@@ -57,15 +60,19 @@ public class MercadoPagoClient {
                     .unitPrice(request.amount())
                     .build();
 
+            if (request.payer() == null) {
+                throw new PaymentGatewayException("MercadoPago.CreatePreference.Request.payer() nao informado");
+            }
+
             PreferencePayerRequest payer = PreferencePayerRequest.builder()
                     .name(request.payer().name())
                     .email(request.payer().email())
                     .build();
 
             PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                    .success("https://overderisive-klara-punctually.ngrok-free.dev/api/v1/auth/payment/success")
-                    .pending("https://overderisive-klara-punctually.ngrok-free.dev/api/v1/auth/payment/pending")
-                    .failure("https://overderisive-klara-punctually.ngrok-free.dev/api/v1/auth/payment/failure")
+                    .success(frontendUrl + "/payment/status/success")
+                    .pending(frontendUrl + "/payment/status/pending")
+                    .failure(frontendUrl + "/payment/status/failure")
                     .build();
 
             PreferencePaymentMethodsRequest paymentMethods = PreferencePaymentMethodsRequest.builder()

@@ -166,10 +166,21 @@
         </div>
 
         <div class="action-bar">
-            <div class="action-left">
+
+            <div class="action-left-btns">
                 @if (canCancel()) {
                     <button class="btn-danger-outline" (click)="openCancelModal()">
                         Cancelar Licença
+                    </button>
+                }
+                @if (canReactitvate()) {
+                    <button class="btn-success-solid" (click)="reactivateSubscription()">
+                        @if (isReactitvating) {
+                            <app-spinner-to-button color="#fff"></app-spinner-to-button>
+                        }
+                        @else {
+                            Reativar Licença
+                        }
                     </button>
                 }
             </div>
@@ -193,7 +204,7 @@
     <div class="modal-overlay" (click)="closeCancelModal()">
         <div class="modal-content" (click)="$event.stopPropagation()">
             <div class="modal-icon">
-                <app-svg-warning color="#d32f2f" [size]="32"/>
+                <app-svg-warning color="#d32f2f" [size]="35"/>
             </div>
             <h2>Confirmar Cancelamento</h2>
             <p>Você está prestes a cancelar a licença do plano <strong>{{ detail?.planName }}</strong>. O acesso ao seu reforço escolar será mantido apenas até o fim do ciclo já pago.</p>

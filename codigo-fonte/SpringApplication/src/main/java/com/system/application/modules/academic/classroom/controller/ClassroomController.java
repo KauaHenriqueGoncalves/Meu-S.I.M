@@ -82,7 +82,7 @@ public class ClassroomController {
         return ResponseEntity.created(uri).build();
     }
 
-    @PostMapping("/{id}/a")
+    @PostMapping("/{id}/add-student")
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")
     public ResponseEntity<Void> addStudent(
             @PathVariable("id") UUID classroomId,
@@ -94,7 +94,7 @@ public class ClassroomController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{id}/r")
+    @PostMapping("/{id}/remove-student")
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")
     public ResponseEntity<Void> removeStudent(
             @PathVariable("id") UUID classroomId,

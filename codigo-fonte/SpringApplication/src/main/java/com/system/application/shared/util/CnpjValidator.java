@@ -1,10 +1,13 @@
 package com.system.application.shared.util;
 
 public final class CnpjValidator {
-    private CnpjValidator() {}
+    private static CnpjValidator instance = null;
 
     public static CnpjValidator getInstance() {
-        return new CnpjValidator();
+        if (instance == null) {
+            instance = new CnpjValidator();
+        }
+        return instance;
     }
 
     public Boolean isValid(String cnpj) {

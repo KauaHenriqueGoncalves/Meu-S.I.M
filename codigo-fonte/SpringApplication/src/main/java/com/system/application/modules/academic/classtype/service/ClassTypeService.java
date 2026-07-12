@@ -2,9 +2,9 @@ package com.system.application.modules.academic.classtype.service;
 
 import com.system.application.modules.academic.classtype.ClassType;
 
-import java.util.Set;
+import java.util.List;
 
 public interface ClassTypeService {
-    Set<ClassType> findAll();
+    List<ClassType> findAll();
     ClassType findById(Long id);
 }

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licença Ativada - Meu SIM</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #334155;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F8FAFC; padding: 50px 20px;">
+    <tr>
+        <td align="center">
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                   style="
+                       max-width: 500px;
+                       background-color: #FFFFFF;
+                       border-radius: 20px;
+                       border: 1px solid #E2E8F0;
+                       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+                       overflow: hidden;
+                   "
+            >
+                <tr>
+                    <td align="center"
+                        style="background-color: #059669; padding: 32px 24px; border-top-left-radius: 19px; border-top-right-radius: 19px;">
+                        <h1 style="margin: 0; color: #FFFFFF; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">
+                            Meu S.I.M</h1>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding: 40px 35px;">
+                        <h2 style="text-align: center; margin: 0 0 8px 0; color: #0F172A; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">
+                            Licença Ativada com Sucesso
+                        </h2>
+
+                        <p style="text-align: center; margin: 0 0 32px 0; color: #475569; font-size: 15px; line-height: 1.6;">
+                            O pagamento da assinatura foi processado corretamente. Os detalhes da licença atualizada
+                            estão disponíveis abaixo:
+                        </p>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                               style="margin-bottom: 28px; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; color: #64748B;">
+                                    Plano Contratado
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; font-weight: 600; color: #0F172A; text-align: right;"
+                                    th:text="${planName}">---
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; color: #64748B;">
+                                    Duração
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; font-weight: 600; color: #0F172A; text-align: right;">
+                                    <span th:text="${months}">--</span> meses
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; color: #64748B;">
+                                    Valor Total
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; font-weight: 600; color: #059669; text-align: right;">
+                                    R$ <span th:text="${amount}">-.--</span></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; color: #64748B;">
+                                    Parcelas
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; font-weight: 600; color: #0F172A; text-align: right;">
+                                    <span th:text="${installments}">---</span>x
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; color: #64748B;">
+                                    Início da Vigência
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; font-weight: 600; color: #0F172A; text-align: right;"
+                                    th:text="${startDate}">--/--/---
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; color: #64748B;">
+                                    Término da Vigência
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; font-weight: 600; color: #0F172A; text-align: right;"
+                                    th:text="${endDate}">--/--/---
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                               style="background-color: #F8FAFC; border-left: 4px solid #059669; border-radius: 4px; text-align: left;">
+                            <tr>
+                                <td style="padding: 16px; font-size: 13px; line-height: 1.6; color: #475569;">
+                                    <div style="font-weight: 700; color: #0F172A; margin-bottom: 6px; font-size: 14px;">
+                                        Dados da Transação
+                                    </div>
+                                    <div><strong>ID do Pedido:</strong> <span style="font-family: monospace;"
+                                                                              th:text="${orderId}">123</span></div>
+                                    <div><strong>ID do Provedor:</strong> <span style="font-family: monospace;"
+                                                                                th:text="${providerPaymentId}">999</span>
+                                    </div>
+                                    <div><strong>Confirmado em:</strong> <span th:text="${paidAt}">Instant</span></div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+            </table>
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 500px; margin-top: 20px;">
+                <tr>
+                    <td align="center" style="color: #94A3B8; font-size: 12px;">
+                        © 2026 Meu S.I.M · Sistema de Gestão de Reforço Escolar
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record SchoolSubscriptionDetailResponse(
-
         UUID id,
         Integer months,
         String planName,
@@ -36,9 +35,7 @@ public record SchoolSubscriptionDetailResponse(
         Instant paidAt,
         PaymentStatus paymentStatus,
         String providerPaymentId
-
 ) implements Serializable {
-
     @Serial
     private static final long serialVersionUID = 1L;
 

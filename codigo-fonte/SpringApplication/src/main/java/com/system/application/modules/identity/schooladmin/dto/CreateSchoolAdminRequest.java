@@ -9,13 +9,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 public record CreateSchoolAdminRequest(
-
         @Valid UserRequest userRequest,
         @Valid SchoolRequest schoolRequest,
         @Valid CaptchaRequest captchaRequest
-
 ) implements Serializable {
-
     @Serial
     private static final long serialVersionUID = 1L;
 }

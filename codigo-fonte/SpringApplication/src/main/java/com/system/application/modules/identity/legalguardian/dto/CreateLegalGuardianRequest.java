@@ -8,12 +8,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 public record CreateLegalGuardianRequest(
-
         @Valid @NotNull UserRequest userRequest,
         @Valid @NotNull LegalGuardianRequest legalGuardianRequest
-
 ) implements Serializable {
-
     @Serial
     private static final long serialVersionUID = 1L;
 }

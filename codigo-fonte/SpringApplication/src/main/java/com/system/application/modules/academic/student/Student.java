@@ -25,13 +25,13 @@ public final class Student implements Serializable {
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
-    @Column(name = "name", length = 100)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "date_of_birth")
+    @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(name = "grade", length = 20)
+    @Column(name = "grade", nullable = false, length = 20)
     private String grade;
 
     @ManyToOne(fetch = FetchType.LAZY)

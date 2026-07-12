@@ -6,14 +6,18 @@ import { NO_AUTH } from '../../config/no-auth.token.config';
 import { AuthApi } from '../../../features/auth/api/auth.api';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification/notification.service';
+import { CacheResetService } from '../../services/cache-reset/cache-reset.service';
 
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+
+export const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+export const isRefreshingSignal = () => isRefreshing;
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
   const authApi = inject(AuthApi);
   const router = inject(Router);
+  const cacheReset = inject(CacheResetService);
   const notificationService = inject(NotificationService);
 
   // se for rota pública -> ignora tudo 
@@ -72,6 +76,20 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       console.log('[Interceptor] Iniciando refresh token...');
 
       return authApi.refresh().pipe(
+        catchError((err) => {
+          notificationService.notify({
+            type: 'error',
+            text: 'Insirá as credenciais da conta.'
+          });
+          // refresh falhou -> logout
+          console.log('[Interceptor] Refresh falhou → logout');
+          isRefreshing = false;
+          authStore.clear();
+          authApi.logout();
+          cacheReset.resetAll();
+          router.navigate(['/auth/log-in']);
+          return throwError(() => err);
+        }),
         switchMap((res: any) => {
           const newToken = res.accessToken;
 
@@ -94,19 +112,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
           return next(newReq);
         }),
-        catchError((err) => {
-          notificationService.notify({
-            type: 'error',
-            text: 'Faça o login novamente'
-          });
-          // refresh falhou -> logout
-          console.log('[Interceptor] Refresh falhou → logout');
-          isRefreshing = false;
-          authStore.clear();
-          authApi.logout();
-          router.navigate(['/auth/log-in']);
-          return throwError(() => err);
-        })
+        
       );
     })
   );
