@@ -1,5 +1,6 @@
 package com.system.application.modules.academic.student.dto;
 
+import com.system.application.shared.validation.NoEmoji;
 import com.system.application.shared.validation.NoLeadingTrailingSpace;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +17,7 @@ public record UpdateStudentRequest(
         @NotBlank(message = "Campo nome vazio")
         @Size(max = 100, message = "Nome deve conter no máximo 100 caracteres")
         @NoLeadingTrailingSpace
+        @NoEmoji(message = "Não é permitido o recebimento de emoji")
         String name,
 
         @NotNull(message = "Data de nascimento é obrigatória")
@@ -25,13 +27,13 @@ public record UpdateStudentRequest(
         @NotBlank(message = "Campo serie vazio!")
         @Size(max = 20, message = "Campo serie deve conter no máximo 20 caracteres")
         @NoLeadingTrailingSpace
+        @NoEmoji(message = "Não é permitido o recebimento de emoji")
         String grade,
 
         @NotNull(message = "Selecione um responsável para o estudante")
         UUID legalGuardianId
 
 ) implements Serializable {
-
     @Serial
     private static final long serialVersionUID = 1L;
 }

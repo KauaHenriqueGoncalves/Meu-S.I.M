@@ -55,7 +55,7 @@ public final class Role implements Serializable {
         SYSTEM_ADMIN(1L),
         SCHOOL_ADMIN(2L),
         COLLABORATOR(3L),
-        LEGAL_GUARDIAN(4l);
+        LEGAL_GUARDIAN(4L);
 
         private final Long value;
 

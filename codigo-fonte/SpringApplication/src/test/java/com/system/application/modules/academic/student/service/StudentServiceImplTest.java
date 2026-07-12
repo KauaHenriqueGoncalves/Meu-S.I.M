@@ -18,6 +18,7 @@ import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -49,6 +51,7 @@ public class StudentServiceImplTest {
     @Mock private SchoolSubscriptionService schoolSubscriptionService;
     @Mock private SchoolService schoolService;
     @Mock private LegalGuardianService legalGuardianService;
+    @Mock private CacheService cacheService;
 
     @InjectMocks
     private StudentServiceImpl studentService;
@@ -174,14 +177,14 @@ public class StudentServiceImplTest {
         @Test
         @DisplayName("deve retornar página de estudantes da escola")
         void shouldReturnPage_whenSchoolHasStudents() {
-            Pageable pageable = PageRequest.of(0, 10);
+            Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(studentRepository.findAllBySchoolId(eq(schoolId), any(Pageable.class)))
+            when(studentRepository.findAllBySchoolIdAndName(eq(schoolId), any(), any(Pageable.class)))
                     .thenReturn(new PageImpl<>(List.of(student), pageable, 1));
 
             PageResponse<StudentResponse> result =
-                    studentService.findAllResponseBySchool(userId, 0, 10);
+                    studentService.findAllResponseBySchool(userId, "", 0, 10);
 
             assertThat(result.content()).hasSize(1);
             assertThat(result.content().getFirst().name()).isEqualTo("Lucas Souza");
@@ -191,14 +194,14 @@ public class StudentServiceImplTest {
         @Test
         @DisplayName("deve retornar página vazia quando escola não tiver estudantes")
         void shouldReturnEmptyPage_whenSchoolHasNoStudents() {
-            Pageable pageable = PageRequest.of(0, 10);
+            Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(studentRepository.findAllBySchoolId(eq(schoolId), any(Pageable.class)))
+            when(studentRepository.findAllBySchoolIdAndName(eq(schoolId), any(), any(Pageable.class)))
                     .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
             PageResponse<StudentResponse> result =
-                    studentService.findAllResponseBySchool(userId, 0, 10);
+                    studentService.findAllResponseBySchool(userId, "", 0, 10);
 
             assertThat(result.content()).isEmpty();
         }

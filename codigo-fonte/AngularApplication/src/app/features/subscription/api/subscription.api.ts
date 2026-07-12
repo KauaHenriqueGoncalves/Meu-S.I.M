@@ -9,7 +9,6 @@ import { SubscriptionResponseDto } from '../dto/subscription-response.dto';
 import { CacheResetService } from '../../../core/services/cache-reset/cache-reset.service';
 import { SubscriptionCheckResponse } from '../dto/subscription-check-response.dto';
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -61,6 +60,17 @@ export class SubscriptionApi {
       endpoint,
       {}
     ) as unknown as Observable<any>
+  }
+
+  reactivateSubscription(id: string): Observable<any> {
+    const endpoint: string = ApiConfig.endpoints.subscription.reative.replace('{id}', id);
+
+    this.refreshAllSubscriptions();
+
+    return this.apiService.put(
+      endpoint,
+      {}
+    ) as unknown as Observable<any>;
   }
 
   refreshAllSubscriptions(): void {

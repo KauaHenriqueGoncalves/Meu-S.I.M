@@ -20,7 +20,7 @@ public final class Subject implements Serializable {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id")
+    @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
     @Column(name = "name", nullable = false, length = 50)

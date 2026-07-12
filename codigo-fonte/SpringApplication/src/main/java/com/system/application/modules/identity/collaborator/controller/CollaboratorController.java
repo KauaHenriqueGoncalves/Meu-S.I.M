@@ -32,11 +32,12 @@ public class CollaboratorController {
     public ResponseEntity<PageResponse<CollaboratorResponse>> findAllBySchool(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "3") int size,
+            @RequestParam(value = "name", defaultValue = "") String name,
             JwtAuthenticationToken token
     ) {
         UUID userId = UUID.fromString(token.getName());
         PageResponse<CollaboratorResponse> response =
-                collaboratorService.findAllResponseBySchool(userId, page, size);
+                collaboratorService.findAllResponseBySchool(userId, name, page, size);
         return ResponseEntity.ok(response);
     }
 

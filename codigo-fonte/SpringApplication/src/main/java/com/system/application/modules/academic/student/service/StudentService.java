@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface StudentService {
-    PageResponse<StudentResponse> findAllResponseBySchool(UUID userId, int page, int size);
+    PageResponse<StudentResponse> findAllResponseBySchool(UUID userId, String name, int page, int size);
     List<StudentResponse> findAllResponseByLegalGuardian(UUID userId, UUID legalGuardianId);
     Student findById(UUID studentId);
     StudentDetailResponse findResponseDetailById(UUID studentId);

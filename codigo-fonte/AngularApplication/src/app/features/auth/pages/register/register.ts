@@ -10,7 +10,7 @@ import { NotificationService } from '../../../../core/services/notification/noti
 import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { CaptchaRequestDto } from '../../dto/capcha-request.dto';
-import { SchooladminApi } from '../../../shooladmin/api/schooladmin.api';
+import { SchooladminApi } from '../../../schooladmin/api/schooladmin.api';
 
 declare const turnstile: any;
 

@@ -29,13 +29,13 @@ public final class Collaborator implements Serializable {
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
-    @Column(name = "date_of_birth")
+    @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(name = "specialty", length = 30, nullable = false)
+    @Column(name = "specialty", nullable = false, length = 30)
     private String specialty;
 
-    @Column(name = "workload", length = 10)
+    @Column(name = "workload", nullable = false, length = 10)
     private String workload;
 
     public Collaborator() {

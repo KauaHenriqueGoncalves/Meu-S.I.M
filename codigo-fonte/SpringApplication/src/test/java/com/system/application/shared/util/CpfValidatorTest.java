@@ -23,11 +23,11 @@ class CpfValidatorTest {
     }
 
     @Test
-    @DisplayName("getInstance() deve retornar instâncias diferentes a cada chamada")
+    @DisplayName("getInstance() deve retornar mesma instâncias a cada chamada")
     void testGetInstanceReturnsDifferentInstances() {
         CpfValidator a = CpfValidator.getInstance();
         CpfValidator b = CpfValidator.getInstance();
-        assertNotSame(a, b);
+        assertSame(a, b);
     }
 
     @Test

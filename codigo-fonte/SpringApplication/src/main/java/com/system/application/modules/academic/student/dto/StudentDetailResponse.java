@@ -1,5 +1,6 @@
 package com.system.application.modules.academic.student.dto;
 
+import com.system.application.modules.academic.student.Student;
 import com.system.application.modules.identity.legalguardian.dto.LegalGuardianResponse;
 
 import java.io.Serial;
@@ -19,4 +20,17 @@ public record StudentDetailResponse(
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public static StudentDetailResponse of(Student s) {
+        return new StudentDetailResponse(
+                s.getId(),
+                s.getName(),
+                s.getDateOfBirth(),
+                s.getGrade(),
+                new LegalGuardianResponse(
+                        s.getLegalGuardian().getId(),
+                        s.getLegalGuardian().getUser().getUsername(),
+                        s.getLegalGuardian().getDegreeOfKinship()
+                ));
+    }
 }

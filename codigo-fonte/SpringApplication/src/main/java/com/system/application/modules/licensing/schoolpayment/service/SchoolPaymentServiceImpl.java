@@ -29,6 +29,9 @@ public class SchoolPaymentServiceImpl implements SchoolPaymentService {
 
     @Override
     public SchoolPayment findBySchoolSubscriptionId(UUID schoolSubscriptionId) {
+        log.info("Buscando historico de pagamento da licença pelo licença [schoolSubscriptionId={}]",
+                schoolSubscriptionId);
+
         return schoolPaymentRepository.findBySchoolSubscriptionId(schoolSubscriptionId)
                 .orElseThrow(() -> {
                     log.warn("Pagamento da escola nao encontrado pela assinatura. [schoolSubscriptionId={}]",
@@ -53,6 +56,9 @@ public class SchoolPaymentServiceImpl implements SchoolPaymentService {
 
     @Override
     public SchoolPayment findById(UUID paymentId) {
+        log.info("Buscando historico de pagamento da licença pelo id [paymentId={}]",
+                paymentId);
+
         return schoolPaymentRepository.findById(paymentId)
                 .orElseThrow(() -> {
                     log.warn("Pagamento da escola nao encontrado. [paymentId={}]", paymentId);

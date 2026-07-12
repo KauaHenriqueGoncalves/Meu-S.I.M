@@ -12,7 +12,6 @@ export class CacheResetService {
 
   resetAll(): void {
     this.resetCallbacks.forEach(fn => {
-      console.log("Limpeza de cache")
       fn()
     });
   }

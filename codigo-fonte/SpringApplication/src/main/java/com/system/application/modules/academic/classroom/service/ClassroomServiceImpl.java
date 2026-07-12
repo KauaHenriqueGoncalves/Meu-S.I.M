@@ -1,5 +1,6 @@
 package com.system.application.modules.academic.classroom.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.system.application.modules.academic.classtype.ClassType;
 import com.system.application.modules.academic.classtype.service.ClassTypeService;
 import com.system.application.modules.academic.classroom.Classroom;
@@ -21,18 +22,19 @@ import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
+import com.system.application.shared.services.cache.keys.CacheKeys;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.UUID;
+import java.time.Duration;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +48,9 @@ public class ClassroomServiceImpl implements ClassroomService {
     private final ClassTypeService classTypeService;
     private final SubjectService subjectService;
     private final StudentService studentService;
+    private final CacheService  cacheService;
+
+    private static final Duration CLASSROOM_TTL = Duration.ofHours(60);
 
     public ClassroomServiceImpl(
             ClassroomRepository classroomRepository,
@@ -53,7 +58,8 @@ public class ClassroomServiceImpl implements ClassroomService {
             SchoolService schoolService,
             ClassTypeService classTypeService,
             SubjectService subjectService,
-            StudentService studentService
+            StudentService studentService,
+            CacheService cacheService
     ) {
         this.classroomRepository = classroomRepository;
         this.schoolSubscriptionService = schoolSubscriptionService;
@@ -61,6 +67,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         this.classTypeService = classTypeService;
         this.subjectService = subjectService;
         this.studentService = studentService;
+        this.cacheService = cacheService;
     }
 
     @Override
@@ -70,21 +77,33 @@ public class ClassroomServiceImpl implements ClassroomService {
         log.info("Buscando turmas da escola. [requisitanteId={}] [schoolId={}] [page={}] [size={}]",
                 userId, school.getId(), page, size);
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ClassroomResponse> response = classroomRepository.findAllBySchoolId(school.getId(), pageable)
-                .map(c ->
-                    new ClassroomResponse(
-                            c.getId(),
-                            c.getClassType().getName(),
-                            c.getSubject().getName(),
-                            c.getName()
-                    )
-                );
+        String key = CacheKeys.classroom(school.getId(), page, size);
+
+        Optional<PageResponse<ClassroomResponse>> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Turmas encontradas no cache. [schoolId={}] [total={}] [totalPages={}]",
+                    school.getId(), cacheResponse.get().totalElements(), cacheResponse.get().totalPages());
+            return cacheResponse.get();
+        }
+
+        Pageable pageable =
+                PageRequest.of(page, size, Sort.by("name").ascending());
+
+        Page<ClassroomResponse> responsePage = classroomRepository.findAllBySchoolId(school.getId(), pageable)
+                .map(ClassroomResponse::of);
 
         log.info("Turmas encontradas. [schoolId={}] [total={}] [totalPages={}]",
-                school.getId(), response.getTotalElements(), response.getTotalPages());
+                school.getId(), responsePage.getTotalElements(), responsePage.getTotalPages());
 
-        return PageResponse.from(response);
+        PageResponse<ClassroomResponse> response = PageResponse.from(responsePage);
+
+        cacheService.set(key, response, CLASSROOM_TTL);
+
+        return response;
     }
 
     @Override
@@ -97,24 +116,38 @@ public class ClassroomServiceImpl implements ClassroomService {
         Student student = studentService.findById(studentId);
         ensureStudentBelongsToSchool(school.getId(), student);
 
+        String key = CacheKeys.classroom(student.getId(), "byStudent");
+
+        Optional<List<ClassroomResponse>> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Turmas do estudante encontradas no cache. [studentId={}] [total={}]",
+                    studentId, cacheResponse.get().size());
+            return cacheResponse.get();
+        }
+
         List<ClassroomResponse> response = classroomRepository
                 .findAllResponseByStudentId(student.getId())
-                .stream().map(c ->
-                        new ClassroomResponse(
-                                c.getId(),
-                                c.getClassType().getName(),
-                                c.getSubject().getName(),
-                                c.getName())
-                ).toList();
+                .stream()
+                .map(ClassroomResponse::of)
+                .toList();
 
         log.info("Turmas do estudante encontradas. [studentId={}] [total={}]",
                 studentId, response.size());
+
+        cacheService.set(key, response, CLASSROOM_TTL);
 
         return response;
     }
 
     @Override
     public Classroom findById(UUID classroomId) {
+        log.info("Buscando classe de aula pelo id. [classroomId={}]",
+                classroomId);
+
         return classroomRepository.findById(classroomId)
                 .orElseThrow(() -> {
                     log.warn("Turma não encontrada. [classroomId={}]", classroomId);
@@ -129,24 +162,30 @@ public class ClassroomServiceImpl implements ClassroomService {
         log.info("Buscando detalhes da turma. [requisitanteId={}] [classroomId={}] [schoolId={}]",
                 userId, classroomId, school.getId());
 
+        String key = CacheKeys.classroom(classroomId, "responseDetail");
+
+        Optional<ClassroomDetailResponse> cacheResponse = cacheService.get(
+                key,
+                new TypeReference<>() {}
+        );
+
+        if (cacheResponse.isPresent()) {
+            log.info("Detalhes da turmas encontrada no cache. [schooId={}] [classroomId={}]",
+                    school.getId(), cacheResponse.get().id());
+            return cacheResponse.get();
+        }
+
         Classroom classroom = findById(classroomId);
         ensureClassroomBelongsToSchool(school.getId(), classroom);
 
-        return new ClassroomDetailResponse(
-                classroom.getId(),
-                classroom.getClassType(),
-                new SubjectResponse(
-                        classroom.getSubject().getId(),
-                        classroom.getSubject().getName()
-                ),
-                classroom.getName(),
-                classroom.getMaxStudents(),
-                classroom.getStudents().stream()
-                        .sorted(Comparator.comparing(Student::getName))
-                        .map(c ->
-                                new ClassroomViewStudentResponse(c.getId(), c.getName()))
-                        .collect(Collectors.toCollection(LinkedHashSet::new))
-        );
+        log.info("Detalhes da turmas encontrada no cache. [schooId={}] [classroomId={}]",
+                school.getId(), classroom.getId());
+
+        ClassroomDetailResponse response = ClassroomDetailResponse.of(classroom);
+
+        cacheService.set(key, response, CLASSROOM_TTL);
+
+        return response;
     }
 
     @Override
@@ -165,12 +204,21 @@ public class ClassroomServiceImpl implements ClassroomService {
         Subject subject = subjectService.findById(request.subjectId());
         ensureSubjectBelongsToSchool(school.getId(), subject);
 
-        Classroom classroom =
-                new Classroom(null, school, classType, subject, request.name(), request.maxStudents(), null);
+        Classroom classroom = new Classroom(
+                null, school, classType, subject, request.name(), request.maxStudents(), "", null
+        );
+
         classroom = classroomRepository.save(classroom);
 
         log.info("Turma cadastrada com sucesso. [classroomId={}] [schoolId={}] [tipo={}] [maxAlunos={}]",
                 classroom.getId(), school.getId(), classType.getName(), classroom.getMaxStudents());
+
+        String key = CacheKeys.classroomPattern(school.getId());
+
+        log.info("Apagando todos os cache de classes ligado à escola. [school={}] [key={}]",
+                school.getId(), key);
+
+        cacheService.evictByPattern(key);
 
         return classroom;
     }
@@ -197,10 +245,26 @@ public class ClassroomServiceImpl implements ClassroomService {
         classroom.setClassType(classType);
         classroom.setMaxStudents(request.maxStudents());
         classroom.setName(request.name());
+        classroom.setDescription(request.description());
         classroomRepository.save(classroom);
 
         log.info("Turma atualizada com sucesso. [classroomId={}] [schoolId={}]",
                 classroomId, school.getId());
+
+        List<UUID> keysStudents = classroom.getStudents()
+                .stream()
+                .map(Student::getId)
+                .toList();
+
+        String keySchool = CacheKeys.classroomPattern(school.getId());
+        String keyClassroom = CacheKeys.classroomPattern(classroom.getId());
+
+        log.info("Apagando todos os cache de classes ligado à escola. [keySchool={}] [keyClassroom={}] [keyStudents={}]",
+                keySchool, keyClassroom, keysStudents);
+
+        deleteCacheByStudent(keysStudents);
+        cacheService.evictByPattern(keySchool);
+        cacheService.evictByPattern(keyClassroom);
     }
 
     @Override
@@ -217,6 +281,7 @@ public class ClassroomServiceImpl implements ClassroomService {
 
         Student student = studentService.findById(studentId);
         ensureStudentBelongsToSchool(school.getId(), student);
+        ensureClassroomContainsStudentToAdd(classroom, student);
         ensureClassroomFull(classroom);
 
         classroom.getStudents().add(student);
@@ -224,6 +289,13 @@ public class ClassroomServiceImpl implements ClassroomService {
 
         log.info("Estudante adicionado à turma com sucesso. [classroomId={}] [studentId={}] [ocupacao={}/{}]",
                 classroomId, studentId, classroom.getStudents().size(), classroom.getMaxStudents());
+
+        String keyClassroom = CacheKeys.classroomPattern(classroom.getId());
+
+        log.info("Apagando todos os cache ligado à classe. [keyClassroom={}]",
+                keyClassroom);
+
+        cacheService.evictByPattern(keyClassroom);
     }
 
     @Override
@@ -240,13 +312,22 @@ public class ClassroomServiceImpl implements ClassroomService {
 
         Student student = studentService.findById(studentId);
         ensureStudentBelongsToSchool(school.getId(), student);
-        ensureClassroomContainsStudent(classroom, student);
+        ensureClassroomContainsStudentToRemove(classroom, student);
 
         classroom.getStudents().remove(student);
         classroomRepository.save(classroom);
 
         log.info("Estudante removido da turma com sucesso. [classroomId={}] [studentId={}]",
                 classroomId, studentId);
+
+        String keyClassroom = CacheKeys.classroomPattern(classroom.getId());
+        String keyStudent = CacheKeys.classroomPattern(student.getId());
+
+        log.info("Apagando todos os cache ligado à classe e estudante. [keyClassroom={}] [keyStudent={}]",
+                keyClassroom, keyStudent);
+
+        cacheService.evictByPattern(keyClassroom);
+        cacheService.evictByPattern(keyStudent);
     }
 
     @Override
@@ -271,6 +352,30 @@ public class ClassroomServiceImpl implements ClassroomService {
 
         log.info("Turma excluída com sucesso. [classroomId={}] [schoolId={}]",
                 classroomId, school.getId());
+
+        List<UUID> keysStudents = classroom.getStudents()
+                .stream()
+                .map(Student::getId)
+                .toList();
+
+        String keySchool = CacheKeys.classroomPattern(school.getId());
+        String keyClassroom = CacheKeys.classroomPattern(classroom.getId());
+
+        log.info("Apagando todos os cache de classes ligado à escola. [keySchool={}] [keyClassroom={}]",
+                keySchool, keyClassroom);
+
+        deleteCacheByStudent(keysStudents);
+        cacheService.evictByPattern(keySchool);
+        cacheService.evictByPattern(keyClassroom);
+    }
+
+    private void deleteCacheByStudent(List<UUID> keysStudents) {
+        for (UUID id : keysStudents) {
+            String key = CacheKeys.classroom(id, "byStudent");
+            if (cacheService.exists(key)) {
+                cacheService.delete(key);
+            }
+        }
     }
 
     private void ensureIsIndividual(ClassType classType, ClassroomRequest request) {
@@ -298,7 +403,15 @@ public class ClassroomServiceImpl implements ClassroomService {
         }
     }
 
-    private void ensureClassroomContainsStudent(Classroom classroom, Student student) {
+    private void ensureClassroomContainsStudentToAdd(Classroom classroom, Student student) {
+        if (classroom.getStudents().contains(student)) {
+            log.warn("Tentativa de adicionar estudante que já pertence à turma. [classroomId={}] [studentId={}]",
+                    classroom.getId(), student.getId());
+            throw new BusinessException("Estudante já pertence à turma");
+        }
+    }
+
+    private void ensureClassroomContainsStudentToRemove(Classroom classroom, Student student) {
         if (!classroom.getStudents().contains(student)) {
             log.warn("Tentativa de remover estudante que não pertence à turma. [classroomId={}] [studentId={}]",
                     classroom.getId(), student.getId());

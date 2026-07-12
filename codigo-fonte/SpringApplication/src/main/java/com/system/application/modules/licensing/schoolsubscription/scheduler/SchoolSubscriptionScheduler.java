@@ -7,6 +7,8 @@ import com.system.application.modules.licensing.schoolsubscription.SchoolSubscri
 import com.system.application.modules.licensing.schoolsubscription.enums.SubscriptionStatus;
 import com.system.application.modules.licensing.schoolsubscription.repository.SchoolSubscriptionRepository;
 
+import com.system.application.shared.services.cache.CacheService;
+import com.system.application.shared.services.cache.keys.CacheKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -24,13 +27,16 @@ public class SchoolSubscriptionScheduler {
 
     private final SchoolSubscriptionRepository schoolSubscriptionRepository;
     private final SchoolPaymentService schoolPaymentService;
+    private final CacheService cacheService;
 
     public SchoolSubscriptionScheduler(
             SchoolSubscriptionRepository schoolSubscriptionRepository,
-            SchoolPaymentService schoolPaymentService
+            SchoolPaymentService schoolPaymentService,
+            CacheService cacheService
     ) {
         this.schoolSubscriptionRepository = schoolSubscriptionRepository;
         this.schoolPaymentService = schoolPaymentService;
+        this.cacheService = cacheService;
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -45,13 +51,20 @@ public class SchoolSubscriptionScheduler {
             return;
         }
 
+        List<String> keys = new ArrayList<>();
+
         expired.forEach(sub -> {
             log.info("Expirando assinatura. [schoolSubscriptionId={}] [schoolId={}] [endDate={}]",
                     sub.getId(), sub.getSchool().getId(), sub.getEndDate());
             sub.setStatus(SubscriptionStatus.EXPIRED);
+            keys.add(CacheKeys.subscriptionPattern(sub.getSchool().getId()));
         });
 
         schoolSubscriptionRepository.saveAll(expired);
+
+        for (String key : keys) {
+            cacheService.evictByPattern(key);
+        }
 
         log.info("Job de expiracao de assinaturas concluido. [total={}]", expired.size());
     }
@@ -84,6 +97,7 @@ public class SchoolSubscriptionScheduler {
                             sub -> {
                                 sub.setStatus(SubscriptionStatus.EXPIRED);
                                 schoolSubscriptionRepository.save(sub);
+                                cacheService.evictByPattern(CacheKeys.subscriptionPattern(sub.getSchool().getId()));
                                 log.info("Assinatura expirada por pagamento nao confirmado. [schoolSubscriptionId={}] [paymentId={}]",
                                         sub.getId(), payment.getId());
                                 },

@@ -18,12 +18,15 @@ import com.system.application.modules.licensing.schoolsubscription.dto.*;
 import com.system.application.modules.licensing.schoolsubscription.enums.SubscriptionStatus;
 import com.system.application.modules.licensing.schoolsubscription.repository.SchoolSubscriptionRepository;
 import com.system.application.modules.school.School;
+import com.system.application.modules.school.dto.SchoolCapacityResponseDTO;
+import com.system.application.modules.school.service.SchoolCapacityQuery;
 import com.system.application.modules.school.service.SchoolService;
 import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,6 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -59,6 +63,9 @@ public class SchoolSubscriptionServiceImplTest {
     @Mock private SchoolService schoolService;
     @Mock private UserService userService;
     @Mock private PaymentGateway paymentGateway;
+    @Mock private CacheService cacheService;
+    @Mock private ApplicationEventPublisher eventPublisher;
+    @Mock private SchoolCapacityQuery schoolCapacityQuery;
 
     @InjectMocks
     private SchoolSubscriptionServiceImpl schoolSubscriptionService;
@@ -74,6 +81,7 @@ public class SchoolSubscriptionServiceImplTest {
     private SchoolPlan schoolPlan;
     private SchoolSubscription subscription;
     private SchoolPayment payment;
+    private SchoolCapacityResponseDTO schoolCapacityDtoWithoutUsers ;
 
     @BeforeEach
     void setUp() {
@@ -84,6 +92,7 @@ public class SchoolSubscriptionServiceImplTest {
 
         school      = new School(schoolId, "escola-01", "Escola Teste", "12345678000195");
         outraEscola = new School(UUID.randomUUID(), "outra-escola", "Outra Escola", "98765432000100");
+        schoolCapacityDtoWithoutUsers = new SchoolCapacityResponseDTO(0, 0, 0, 0);
 
         user = new User(
                 userId, "Admin Escola", "admin@escola.com", "hashed",
@@ -133,7 +142,7 @@ public class SchoolSubscriptionServiceImplTest {
 
             assertThatThrownBy(() -> schoolSubscriptionService.findById(subscriptionId))
                     .isInstanceOf(NotFoundObjectException.class)
-                    .hasMessageContaining("licenca");
+                    .hasMessageContaining("Nao encontrou a licença da escola");
         }
     }
 
@@ -161,7 +170,7 @@ public class SchoolSubscriptionServiceImplTest {
             assertThatThrownBy(() ->
                     schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
                     .isInstanceOf(SubscriptionException.class)
-                    .hasMessageContaining("licenca ativa");
+                    .hasMessageContaining("A escola não possui uma licença ativa.");
         }
     }
 
@@ -303,13 +312,15 @@ public class SchoolSubscriptionServiceImplTest {
                     .thenReturn(false);
             when(billingDiscountService.findBestDiscountFor(12))
                     .thenReturn(BigDecimal.ZERO);
+            when(schoolCapacityQuery.getCapacity(schoolId))
+                    .thenReturn(schoolCapacityDtoWithoutUsers);
             when(schoolSubscriptionRepository.save(any(SchoolSubscription.class)))
                     .thenReturn(pendingSubscription);
             when(paymentGateway.createCheckout(any(CheckoutRequest.class)))
                     .thenReturn(new CheckoutResponse("pref_123", "https://init.point"));
 
             SchoolSubscriptionCheckoutResponse result =
-                    schoolSubscriptionService.create(userId, request);
+                    schoolSubscriptionService.createCheckout(userId, request);
 
             assertThat(result.preferenceId()).isEqualTo("pref_123");
             assertThat(result.initPoint()).isEqualTo("https://init.point");
@@ -338,13 +349,15 @@ public class SchoolSubscriptionServiceImplTest {
                     .thenReturn(false);
             when(billingDiscountService.findBestDiscountFor(12))
                     .thenReturn(BigDecimal.valueOf(10)); // 10% de desconto
+            when(schoolCapacityQuery.getCapacity(schoolId))
+                    .thenReturn(schoolCapacityDtoWithoutUsers);
             when(schoolSubscriptionRepository.save(any(SchoolSubscription.class)))
                     .thenReturn(pendingSubscription);
             when(paymentGateway.createCheckout(any(CheckoutRequest.class)))
                     .thenReturn(new CheckoutResponse("pref_456", "https://init.point"));
 
             SchoolSubscriptionCheckoutResponse result =
-                    schoolSubscriptionService.create(userId, request);
+                    schoolSubscriptionService.createCheckout(userId, request);
 
             // Verifica que o checkout foi criado com preço descontado
             assertThat(result.planPrice()).isEqualByComparingTo(BigDecimal.valueOf(1080.00));
@@ -362,7 +375,7 @@ public class SchoolSubscriptionServiceImplTest {
             when(userService.findById(userId)).thenReturn(user);
             when(schoolPlanService.findById(planId)).thenReturn(inactivePlan);
 
-            assertThatThrownBy(() -> schoolSubscriptionService.create(userId, request))
+            assertThatThrownBy(() -> schoolSubscriptionService.createCheckout(userId, request))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("ativo");
 
@@ -379,7 +392,7 @@ public class SchoolSubscriptionServiceImplTest {
             when(schoolSubscriptionRepository.existsBySchoolIdAndStatus(schoolId, SubscriptionStatus.ACTIVE))
                     .thenReturn(true);
 
-            assertThatThrownBy(() -> schoolSubscriptionService.create(userId, request))
+            assertThatThrownBy(() -> schoolSubscriptionService.createCheckout(userId, request))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("ativa");
 
@@ -397,7 +410,7 @@ public class SchoolSubscriptionServiceImplTest {
             when(schoolSubscriptionRepository.existsBySchoolIdAndStatus(schoolId, SubscriptionStatus.PENDING_PAYMENT))
                     .thenReturn(true);
 
-            assertThatThrownBy(() -> schoolSubscriptionService.create(userId, request))
+            assertThatThrownBy(() -> schoolSubscriptionService.createCheckout(userId, request))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("pendente");
 

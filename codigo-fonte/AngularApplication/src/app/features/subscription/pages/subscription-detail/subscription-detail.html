@@ -166,10 +166,21 @@
         </div>
 
         <div class="action-bar">
-            <div class="action-left">
+
+            <div class="action-left-btns">
                 @if (canCancel()) {
                     <button class="btn-danger-outline" (click)="openCancelModal()">
                         Cancelar Licença
+                    </button>
+                }
+                @if (canReactitvate()) {
+                    <button class="btn-success-solid" (click)="reactivateSubscription()">
+                        @if (isReactitvating) {
+                            <app-spinner-to-button color="#fff"></app-spinner-to-button>
+                        }
+                        @else {
+                            Reativar Licença
+                        }
                     </button>
                 }
             </div>

@@ -14,9 +14,9 @@ import java.util.UUID;
 @Repository
 public interface SchoolAdminRepository extends CrudRepository<SchoolAdmin, UUID> {
     Optional<SchoolAdmin> findByUserId(UUID userId);
+    List<SchoolAdmin> findAllBySchoolId(UUID schoolId);
 
-    @Query("SELECT sa.school.id FROM SchoolAdmin sa WHERE sa.user.id = :userId")
-    Optional<UUID> findSchoolIdByUserId(@Param("userId") UUID userId);
+    long countBySchoolId(UUID schoolId);
 
     @Query("""
     SELECT sa

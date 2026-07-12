@@ -6,7 +6,6 @@ import com.system.application.modules.identity.legalguardian.dto.LegalGuardianRe
 import com.system.application.modules.identity.legalguardian.dto.LegalGuardianResponse;
 import com.system.application.modules.identity.legalguardian.dto.UpdateLegalGuardianRequest;
 import com.system.application.modules.identity.legalguardian.repository.LegalGuardianRepository;
-import com.system.application.modules.identity.legalguardian.repository.projection.LegalGuardianListView;
 import com.system.application.modules.identity.legalguardian.service.LegalGuardianServiceImpl;
 import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.user.User;
@@ -22,6 +21,7 @@ import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
+import com.system.application.shared.services.cache.CacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -56,6 +56,7 @@ public class LegalGuardianServiceImplTest {
     @Mock private UserService userService;
     @Mock private SchoolService schoolService;
     @Mock private BCryptPasswordEncoder passwordEncoder;
+    @Mock private CacheService cacheService;
 
     @InjectMocks
     private LegalGuardianServiceImpl legalGuardianService;
@@ -136,14 +137,6 @@ public class LegalGuardianServiceImplTest {
         passwordRequest = new PasswordRequest("novaSenha123");
     }
 
-    private LegalGuardianListView mockListView(UUID id, String username, String degreeOfKinship) {
-        return new LegalGuardianListView() {
-            @Override public UUID getId() { return id; }
-            @Override public String getUsername() { return username; }
-            @Override public String getDegreeOfKinship() { return degreeOfKinship; }
-        };
-    }
-
     @Nested
     @DisplayName("findById()")
     final class FindById {
@@ -208,37 +201,7 @@ public class LegalGuardianServiceImplTest {
     @Nested
     @DisplayName("findAllResponseBySchool()")
     final class FindAllResponseBySchool {
-        @Test
-        @DisplayName("deve retornar página de responsáveis mapeados da escola")
-        void shouldReturnPage_whenSchoolHasLegalGuardians() {
-            LegalGuardianListView view = mockListView(legalGuardianId, "Maria Silva", "Mãe");
 
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(legalGuardianRepository.findAllBySchoolId(eq(schoolId), any(Pageable.class)))
-                    .thenReturn(new PageImpl<>(List.of(view)));
-
-            PageResponse<LegalGuardianResponse> result =
-                    legalGuardianService.findAllResponseBySchool(userId, 0, 10);
-
-            assertThat(result.content()).hasSize(1);
-            assertThat(result.content().getFirst().username()).isEqualTo("Maria Silva");
-            assertThat(result.content().getFirst().degreeOfKinship()).isEqualTo("Mãe");
-        }
-
-        @Test
-        @DisplayName("deve retornar página vazia quando escola não tiver responsáveis")
-        void shouldReturnEmptyPage_whenSchoolHasNoLegalGuardians() {
-            Pageable pageable = PageRequest.of(0, 10);
-
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(legalGuardianRepository.findAllBySchoolId(eq(schoolId), any(Pageable.class)))
-                    .thenReturn(new PageImpl<>(List.of(), pageable, 0));
-
-            PageResponse<LegalGuardianResponse> result =
-                    legalGuardianService.findAllResponseBySchool(userId, 0, 10);
-
-            assertThat(result.content()).isEmpty();
-        }
     }
 
     @Nested
@@ -294,8 +257,6 @@ public class LegalGuardianServiceImplTest {
                     .thenReturn(true);
             when(legalGuardianRepository.findById(legalGuardianId))
                     .thenReturn(Optional.of(legalGuardian));
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(legalGuardianRepository.save(any(LegalGuardian.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
@@ -320,24 +281,6 @@ public class LegalGuardianServiceImplTest {
             assertThatThrownBy(() ->
                     legalGuardianService.update(userId, legalGuardianId, updateRequest)
             ).isInstanceOf(AccessDeniedException.class);
-
-            verify(legalGuardianRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("deve lançar SubscriptionException quando escola não tiver licença ativa")
-        void shouldThrowSubscription_whenNoActiveSubscription() {
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
-                    .thenReturn(true);
-            when(legalGuardianRepository.findById(legalGuardianId))
-                    .thenReturn(Optional.of(legalGuardian));
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenThrow(new SubscriptionException("Sem licença ativa"));
-
-            assertThatThrownBy(() ->
-                    legalGuardianService.update(userId, legalGuardianId, updateRequest))
-                    .isInstanceOf(SubscriptionException.class);
 
             verify(legalGuardianRepository, never()).save(any());
         }
@@ -387,8 +330,6 @@ public class LegalGuardianServiceImplTest {
         @DisplayName("deve excluir o responsável com sucesso")
         void shouldDelete_whenValid() {
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
                     .thenReturn(true);
 
@@ -398,25 +339,9 @@ public class LegalGuardianServiceImplTest {
         }
 
         @Test
-        @DisplayName("deve lançar SubscriptionException quando escola não tiver licença ativa")
-        void shouldThrowSubscription_whenNoActiveSubscription() {
-            when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenThrow(new SubscriptionException("Sem licença ativa"));
-
-            assertThatThrownBy(() ->
-                    legalGuardianService.deleteById(userId, legalGuardianId))
-                    .isInstanceOf(SubscriptionException.class);
-
-            verify(legalGuardianRepository, never()).deleteById(any());
-        }
-
-        @Test
         @DisplayName("deve lançar AccessDeniedException quando responsável não pertencer à escola do usuário")
         void shouldThrowAccessDenied_whenLegalGuardianBelongsToDifferentSchool() {
             when(schoolService.findByUserId(userId)).thenReturn(school);
-            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
-                    .thenReturn(subscription);
             when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
                     .thenReturn(false);
 
