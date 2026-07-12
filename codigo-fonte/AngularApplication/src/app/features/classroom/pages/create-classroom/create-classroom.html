@@ -57,16 +57,21 @@
                         }
                         @if (isSubjectDropdownOpen) {
                             <div class="dropdown-menu">
-                                <ul class="dropdown-list">
-                                    @if (filteredSubjects.length === 0) {
+                                <ul class="dropdown-list" (scroll)="onScroll($event)">
+                                    @if (subjects.length === 0) {
                                         <li class="empty-state">
                                             Nenhuma disciplina encontrada.
                                         </li>
                                     }
                                     @else {
-                                        @for (subject of filteredSubjects; track subject.id) {
+                                        @for (subject of subjects; track subject.id) {
                                             <li (click)="selectSubject(subject)">
                                                 {{ subject.name }}
+                                            </li>
+                                        }
+                                        @if (hasMoreSubjects) {
+                                            <li class="loading-state">
+                                                <app-spinner-to-button color="var(--color-primary-200)" />
                                             </li>
                                         }
                                     }

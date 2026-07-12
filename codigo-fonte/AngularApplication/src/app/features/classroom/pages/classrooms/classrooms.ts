@@ -89,10 +89,9 @@ export class Classrooms implements OnInit {
   }
 
   goToDetails(id: string): void {
-    console.log("Tela de detalhes: " + id);
-    // this.router.navigate(
-    //   ['/app/details-classroom'], 
-    //   { state: { id } }
-    // );
+    this.router.navigate(
+      ['/app/details-classroom'], 
+      { state: { id } }
+    );
   }
 }

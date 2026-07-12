@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SubjectResponseDto } from '../../../subject/dto/subject-response.dto';
 import { ClassTypeResponseDto } from '../../../classtype/dto/class-type-response.dto';
@@ -33,15 +33,18 @@ export class CreateClassroom implements OnInit {
 
   classTypes: ClassTypeResponseDto[] = [];
   subjects: SubjectResponseDto[] = [];
-  filteredSubjects: SubjectResponseDto[] = [];
 
   isSubjectDropdownOpen = false;
   selectedSubjectName = '';
 
   subjectPage = 0;
-  subjectSize = 200;
+  subjectSize = 40;
   isLoading = false;
   isSubmitting = false;
+
+  isLoadingMore = false;
+  hasMoreSubjects = true;
+  isAppending = false;
 
   constructor(
     private fb: FormBuilder,
@@ -115,13 +118,22 @@ export class CreateClassroom implements OnInit {
   }
 
   loadSubjects(): void {
-    this.isLoading = true;
+    if (!this.isAppending) {
+      this.isLoading = true;
+      this.subjectPage = 0;
+    }
     this.subjectApi.findAll(this.subjectPage, this.subjectSize)
       .subscribe({
         next: (res: PageResponse<SubjectResponseDto>) => {
-          this.subjects = res.content;
-          this.filteredSubjects = [...this.subjects];
+          if (this.isAppending) {
+            this.subjects = [...this.subjects, ...res.content];
+          } else {
+            this.subjects = res.content;
+          }
+          this.hasMoreSubjects = res.content.length === this.subjectSize;
+          this.isAppending = false;
           this.isLoading = false;
+          this.isLoadingMore = false;
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -130,21 +142,11 @@ export class CreateClassroom implements OnInit {
             text: err.error?.message || 'Erro ao carregar disciplinas'
           });
           this.isLoading = false;
+          this.isLoadingMore = false;
+          this.isAppending = false;
+          this.cdr.detectChanges();
         }
       });
-  }
-
-  onSearchSubject(event: Event): void {
-    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    if (!searchTerm) {
-      this.filteredSubjects = [...this.subjects];
-      return;
-    }
-    this.filteredSubjects = this.subjects.filter(
-      (subject) => {
-        subject.name.toLowerCase().includes(searchTerm)
-      }
-    );
   }
 
   selectSubject(subject: SubjectResponseDto): void {
@@ -160,14 +162,25 @@ export class CreateClassroom implements OnInit {
   setupClassTypeListener(): void {
     this.classroomForm.get('classTypeId')?.valueChanges.subscribe(typeId => {
       const maxStudentsControl = this.classroomForm.get('maxStudents');
-      if (typeId == 1) { 
+      if (typeId == 1) {
         maxStudentsControl?.setValue(1);
         maxStudentsControl?.disable();
-      } 
+      }
       else {
         maxStudentsControl?.enable();
       }
     });
+  }
+
+  onScroll(event: Event): void {
+    const target = event.target as HTMLElement;
+    const isBottom = Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <= 10;
+    if (isBottom && !this.isLoadingMore && this.hasMoreSubjects) {
+      this.isLoadingMore = true;
+      this.isAppending = true;
+      this.subjectPage++;
+      this.loadSubjects();
+    }
   }
 
   onSubmit(): void {

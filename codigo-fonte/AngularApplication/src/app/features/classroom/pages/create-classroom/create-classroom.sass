@@ -192,6 +192,13 @@
         background: var(--bg-light, #f3f4f6)
         color: var(--color-primary-600, #16a34a)
 
+    .loading-state
+      background: var(--white)
+      display: flex
+      justify-content: center
+      padding: 10px
+      cursor: default
+
     .empty-state
       color: var(--text-666, #6b7280)
       text-align: center
@@ -208,10 +215,13 @@
     opacity: .5
 
 .actions-card
+  background: var(--bg-light, #f9fafb)
+  border: 1px solid var(--border-color, #e5e7eb)
+  border-radius: 12px
   padding: 1.5rem
   display: flex
   flex-direction: column
-  gap: 1.5rem
+  gap: 1.25rem
 
   .actions-hint
     margin: 0
@@ -254,8 +264,6 @@
 
       &:hover:not(:disabled)
         background: var(--color-primary-700, #15803d)
-        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25)
-        transform: translateY(-1px)
 
       &:disabled
         background: #9ca3af
@@ -295,6 +303,8 @@
 @media (max-width: 640px)
   .create-container
     padding: 1rem
+    margin-bottom: 1rem 
+    height: fit-content
 
     .inputs-grid-fluid
       grid-template-columns: 1fr

@@ -16,7 +16,7 @@ public record ClassroomRequest(
 
         @NotNull(message = "Informe a quantidade máxima de estudante")
         @Min(value = 1, message = "A turma deve ter pelo menos 1 estudante")
-        @Max(value = 999, message = "Número máximo da turma é 999 estudantes")
+        @Max(value = 200, message = "Número máximo da turma é 999 estudantes")
         Integer maxStudents,
 
         @NotBlank(message = "Nome é obrigatório")

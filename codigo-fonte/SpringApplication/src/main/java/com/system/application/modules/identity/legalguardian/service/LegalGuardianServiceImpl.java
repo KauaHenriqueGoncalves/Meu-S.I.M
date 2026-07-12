@@ -199,7 +199,8 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
         String keySchool = CacheKeys.legalGuardianPattern(schoolId);
         String keyUser = CacheKeys.legalGuardianPattern(legalGuardianId);
-        List<String> keysByStudent = studentsByLegalGuardian.stream()
+        List<String> keysByStudent = studentsByLegalGuardian
+                .stream()
                 .map(s -> CacheKeys.student(s.id(), "detailResponse"))
                 .toList();
 
