@@ -237,13 +237,15 @@ public class StudentServiceImpl implements StudentService {
                 studentId, school.getId(), legalGuardian.getId());
 
         String keySchool = CacheKeys.studentPattern(school.getId());
+        String keyClassroom = CacheKeys.classroomPattern(school.getId());
         String keyUser = CacheKeys.studentPattern(student.getId());
         String keyByLegalGuardian = CacheKeys.studentPatternByLegalGuardian(school.getId());
 
-        log.info("Apagando todos os cache de student ligado à escola. [keySchool={}] [keyUser={}]",
-                keySchool, keyUser);
+        log.info("Apagando todos os cache de student ligado à escola. [keySchool={}] [keyUser={}] [keyClassroom={}]",
+                keySchool, keyUser, keyClassroom);
 
         cacheService.evictByPattern(keySchool);
+        cacheService.evictByPattern(keyClassroom);
         cacheService.evictByPattern(keyUser);
         cacheService.evictByPattern(keyByLegalGuardian);
     }

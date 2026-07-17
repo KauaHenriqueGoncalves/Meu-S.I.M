@@ -18,6 +18,11 @@ import { SpinnerToButton } from '../../../../shared/components/spinner-to-button
 import { UpdateStudentRequestDto } from '../../dto/update-student-request.dto';
 import { DownloadSvg } from '../../../../shared/components/svg/download.svg';
 import { CancelSvg } from '../../../../shared/components/svg/cancel.svg';
+import { ClassroomViewSimpleResponseDto } from '../../../classroom/dto/classroom-view-simple-response.dto';
+import { AngleDownSvg } from '../../../../shared/components/svg/angle-down.svg';
+import { ClassroomApi } from '../../../classroom/api/classroom-api';
+import { BookSvg } from '../../../../shared/components/svg/book.svg';
+import { ClassTypeService } from '../../../classtype/service/class-type.service';
 
 @Component({
   selector: 'app-details-student',
@@ -30,7 +35,9 @@ import { CancelSvg } from '../../../../shared/components/svg/cancel.svg';
     UploadSvg,
     FileSvg,
     DownloadSvg,
-    TrashSvg
+    TrashSvg,
+    BookSvg,
+    AngleDownSvg
   ],
   templateUrl: './details-student.html',
   styleUrl: './details-student.sass',
@@ -46,6 +53,9 @@ export class DetailsStudent implements OnInit {
   isDeleting = false;
   isFilesLoading = true;
   isUploadingFiles = false;
+
+  isClassroomLoading = true;
+  classrooms!: ClassroomViewSimpleResponseDto[];
 
   selectedFiles: File[] = [];
   uploadedFiles: any[] = [];
@@ -66,6 +76,8 @@ export class DetailsStudent implements OnInit {
     private fb: FormBuilder,
     private studentApi: StudentApi,
     private legalGuardianApi: LegalGuardianApi,
+    private classroomApi: ClassroomApi,
+    private classTypeService: ClassTypeService,
     private router: Router,
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef
@@ -92,11 +104,16 @@ export class DetailsStudent implements OnInit {
     this.initForm();
     this.loadStudent();
     this.loadFiles();
+    this.loadClassroom();
   }
 
   get isFormChanged(): boolean {
     if (!this.initialValues) return false;
     return JSON.stringify(this.editForm.getRawValue()) !== JSON.stringify(this.initialValues);
+  }
+
+  getFriendlyClassTypeName(dbName: string): string {
+    return this.classTypeService.getFriendlyClassTypeName(dbName);
   }
 
   initForm(): void {
@@ -158,6 +175,24 @@ export class DetailsStudent implements OnInit {
     }, 1500);
   }
 
+  loadClassroom(): void {
+    this.classroomApi.findAllByStudentId(this.studentId)
+      .subscribe({
+        next: (res: ClassroomViewSimpleResponseDto[]) => {
+          this.classrooms = res;
+          this.isClassroomLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isClassroomLoading = false;
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro ao carregar o turmas. Por favor, tente novamente mais tarde.'
+          });
+        }
+      });
+  }
+
   fetchGuardians(name: string): void {
     this.legalGuardianApi.findAll(name, 0, 5)
       .subscribe({
@@ -191,6 +226,13 @@ export class DetailsStudent implements OnInit {
 
   goBack(): void {
     window.history.back();
+  }
+
+  goToClassroom(id: string): void {
+    this.router.navigate(
+      ['/app/about-classroom/details'],
+      { state: { id: id } }
+    );
   }
 
   goToLegalGuardianDetails(): void {
@@ -270,7 +312,7 @@ export class DetailsStudent implements OnInit {
   onDeleteStudent(): void {
     this.isDeleting = true;
     this.studentApi.deleteById(this.studentId)
-    .pipe(
+      .pipe(
         finalize(() => {
           this.isDeleting = false;
           this.cdr.detectChanges();

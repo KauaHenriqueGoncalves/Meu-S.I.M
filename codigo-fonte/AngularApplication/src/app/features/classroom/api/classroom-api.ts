@@ -75,8 +75,7 @@ export class ClassroomApi {
 
   addStudent(classroomId: string, data: GetStudentIdInClassroomRequestDto): Observable<any> {
     const endpoint: string = ApiConfig.endpoints.classroom.addStudent.replace('{id}', classroomId);
-    this.cacheFindAll.clear();
-    this.cacheAllByStudent.clear();
+    this.cleanAllCaches();
     return this.apiService.post<GetStudentIdInClassroomRequestDto>(
       endpoint,
       data
@@ -85,8 +84,7 @@ export class ClassroomApi {
 
   removeStudent(classroomId: string, data: GetStudentIdInClassroomRequestDto): Observable<any> {
     const endpoint: string = ApiConfig.endpoints.classroom.removeStudent.replace('{id}', classroomId);
-    this.cacheFindAll.clear();
-    this.cacheAllByStudent.clear();
+    this.cleanAllCaches();
     return this.apiService.post<GetStudentIdInClassroomRequestDto>(
       endpoint,
       data
@@ -105,6 +103,10 @@ export class ClassroomApi {
     return this.apiService.delete(
       `${ApiConfig.endpoints.classroom.base}/${id}`
     ) as Observable<any>;
+  }
+
+  cleanCacheDetails(): void {
+    this.cacheDetail.clear();
   }
 
   cleanAllCaches(): void {

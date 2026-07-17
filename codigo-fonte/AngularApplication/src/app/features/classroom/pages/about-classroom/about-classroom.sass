@@ -1,0 +1,86 @@
+.about-container
+    display: flex
+    flex-direction: column
+    height: 100%
+    width: 100%
+    padding: 1rem 0
+    animation: fadeIn 0.4s ease-out
+
+.page-header
+    margin-bottom: 1.5rem
+    padding: 0rem 0 0rem
+
+    .btn-back
+        background: transparent
+        border: none
+        color: var(--text-back-btn)
+        font-weight: 400
+        font-size: .9rem
+        display: flex
+        align-items: center
+        gap: 8px
+        cursor: pointer
+        padding: 0
+        margin: .25rem 0 1.5rem
+        transition: color 0.2s
+
+        &:hover
+            color: var(--color-primary-600)
+
+    .title-area
+        h1
+            font-size: 1.8rem
+            color: var(--text-333, #1f2937)
+            margin: 0 0 0.5rem 0
+
+        p
+            color: var(--text-666, #6b7280)
+            font-size: 1rem
+            margin: 0
+
+.tabs-bar
+    display: flex
+    gap: .5rem
+    margin-bottom: 1.5rem
+    border-bottom: 1px solid var(--border-color, #e5e7eb)
+    overflow-x: auto
+    min-height: 48px
+    &::-webkit-scrollbar
+        height: 6px
+
+    .tab-btn
+        display: flex
+        align-items: center
+        gap: .5rem
+        flex-shrink: 0
+        padding: .8rem 1.2rem
+        background: transparent
+        border: none
+        border-bottom: 2px solid transparent
+        color: var(--text-666, #6b7280)
+        font-size: .95rem
+        font-weight: 600
+        cursor: pointer
+        white-space: nowrap
+        transition: color 0.2s ease, border-color 0.2s ease
+
+        &:hover
+            color: var(--color-primary-600)
+
+        &.active
+            color: var(--color-primary-600)
+            border-bottom-color: var(--color-primary-600)
+
+@keyframes fadeIn
+    from
+        opacity: 0
+        transform: translateY(10px)
+    to
+        opacity: 1
+        transform: translateY(0)
+
+@media (max-width: 640px)
+    .about-container
+        padding: 1rem
+        height: fit-content
+        margin-bottom: 1rem

@@ -143,11 +143,13 @@ public class SubjectServiceImpl implements SubjectService {
                 subjectId, school.getId(), request.name());
 
         String key = CacheKeys.subjectPattern(school.getId());
+        String classroomKey = CacheKeys.classroomPattern(school.getId());
 
-        log.info("Apagando todos os cache de Disciplina ligado à escola. [school={}] [key={}]",
-                school.getId(), key);
+        log.info("Apagando todos os cache de Disciplina ligado à escola. [school={}] [key={}] [classroomKey={}]",
+                school.getId(), key, classroomKey);
 
         cacheService.evictByPattern(key);
+        cacheService.evictByPattern(classroomKey);
     }
 
     @Override

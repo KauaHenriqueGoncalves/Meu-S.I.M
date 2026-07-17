@@ -1,0 +1,29 @@
+<div class="about-container">
+    <div class="page-header">
+        <button class="btn-back" (click)="goBack()">
+            <app-svg-arrow-left color="current" [size]="18" />
+            Voltar
+        </button>
+        <div class="title-area">
+            <h1>Detalhes da Turma</h1>
+            <p>Gerencie as informações, estudantes e horários desta turma.</p>
+        </div>
+    </div>
+    <div class="tabs-bar">
+        <button type="button" class="tab-btn" [class.active]="active === 'details'" (click)="activeTab('details')" (click)="goToDetails()">
+            <app-svg-book color="currentColor" [size]="18" />
+            <span>Detalhes</span>
+        </button>
+        <button type="button" class="tab-btn" [class.active]="active === 'students'" (click)="activeTab('students')" (click)="goToStudents()">
+            <app-svg-users color="currentColor" [size]="18" />
+            <span>Estudantes</span>
+        </button>
+        <button type="button" class="tab-btn" [class.active]="active === 'schedule'" (click)="activeTab('schedule')" (click)="goToSchedule()">
+            <app-svg-clock color="currentColor" [size]="18" />
+            <span>Horários</span>
+        </button>
+    </div>
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+</div>

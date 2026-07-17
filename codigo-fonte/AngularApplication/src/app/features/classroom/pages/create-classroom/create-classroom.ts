@@ -38,7 +38,7 @@ export class CreateClassroom implements OnInit {
   selectedSubjectName = '';
 
   subjectPage = 0;
-  subjectSize = 40;
+  subjectSize = 60;
   isLoading = false;
   isSubmitting = false;
 
