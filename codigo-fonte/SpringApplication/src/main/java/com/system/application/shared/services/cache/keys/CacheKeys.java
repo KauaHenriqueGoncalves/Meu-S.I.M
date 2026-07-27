@@ -95,8 +95,8 @@ public final class CacheKeys {
                 size + "::page";
     }
 
-    public static String classroom(UUID id, String suffix) {
-        return "classroom::" + id.toString() + "::" + suffix;
+    public static String classroom(UUID schoolId, UUID id, String suffix) {
+        return "classroom::" + schoolId.toString() + "::" + id.toString() + "::" + suffix;
     }
 
     public static String classSchedulePattern(UUID id) {

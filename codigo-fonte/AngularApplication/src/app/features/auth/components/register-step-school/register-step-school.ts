@@ -25,27 +25,42 @@ export class RegisterStepSchool {
       Validators.minLength(5),
       Validators.maxLength(50)
     ]),
-
     schoolName: new FormControl('', [
       Validators.required,
       Validators.minLength(5),
       Validators.maxLength(50)
     ]),
-
-    cnpj: new FormControl('', [
+    cnpj: new FormControl<string | null>('', [
       Validators.required,
       this.exactLength(14),
       cnpjValidator()
     ]),
-
+    noCnpj: new FormControl(false),
     terms: new FormControl(false, [
       Validators.requiredTrue
-    ]) 
+    ])
   });
 
   constructor(
     private notificationService: NotificationService
-  ) { }
+  ) {
+    this.form.get('noCnpj')?.valueChanges.subscribe((checked) => {
+      const cnpjControl = this.form.get('cnpj');
+      if (checked) {
+        cnpjControl?.setValue(null);
+        cnpjControl?.disable();
+        cnpjControl?.clearValidators();
+      } else {
+        cnpjControl?.enable();
+        cnpjControl?.setValidators([
+          Validators.required,
+          this.exactLength(14),
+          cnpjValidator()
+        ]);
+      }
+      cnpjControl?.updateValueAndValidity();
+    });
+  }
 
   exactLength(length: number) {
     return (control: AbstractControl) => {
@@ -75,13 +90,16 @@ export class RegisterStepSchool {
 
     if (this.form.invalid) {
       this.inputsEmpty();
+      return;
     }
 
+    const raw = this.form.getRawValue();
+
     const payload: SchoolRequestDto = {
-      nameCode: this.form.value.nameCode?.trim(),
-      schoolName: this.form.value.schoolName?.trim(),
-      cnpj: this.form.value.cnpj?.trim()
-    };
+      nameCode: raw.nameCode?.trim(),
+      schoolName: raw.schoolName?.trim(),
+      cnpj: raw.cnpj?.trim() || null
+    }
 
     this.next.emit(payload);
   }

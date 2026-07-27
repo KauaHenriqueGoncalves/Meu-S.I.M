@@ -31,7 +31,15 @@
   <div class="form-group">
     <label>CNPJ<span class="asterix">*</span></label>
 
-    <input type="text" formControlName="cnpj" maxlength="14" placeholder="Digite seu CNPJ (apenas números)" numbersOnly/>
+    <div class="cnpj-row">
+      <input type="text" formControlName="cnpj" maxlength="14" placeholder="Digite seu CNPJ (apenas números)" numbersOnly [class.disabled-input]="form.get('noCnpj')?.value"/>
+
+      <label class="custom-checkbox no-cnpj-check">
+        <input type="checkbox" formControlName="noCnpj"/>
+        <span class="checkmark"></span>
+        <span class="text">Não possuo</span>
+      </label>
+    </div>
 
     @if (isInvalid('cnpj')) {
       <span class="input-message-error">CNPJ inválido</span>

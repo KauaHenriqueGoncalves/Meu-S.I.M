@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface ClassroomRepository extends JpaRepository<Classroom, UUID> {
+    long countBySchoolId(UUID schoolId);
     Page<Classroom> findAllBySchoolId(UUID schoolId, Pageable pageable);
 
     @Query("""

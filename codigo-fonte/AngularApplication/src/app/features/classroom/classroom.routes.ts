@@ -2,6 +2,9 @@ import { Routes } from "@angular/router";
 import { Classrooms } from "./pages/classrooms/classrooms";
 import { CreateClassroom } from "./pages/create-classroom/create-classroom";
 import { DetailsClassroom } from "./pages/details-classroom/details-classroom";
+import { AboutClassroom } from "./pages/about-classroom/about-classroom";
+import { StudentsClassroom } from "./pages/students-classroom/students-classroom";
+import { ScheduleClassroom } from "./pages/schedule-classroom/schedule-classroom";
 
 export const classroomRoutes: Routes = [
     {
@@ -13,7 +16,21 @@ export const classroomRoutes: Routes = [
         component: CreateClassroom
     },
     {
-        path: 'details-classroom',
-        component: DetailsClassroom
+        path: 'about-classroom',
+        component: AboutClassroom,
+        children: [
+            {
+                path: 'details',
+                component: DetailsClassroom
+            },
+            {
+                path: 'students',
+                component: StudentsClassroom
+            },
+            {
+                path: 'schedule',
+                component: ScheduleClassroom
+            }
+        ]
     }
 ];

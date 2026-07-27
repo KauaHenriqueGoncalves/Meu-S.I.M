@@ -409,6 +409,110 @@
     font-size: 0.9rem
     color: var(--text-666, #64748b)
     font-style: italic
+    
+.empty-classroom-state
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    padding: .5rem
+    text-align: center
+    
+.classroom-list
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+.classroom-item-link
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.85rem 1rem
+    border: 1px solid var(--border-color, #e2e8f0)
+    border-radius: 8px
+    background: #ffffff
+    text-decoration: none
+    text-transform: capitalize
+    transition: all 0.15s ease-out
+    cursor: pointer
+    cursor: pointer
+    gap: 0.75rem
+
+    &:hover
+        border-color: var(--color-primary-600)
+        background: var(--bg-light, #f9fafb)
+
+        .classroom-details .classroom-name
+            text-decoration: underline
+
+        .arrow-icon
+            color: var(--color-primary-600)
+
+    .classroom-info
+        display: flex
+        align-items: center
+        gap: 0.75rem
+        min-width: 0
+        flex: 1
+
+    .classroom-avatar-mini
+        width: 28px
+        height: 28px
+        flex-shrink: 0
+        border-radius: 50%
+        background: var(--color-primary-600, #16a34a)
+        display: flex
+        align-items: center
+        justify-content: center
+
+    .classroom-details
+        display: flex
+        flex-direction: column
+        gap: 0.1rem
+        min-width: 0
+
+        .classroom-name
+            font-size: 0.95rem
+            font-weight: 600
+            max-width: 250px
+            white-space: nowrap
+            text-overflow: ellipsis
+            overflow: hidden
+            color: var(--text-333, #1f2937)
+
+        .classroom-sub
+            max-width: 200px
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+            font-size: 0.78rem
+            color: #94a3b8
+
+    .subject-tag
+        max-width: 200px
+        flex-shrink: 0
+        background: rgba(22, 163, 74, 0.1)
+        color: var(--color-primary-700, #15803d)
+        padding: 0.25rem 0.6rem
+        border-radius: 6px
+        font-size: 0.72rem
+        font-weight: 700
+        overflow: hidden
+        white-space: nowrap
+        text-overflow: ellipsis
+        text-transform: uppercase
+        letter-spacing: 0.3px
+
+        @media (max-width: 640px)
+            display: none
+
+    .arrow-icon
+        flex-shrink: 0
+        color: #94a3b8
+        display: flex
+        align-items: center
+        transform: rotate(-90deg)
+        transition: all 0.2s ease
 
 .file-list
     margin-top: 2rem
@@ -657,6 +761,11 @@
     height: 60px
     border-radius: 8px
     width: 100%
+
+.skeleton-classroom-item
+    height: 60px
+    width: 100%
+    border-radius: 8px
 
 @keyframes fadeIn
     from 

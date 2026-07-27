@@ -6,6 +6,7 @@ import { ApiConfig } from '../../../core/config/api.config';
 import { Observable, shareReplay } from 'rxjs';
 import { SubjectRequestDto } from '../dto/subject-request.dto';
 import { PageResponse } from '../../../shared/models/page-response.model';
+import { ClassroomApi } from '../../classroom/api/classroom-api';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class SubjectApi {
 
   constructor(
     private apiService: ApiService,
+    private classroomApi: ClassroomApi,
     private cacheReset: CacheResetService
   ) {
     this.cacheReset.register(() => this.refreshCache());
@@ -43,6 +45,7 @@ export class SubjectApi {
 
   update(id: string, data: SubjectRequestDto): Observable<any> {
     this.cache.clear();
+    this.classroomApi.cleanAllCaches();
     return this.apiService.put<SubjectRequestDto>(
       `${ApiConfig.endpoints.subject.base}/${id}`,
       data

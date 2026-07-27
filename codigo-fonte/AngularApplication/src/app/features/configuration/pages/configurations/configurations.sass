@@ -1,0 +1,36 @@
+.config-container
+    padding: 1rem 0
+    max-width: 700px
+    animation: fadeIn 0.4s ease-out
+
+.page-header
+    margin-bottom: 1rem
+    padding: 1rem 0 2rem
+    border-bottom: 1px solid var(--border-light)
+
+    h1
+        font-size: 1.8rem
+        color: var(--text-333)
+        margin-bottom: 0.5rem
+
+    p
+        color: var(--text-666)
+        font-size: 1rem
+
+.config-list
+    display: flex
+    flex-direction: column
+    gap: 1.5rem
+    margin-top: 2rem
+
+@keyframes fadeIn
+    from
+        opacity: 0
+        transform: translateY(10px)
+    to
+        opacity: 1
+        transform: translateY(0)
+
+@media (max-width: 640px)
+    .config-container
+        padding: 1rem

@@ -116,7 +116,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         Student student = studentService.findById(studentId);
         ensureStudentBelongsToSchool(school.getId(), student);
 
-        String key = CacheKeys.classroom(student.getId(), "byStudent");
+        String key = CacheKeys.classroom(school.getId(), student.getId(), "byStudent");
 
         Optional<List<ClassroomResponse>> cacheResponse = cacheService.get(
                 key,
@@ -162,7 +162,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         log.info("Buscando detalhes da turma. [requisitanteId={}] [classroomId={}] [schoolId={}]",
                 userId, classroomId, school.getId());
 
-        String key = CacheKeys.classroom(classroomId, "responseDetail");
+        String key = CacheKeys.classroom(school.getId(), classroomId, "responseDetail");
 
         Optional<ClassroomDetailResponse> cacheResponse = cacheService.get(
                 key,
@@ -197,6 +197,11 @@ public class ClassroomServiceImpl implements ClassroomService {
                 userId, school.getId(), request.name(), request.classTypeId(), request.subjectId());
 
         ensureSchoolHasActiveSubscription(school.getId());
+
+        long totalClassroom = this.classroomRepository.countBySchoolId(school.getId());
+        log.info("A quantidade total de turmas encontradas na escola. [totalClassroom={}/200]",
+                totalClassroom);
+        ensureSchoolHasNotMaxClassroom(school.getId(), totalClassroom);
 
         ClassType classType = classTypeService.findById(request.classTypeId());
         ensureIsIndividual(classType, request);
@@ -257,14 +262,12 @@ public class ClassroomServiceImpl implements ClassroomService {
                 .toList();
 
         String keySchool = CacheKeys.classroomPattern(school.getId());
-        String keyClassroom = CacheKeys.classroomPattern(classroom.getId());
 
-        log.info("Apagando todos os cache de classes ligado à escola. [keySchool={}] [keyClassroom={}] [keyStudents={}]",
-                keySchool, keyClassroom, keysStudents);
+        log.info("Apagando todos os cache de classes ligado à escola. [keySchool={}] [keyStudents={}]",
+                keySchool, keysStudents);
 
-        deleteCacheByStudent(keysStudents);
+        deleteCacheByStudent(school.getId(), keysStudents);
         cacheService.evictByPattern(keySchool);
-        cacheService.evictByPattern(keyClassroom);
     }
 
     @Override
@@ -290,7 +293,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         log.info("Estudante adicionado à turma com sucesso. [classroomId={}] [studentId={}] [ocupacao={}/{}]",
                 classroomId, studentId, classroom.getStudents().size(), classroom.getMaxStudents());
 
-        String keyClassroom = CacheKeys.classroomPattern(classroom.getId());
+        String keyClassroom = CacheKeys.classroomPattern(school.getId());
 
         log.info("Apagando todos os cache ligado à classe. [keyClassroom={}]",
                 keyClassroom);
@@ -320,14 +323,12 @@ public class ClassroomServiceImpl implements ClassroomService {
         log.info("Estudante removido da turma com sucesso. [classroomId={}] [studentId={}]",
                 classroomId, studentId);
 
-        String keyClassroom = CacheKeys.classroomPattern(classroom.getId());
-        String keyStudent = CacheKeys.classroomPattern(student.getId());
+        String keyClassroom = CacheKeys.classroomPattern(school.getId());
 
-        log.info("Apagando todos os cache ligado à classe e estudante. [keyClassroom={}] [keyStudent={}]",
-                keyClassroom, keyStudent);
+        log.info("Apagando todos os cache ligado à classe e estudante. [keyClassroom={}]",
+                keyClassroom);
 
         cacheService.evictByPattern(keyClassroom);
-        cacheService.evictByPattern(keyStudent);
     }
 
     @Override
@@ -359,19 +360,17 @@ public class ClassroomServiceImpl implements ClassroomService {
                 .toList();
 
         String keySchool = CacheKeys.classroomPattern(school.getId());
-        String keyClassroom = CacheKeys.classroomPattern(classroom.getId());
 
-        log.info("Apagando todos os cache de classes ligado à escola. [keySchool={}] [keyClassroom={}]",
-                keySchool, keyClassroom);
+        log.info("Apagando todos os cache de classes ligado à escola. [keySchool={}]",
+                keySchool);
 
-        deleteCacheByStudent(keysStudents);
+        deleteCacheByStudent(school.getId(), keysStudents);
         cacheService.evictByPattern(keySchool);
-        cacheService.evictByPattern(keyClassroom);
     }
 
-    private void deleteCacheByStudent(List<UUID> keysStudents) {
+    private void deleteCacheByStudent(UUID schoolId, List<UUID> keysStudents) {
         for (UUID id : keysStudents) {
-            String key = CacheKeys.classroom(id, "byStudent");
+            String key = CacheKeys.classroom(schoolId, id, "byStudent");
             if (cacheService.exists(key)) {
                 cacheService.delete(key);
             }
@@ -396,7 +395,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     private void ensureStudentCountIsBelowMax(Classroom classroom, ClassroomRequest request) {
-        if (!(classroom.getStudents().size() < request.maxStudents())) {
+        if (!(classroom.getStudents().size() <= request.maxStudents())) {
             log.warn("Novo limite de estudantes menor que a quantidade atual na turma. [classroomId={}] [atual={}] [novoMax={}]",
                     classroom.getId(), classroom.getStudents().size(), request.maxStudents());
             throw new IllegalArgumentException("A turma possui quantidade acima do informado");
@@ -440,6 +439,14 @@ public class ClassroomServiceImpl implements ClassroomService {
             log.warn("Tentativa de acesso a estudante de outra escola. [studentId={}] [studentSchoolId={}] [schoolId={}]",
                     student.getId(), student.getSchool().getId(), schoolId);
             throw new AccessDeniedException("Não é possivel interagir com estudantes de outra escola");
+        }
+    }
+
+    private void ensureSchoolHasNotMaxClassroom(UUID schoolId, long length) {
+        if (length >= 200) {
+            log.warn("A quantidade de turma do reforço atingiu o máximo. [schoolId={}] [maxClassroom={}/200]",
+                    schoolId, length);
+            throw new BusinessException("O reforço atingiu a quantidade máxima de turmas");
         }
     }
 

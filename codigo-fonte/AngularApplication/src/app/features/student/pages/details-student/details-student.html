@@ -267,6 +267,59 @@
                     </div>
                 </div>
 
+                <div class="form-card">
+                    <div class="card-header">
+                        <h2>Turmas Vinculados</h2>
+                    </div>
+                    <div class="card-body">
+                        @if (isClassroomLoading) {
+                            <div class="skeleton-shimmer skeleton-classroom-item"></div>
+                            <div class="skeleton-shimmer skeleton-classroom-item mt-2"></div>
+                        } 
+                        @else if (classrooms.length === 0) {
+                            <div class="empty-classroom-state">
+                                <p class="empty-text">Nenhuma turma vinculada a este estudante.</p>
+                            </div>
+                        }
+                        @else {
+                            <div class="classroom-list">
+                                @for (classroom of classrooms; track classroom.id) {
+                                    <a (click)="goToClassroom(classroom.id)" class="classroom-item-link">
+                                        <div class="classroom-info">
+                                            <div class="classroom-avatar-mini">
+                                                <app-svg-book color="#fff" [size]="14"/>
+                                            </div>
+                                            <div class="classroom-details">
+                                                <span class="classroom-name">{{ classroom.name }}</span>
+                                                <span class="classroom-sub">{{ getFriendlyClassTypeName(classroom.classTypeName) }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="subject-tag">{{ classroom.subjectName }}</span>
+                                        <span class="arrow-icon">
+                                            <app-svg-angle-down color="currentColor" [size]="18"/>
+                                        </span>
+                                    </a>
+                                    
+                                    <!-- <a (click)="goToClassroom(classroom.id)" class="classroom-item-link">
+                                        <div class="classroom-info">
+                                            <div class="classroom-avatar-mini">
+                                                {{ student.name.charAt(0).toUpperCase() }}
+                                            </div>
+                                            <div class="classroom-details">
+                                                <span class="classroom-name">{{ classroom.name }}</span>
+                                                <span class="classroom-sub">{{ classroom.classTypeName }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="arrow-icon">
+                                            <app-svg-angle-down color="currentColor" [size]="18"/>
+                                        </span>
+                                    </a> -->
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
                 <div class="form-card danger-card">
                     <div class="card-header">
                         <h2 class="text-danger">Zona de Perigo</h2>
