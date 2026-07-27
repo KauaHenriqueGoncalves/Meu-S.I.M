@@ -327,9 +327,13 @@ export class DetailsStudent implements OnInit {
           this.router.navigate(['/app/students']);
         },
         error: (err) => {
+          let message: string = err.error?.message || 'Erro ao excluir o estudante. Por favor, tente novamente mais tarde.';
+          if (err.status === 409) {
+            message = 'Não é possível excluir o estudante pois ele está associado a uma turma.';
+          }
           this.notificationService.notify({
             type: 'error',
-            text: err.error?.message || 'Erro ao excluir o estudante. Por favor, tente novamente mais tarde.'
+            text: message
           });
         }
       });

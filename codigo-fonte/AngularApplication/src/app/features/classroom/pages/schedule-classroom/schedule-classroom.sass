@@ -1,30 +1,342 @@
-.empty-tab-state
+.schedule-card
+    background: var(--white)
+    border: 1px solid var(--border-color, #e5e7eb)
+    border-radius: 12px
+    overflow: hidden
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03)
+    animation: fadeIn 0.4s ease-out
+
+    .card-header
+        display: flex
+        justify-content: space-between
+        align-items: center
+        padding: 1.25rem 1.5rem
+        background: var(--bg-light, #f9fafb)
+        border-bottom: 1px solid var(--border-color, #e5e7eb)
+
+        h2
+            font-size: 1.1rem
+            margin: 0
+            color: var(--text-333)
+
+    .card-body
+        padding: 1.5rem
+
+        @media (max-width: 998px)
+            padding: 1.5rem .8rem
+        
+
+.btn-primary-solid
+    background: var(--color-primary-600)
+    color: var(--white)
+    border: none
+    padding: 0.6rem 1.1rem
+    border-radius: 8px
+    font-weight: 600
+    cursor: pointer
+    display: flex
+    align-items: center
+    gap: 0.4rem
+
+    &:hover
+        background: var(--color-primary-700)
+
+    &:active
+        transform: scale(.98)
+
+.week-wrapper
+    overflow-x: auto
+    border: 1px solid var(--border-color, #e5e7eb)
+    border-radius: 10px
+
+    &::-webkit-scrollbar
+        height: 8px
+
+.week-grid
+    min-width: 760px
+    overflow-y: hidden 
+
+.week-header
+    display: flex
+    position: sticky
+    top: 0
+    z-index: 2
+    background: var(--bg-light, #f9fafb)
+    border-bottom: 1px solid var(--border-color, #e5e7eb)
+
+    .gutter-header
+        width: 64px
+        flex-shrink: 0
+
+    .day-header
+        flex: 1
+        text-align: center
+        padding: 0.75rem 0.25rem
+        font-size: 0.85rem
+        font-weight: 700
+        color: var(--text-333)
+        text-transform: capitalize
+        border-left: 1px solid var(--border-color, #e5e7eb)
+
+.week-body
+    display: flex
+    position: relative
+
+.time-gutter
+    width: 64px
+    flex-shrink: 0
+    position: relative
+
+    .hour-mark
+        position: absolute
+        left: 0
+        right: 8px
+        transform: translateY(-50%)
+        font-size: 0.72rem
+        color: var(--text-666, #9ca3af)
+        text-align: right
+        font-family: monospace
+
+.day-column
+    flex: 1
+    position: relative
+    border-left: 1px solid var(--border-color, #e5e7eb)
+
+    .hour-line
+        position: absolute
+        left: 0
+        right: 0
+        height: 1px
+        background: var(--border-light, #f1f5f9)
+
+.event-block
+    position: absolute
+    left: 4px
+    right: 4px
+    background: var(--color-primary-600)
+    color: #fff
+    border-radius: 6px
+    padding: 0.35rem 0.5rem
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15)
+    cursor: pointer
+    overflow: hidden
     display: flex
     flex-direction: column
-    align-items: center
-    text-align: center
-    padding: 4rem 1.5rem
-    background: var(--white)
-    border-radius: 12px
-    border: 1px dashed var(--border-color, #cbd5e1)
-    gap: .5rem
+    gap: 0.15rem
+    transition: background 0.15s ease
 
-    .icon-box
-        width: 64px
-        height: 64px
-        border-radius: 50%
-        background: var(--bg-light, #f9fafb)
-        border: 2px dashed var(--border-color, #cbd5e1)
+    &:hover
+        background: var(--color-primary-700)
+
+        .btn-remove-event
+            opacity: 1
+
+        &:active
+            background: var(--color-primary-800)
+
+    .event-time
+        font-size: 0.72rem
+        font-weight: 600
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+
+    .btn-remove-event
+        position: absolute
+        top: 4px
+        right: 4px
+        background: rgba(0, 0, 0, 0.25)
+        border: none
+        border-radius: 4px
+        width: 25px
+        height: 25px
         display: flex
         align-items: center
         justify-content: center
-        margin-bottom: .5rem
+        cursor: pointer
+        opacity: 0
+        transition: opacity 0.15s ease
+
+        @media (max-width: 998px)
+            top: auto
+            bottom: 4px
+            opacity: 1
+
+        &:hover
+            background: rgba(0, 0, 0, 0.45)
+
+        &:active
+            background: rgba(43, 43, 43, 0.45)    
+
+.skeleton-week
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+.skeleton-shimmer
+    background: linear-gradient(90deg, #e3e4e6 25%, #d6d7da 50%, #f3f4f6 75%)
+    background-size: 200% 100%
+    animation: shimmer 1.5s infinite ease-in-out
+    border-radius: 8px
+
+.sk-row
+    height: 60px
+    width: 100%
+
+@keyframes shimmer
+    0%
+        background-position: -200% 0
+    100%
+        background-position: 200% 0
+
+@keyframes fadeIn
+    from
+        opacity: 0
+        transform: translateY(10px)
+    to
+        opacity: 1
+        transform: translateY(0)
+
+.empty-state
+    text-align: center
+    padding: 1rem
 
     h3
-        margin: 0
+        margin-bottom: 0.5rem
         color: var(--text-333)
 
     p
         color: var(--text-666)
         font-size: 0.95rem
-        max-width: 420px
+
+.modal-overlay
+    position: fixed
+    inset: 0
+    background: rgba(0, 0, 0, 0.5)
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 1000
+    padding: 1rem
+
+.modal-card
+    background: var(--white)
+    width: 100%
+    max-width: 460px
+    border-radius: 12px
+    overflow: hidden
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15)
+
+.modal-header, .modal-body, .modal-footer
+    padding: 1.5rem
+
+.modal-header
+    border-bottom: 1px solid var(--border-color, #e5e7eb)
+
+    h3
+        margin: 0
+        font-size: 1.2rem
+        color: var(--text-333)
+
+    .text-danger
+        color: #d32f2f !important
+
+.box-flex
+    display: flex
+    gap: 1rem
+
+    @media (max-width: 480px)
+        flex-direction: column
+
+.form-group
+    display: flex
+    flex-direction: column
+    gap: 0.4rem
+    margin-bottom: 1rem
+    flex: 1
+
+    label
+        font-size: 0.9rem
+        font-weight: 600
+        color: var(--text-666, #4b5563)
+
+    input, select
+        width: 100%
+        padding: 0.8rem 1rem
+        border: 1px solid var(--border-color, #d1d5db)
+        border-radius: 8px
+        font-size: 0.95rem
+        color: var(--text-333)
+        background: #fff
+        outline: none
+
+        &:focus
+            border-color: var(--color-primary-600)
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1)
+
+    &.has-error
+        input, select
+            border-color: #ef4444
+            background: #fef2f2
+
+.error-text
+    color: #ef4444
+    font-size: 0.8rem
+    font-weight: 500
+
+.modal-footer
+    display: flex
+    gap: 1rem
+    background: var(--bg-light, #f9fafb)
+    border-top: 1px solid var(--border-color, #e5e7eb)
+
+    button
+        flex: 1
+        height: 44px
+        border-radius: 8px
+        font-weight: 600
+        font-size: 0.95rem
+        cursor: pointer
+        border: none
+        display: flex
+        align-items: center
+        justify-content: center
+
+.btn-cancel
+    background: #e5e7eb
+    color: #374151
+
+    &:hover
+        opacity: .9
+
+    &:active
+        transform: scale(.98)
+
+.btn-confirm-primary
+    background: var(--color-primary-600)
+    color: white
+
+    &:hover
+        background: var(--color-primary-700)
+
+    &:disabled
+        background: #a3aab4
+        cursor: not-allowed
+
+    &:active
+        transform: scale(.98)
+
+.btn-confirm-danger
+    background: #d32f2f
+    color: white
+
+    &:active
+        transform: scale(.98)
+
+@media (max-width: 768px)
+    .week-grid
+        min-width: 620px
+
+    .day-header
+        font-size: 0.75rem
+        padding: 0.6rem 0.15rem

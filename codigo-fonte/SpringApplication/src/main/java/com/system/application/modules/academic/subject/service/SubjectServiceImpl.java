@@ -10,6 +10,7 @@ import com.system.application.modules.academic.subject.dto.SubjectResponse;
 import com.system.application.modules.academic.subject.repository.SubjectRepository;
 import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
+import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
 import com.system.application.shared.services.cache.CacheService;
@@ -109,6 +110,13 @@ public class SubjectServiceImpl implements SubjectService {
 
         ensureSchoolHasActiveSubscription(school.getId());
 
+        long totalSubject = this.subjectRepository.countBySchoolId(school.getId());
+
+        log.info("Total de disciplinas encontrada na escola. [schoolId={}] [total={}/200]",
+                school.getId(), totalSubject);
+
+        ensureTotalSubjectIsNotMax(school, totalSubject);
+
         Subject subject = new Subject(null, school, request.name());
         subject = subjectRepository.save(subject);
 
@@ -192,6 +200,14 @@ public class SubjectServiceImpl implements SubjectService {
         catch (SubscriptionException e) {
             log.warn("Operacao bloqueada: escola sem licenca ativa. [schoolId={}]", schoolId);
             throw new SubscriptionException("A escola não possui licença ativa.");
+        }
+    }
+
+    private void ensureTotalSubjectIsNotMax(School school, long length) {
+        if (length >= 200) {
+            log.warn("A quantidade de disciplina atingiu o número máximo. [schoolId={}] [maxSubjects={}]",
+                    school.getId(), length);
+            throw new BusinessException("A quantidade de disciplina atingiu o limite de 200.");
         }
     }
 }

@@ -22,7 +22,6 @@ public record SchoolRequest(
         @NoEmoji(message = "Não é permitido o recebimento de emoji")
         String schoolName,
 
-        @NotBlank(message = "Cnpj não pode ser vazio")
         @Size(min = 14, max = 14, message = "Cnpj deve ter 14 caracteres")
         @ValidCnpj(message = "Cnpj deve ser válido")
         @NoLeadingTrailingSpace

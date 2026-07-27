@@ -198,6 +198,11 @@ public class ClassroomServiceImpl implements ClassroomService {
 
         ensureSchoolHasActiveSubscription(school.getId());
 
+        long totalClassroom = this.classroomRepository.countBySchoolId(school.getId());
+        log.info("A quantidade total de turmas encontradas na escola. [totalClassroom={}/200]",
+                totalClassroom);
+        ensureSchoolHasNotMaxClassroom(school.getId(), totalClassroom);
+
         ClassType classType = classTypeService.findById(request.classTypeId());
         ensureIsIndividual(classType, request);
 
@@ -434,6 +439,14 @@ public class ClassroomServiceImpl implements ClassroomService {
             log.warn("Tentativa de acesso a estudante de outra escola. [studentId={}] [studentSchoolId={}] [schoolId={}]",
                     student.getId(), student.getSchool().getId(), schoolId);
             throw new AccessDeniedException("Não é possivel interagir com estudantes de outra escola");
+        }
+    }
+
+    private void ensureSchoolHasNotMaxClassroom(UUID schoolId, long length) {
+        if (length >= 200) {
+            log.warn("A quantidade de turma do reforço atingiu o máximo. [schoolId={}] [maxClassroom={}/200]",
+                    schoolId, length);
+            throw new BusinessException("O reforço atingiu a quantidade máxima de turmas");
         }
     }
 

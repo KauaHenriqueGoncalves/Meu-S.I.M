@@ -26,7 +26,7 @@ public final class School implements Serializable {
     @Column(name = "school_name", length = 50, nullable = false)
     private String schoolName;
 
-    @Column(name = "cnpj",  length = 14, nullable = false, unique = true)
+    @Column(name = "cnpj", length = 14, nullable = true, unique = true)
     private String cnpj;
 
     @CreationTimestamp

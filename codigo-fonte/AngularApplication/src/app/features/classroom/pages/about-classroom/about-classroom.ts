@@ -39,6 +39,10 @@ export class AboutClassroom implements OnInit {
       });
       return;
     }
+
+    const currentUrlArr = this.router.url.split('/');
+    const currentTab = currentUrlArr[currentUrlArr.length - 1];
+    this.activeTab(currentTab);
   }
 
   activeTab(tab: string): void {

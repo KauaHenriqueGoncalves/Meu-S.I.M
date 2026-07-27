@@ -8,7 +8,8 @@ public final class ValidCnpjConstraintValidator
         implements ConstraintValidator<ValidCnpj, String> {
     @Override
     public boolean isValid(String cnpj, ConstraintValidatorContext context) {
-        if (cnpj == null || cnpj.isBlank()) return false;
+        if (cnpj == null) return true;
+        if (cnpj.isBlank()) return false;
         return CnpjValidator.getInstance().isValid(cnpj);
     }
 }

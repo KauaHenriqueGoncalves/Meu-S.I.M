@@ -1,5 +1,6 @@
 package com.system.application.modules.academic.classroom;
 
+import com.system.application.modules.academic.classschedule.ClassSchedule;
 import com.system.application.modules.academic.classtype.ClassType;
 import com.system.application.modules.school.School;
 import com.system.application.modules.academic.student.Student;
@@ -49,6 +50,9 @@ public final class Classroom implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "student_id", nullable = false)
     )
     private List<Student> students = new ArrayList<>();
+
+    @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ClassSchedule> schedules = new ArrayList<>();
 
     public Classroom() {
     }

@@ -1,4 +1,145 @@
-<div class="empty-tab-state">
-    <h3>Horários da Turma</h3>
-    <p>Em breve você poderá configurar os dias e horários de aula desta turma diretamente por aqui.</p>
+<div class="schedule-card">
+    <div class="card-header">
+        <h2>Horários da Turma</h2>
+        <button type="button" class="btn-primary-solid" (click)="openModal()">
+            <app-svg-plus color="#ecfdf5" [size]="18"/>
+            <span>Novo Horário</span>
+        </button>
+    </div>
+
+    <div class="card-body">
+        @if (isLoading) {
+            <div class="skeleton-week">
+                <div class="skeleton-shimmer sk-row"></div>
+                <div class="skeleton-shimmer sk-row"></div>
+                <div class="skeleton-shimmer sk-row"></div>
+            </div>
+        }
+        @else if (schedules.length === 0) {
+            <div class="empty-state">
+                <h3>Nenhum horário cadastrado</h3>
+                <p>Esta turma ainda não possui horários definidos.</p>
+            </div>
+        }
+        @else {
+            <div class="week-wrapper">
+                <div class="week-grid" [style.--grid-height.px]="gridHeight">
+                    <div class="week-header">
+                        <div class="gutter-header"></div>
+                        @for (day of weekdays; track day) {
+                            <div class="day-header">{{ getFriendlyWeekday(day) }}</div>
+                        }
+                    </div>
+
+                    <div class="week-body">
+                        <div class="time-gutter" [style.height.px]="gridHeight">
+                            @for (mark of hourMarks; track mark.label) {
+                                <span class="hour-mark" [style.top.px]="mark.top">{{ mark.label }}</span>
+                            }
+                        </div>
+
+                        @for (day of weekdays; track day) {
+                            <div class="day-column" [style.height.px]="gridHeight">
+                                @for (mark of hourMarks; track mark.label) {
+                                    <div class="hour-line" [style.top.px]="mark.top"></div>
+                                }
+
+                                @for (event of positionedGrid[day]; track event.id) {
+                                    <div class="event-block" [style.top.px]="event.top" [style.height.px]="event.height" (click)="openModal(event)">
+                                        <span class="event-time">{{ event.startTime }} - {{ event.endTime }}</span>
+                                        <button type="button" class="btn-remove-event" title="Excluir" (click)="openDeleteModal(event.id, $event)">
+                                            <app-svg-trash color="#fff" [size]="13" />
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
+@if (isModalOpen) {
+    <div class="modal-overlay" (click)="closeModal()">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>{{ editingId ? 'Editar Horário' : 'Novo Horário' }}</h3>
+            </div>
+            <form [formGroup]="scheduleForm" (ngSubmit)="onSaveSchedule()">
+                <div class="modal-body">
+                    <div class="form-group" [class.has-error]="isFieldInvalid('weekday')">
+                        <label for="weekday">Dia da Semana *</label>
+                        <select id="weekday" formControlName="weekday">
+                            <option [ngValue]="null" disabled>Selecione um dia</option>
+                            @for (day of weekdayOptions; track day) {
+                                <option [value]="day">{{ getFriendlyWeekday(day) }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="box-flex">
+                        <div class="form-group" [class.has-error]="isFieldInvalid('startTime')">
+                            <label for="startTime">Início *</label>
+                            <input id="startTime" type="time" formControlName="startTime">
+                        </div>
+
+                        <div class="form-group" [class.has-error]="isFieldInvalid('endTime')">
+                            <label for="endTime">Término *</label>
+                            <input id="endTime" type="time" formControlName="endTime">
+                        </div>
+                    </div>
+
+                    @if (scheduleForm.hasError('invalidRange') && (scheduleForm.get('endTime')?.touched || scheduleForm.get('startTime')?.touched)) {
+                        <span class="error-text">O horário de término deve ser após o de início</span>
+                    }
+                </div>
+                <div class="modal-footer">
+                    @if (editingId) {
+                        <button type="button" class="btn-cancel" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
+                        <button type="submit" class="btn-confirm-primary" [disabled]="scheduleForm.invalid || isSubmitting || !isFormChanged">
+                            @if (isSubmitting) {
+                                <app-spinner-to-button color="#fff" [size]="18" />
+                            } @else {
+                                Salvar Alterações
+                            }
+                        </button>
+                    } @else {
+                        <button type="button" class="btn-cancel" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
+                        <button type="submit" class="btn-confirm-primary" [disabled]="scheduleForm.invalid || isSubmitting">
+                            @if (isSubmitting) {
+                                <app-spinner-to-button color="#fff" [size]="18" />
+                            } @else {
+                                Criar Horário
+                            }
+                        </button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@if (isDeleteModalOpen) {
+    <div class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="text-danger">Confirmar Exclusão</h3>
+            </div>
+            <div class="modal-body">
+                <p>Você tem certeza que deseja excluir este horário permanentemente?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeDeleteModal()" [disabled]="isSubmitting">Cancelar</button>
+                <button class="btn-confirm-danger" (click)="confirmDelete()" [disabled]="isSubmitting">
+                    @if (isSubmitting) {
+                        <app-spinner-to-button />
+                    } @else {
+                        Confirmar Exclusão
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}

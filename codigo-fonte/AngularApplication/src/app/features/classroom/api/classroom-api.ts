@@ -100,6 +100,7 @@ export class ClassroomApi {
   }
 
   deleteById(id: string): Observable<any> {
+    this.cacheFindAll.clear();
     return this.apiService.delete(
       `${ApiConfig.endpoints.classroom.base}/${id}`
     ) as Observable<any>;

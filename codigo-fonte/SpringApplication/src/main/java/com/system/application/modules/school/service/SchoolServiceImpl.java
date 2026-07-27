@@ -96,9 +96,12 @@ public class SchoolServiceImpl implements SchoolService {
             log.warn("Tentativa de cadastro com Codigo do reforco ja cadastrado. [nameCode={}]", request.nameCode());
             throw new EntityAlreadyExistsException("Código do reforço já cadastrado");
         }
-        if (schoolRepository.existsByCnpj(request.cnpj())) {
-            log.warn("Tentativa de cadastro com CNPJ já cadastrado. [cnpj={}]", request.cnpj());
-            throw new EntityAlreadyExistsException("Cnpj já cadastrado");
+        boolean isCnpjNull = request.cnpj() == null;
+        if (!isCnpjNull) {
+            if (schoolRepository.existsByCnpj(request.cnpj())) {
+                log.warn("Tentativa de cadastro com CNPJ já cadastrado. [cnpj={}]", request.cnpj());
+                throw new EntityAlreadyExistsException("Cnpj já cadastrado");
+            }
         }
     }
 }

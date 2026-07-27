@@ -48,6 +48,8 @@ export class DetailsClassroom implements OnInit {
   isLoading = true;
   isSubmitting = false;
 
+  isDeleteModalOpen = false;
+
   private initialValues: any;
 
   constructor(
@@ -276,6 +278,38 @@ export class DetailsClassroom implements OnInit {
           this.notificationService.notify({
             type: 'error',
             text: err.error?.message || 'Erro ao atualizar turma. Tente novamente.'
+          });
+        }
+      });
+  }
+
+  closeDeleteModal(): void {
+    if (this.isSubmitting) return;
+    this.isDeleteModalOpen = false;
+  }
+
+  confirmDelete(): void {
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+    this.classroomApi.deleteById(this.classroomId)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.notify({
+            type: 'success',
+            text: 'Turma excluida com sucesso!'
+          });
+          this.router.navigate(['/app/classrooms']);
+        },
+        error: (err) => {
+          this.notificationService.notify({
+            type: 'error',
+            text: err.error?.message || 'Erro ao excluir a turma.'
           });
         }
       });
