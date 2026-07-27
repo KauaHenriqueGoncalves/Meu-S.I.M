@@ -8,7 +8,7 @@ import { PageResponse } from '../../../shared/models/page-response.model';
 import { StudentResponseDto } from '../dto/student-response.dto';
 import { ApiConfig } from '../../../core/config/api.config';
 import { StudentDetailRequestDto } from '../dto/student-detail-request.dto';
-import { LegalGuardianApi } from '../../legalguardian/api/legal-guardian-api';
+import { ClassroomApi } from '../../classroom/api/classroom-api';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +20,7 @@ export class StudentApi {
 
   constructor(
     private apiService: ApiService,
+    private classroomApi: ClassroomApi,
     private cacheReset: CacheResetService
   ) {
     this.cacheReset.register(() => this.refreshCaches());
@@ -74,6 +75,7 @@ export class StudentApi {
 
   update(id: string, data: UpdateStudentRequestDto): Observable<any> {
     this.refreshCaches();
+    this.classroomApi.cleanCacheDetails();
     return this.apiService.put<UpdateStudentRequestDto>(
       `${ApiConfig.endpoints.student.base}/${id}`,
       data

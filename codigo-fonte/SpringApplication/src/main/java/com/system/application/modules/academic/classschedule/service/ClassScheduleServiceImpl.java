@@ -11,6 +11,7 @@ import com.system.application.modules.licensing.schoolsubscription.service.Schoo
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.service.SchoolService;
 import com.system.application.shared.exception.AccessDeniedException;
+import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.exception.SubscriptionException;
 import com.system.application.shared.services.cache.CacheService;
@@ -119,6 +120,11 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
         Classroom classroom = classroomService.findById(classroomId);
         ensureClassroomBelongsSchool(school.getId(), classroom);
 
+        long totalSchedule = this.classScheduleRepository.countByClassroomId(classroomId);
+        log.info("Quantidade encontrada de horário da turma. [schoolId={}] [classroomId={}] [totalSchedule={}/80]",
+                school.getId(), classroomId, totalSchedule);
+        ensureClassroomHasNotMaxSchedule(classroomId, totalSchedule);
+
         ClassSchedule classSchedule = new ClassSchedule(
                 null,
                 classroom,
@@ -216,6 +222,14 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
             log.warn("Tentativa de acesso a horário que não pertence à turma. [classScheduleId={}] [classScheduleClassroomId={}] [classroomId={}]",
                     classSchedule.getId(), classSchedule.getClassroom().getId(), classroomId);
             throw new AccessDeniedException("Não é possivel interagir com o horário de outra turma");
+        }
+    }
+
+    private void ensureClassroomHasNotMaxSchedule(UUID classroomId, long length) {
+        if (length >= 80) {
+            log.warn("A quantidade de horário da turma atingiu o máximo de 80. [classroomId={}] [maxSchedule={}/80]",
+                    classroomId, length);
+            throw new BusinessException("A turma atingiu a quantidade máxima de horário.");
         }
     }
 

@@ -1,9 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Toast } from "./shared/components/toast/toast";
 import { AuthApi } from './features/auth/api/auth.api';
 import { AuthStore } from './core/auth/store/auth-store.service';
-import { environment } from '../environments/environment';
+import { AccessibilityService } from './core/services/accessibility/accessibility.service';
 
 @Component({
   selector: 'app-root',
@@ -11,24 +11,12 @@ import { environment } from '../environments/environment';
   templateUrl: './app.html',
   styleUrl: './app.sass'
 })
-export class App implements OnInit {
+export class App {
   protected readonly title = signal('Meu S.I.M');
 
   constructor(
     private authApi: AuthApi,
-    private authStore: AuthStore
+    private authStore: AuthStore,
+    private accessibilityService: AccessibilityService
   ) { }
-
-  ngOnInit(): void {
-    // this.authApi.refresh().subscribe({
-    //   next: (res: any) => {
-    //     console.log('[App] Sessão restaurada');
-    //     this.authStore.setToken(res.accessToken);
-    //   },
-    //   error: () => {
-    //     console.log('[App] Não autenticado');
-    //     this.authStore.clear();
-    //   }
-    // });
-  }
 }

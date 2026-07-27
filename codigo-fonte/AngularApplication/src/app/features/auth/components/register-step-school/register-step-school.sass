@@ -48,13 +48,22 @@ input::placeholder
     align-items: flex-start
     margin: .5rem 0   
 
+.cnpj-row
+    display: flex
+    align-items: center
+    gap: 12px
+
     input
-        position: absolute
-        top: 0
-        left: 0
-        width: 1px
-        height: 1px
-        opacity: 0
+        flex: 1
+
+.disabled-input
+    background: #f3f4f6
+    color: #999
+    cursor: not-allowed
+
+.no-cnpj-check
+    white-space: nowrap
+    margin-top: 0
 
 .custom-checkbox
     cursor: pointer
@@ -62,6 +71,14 @@ input::placeholder
     display: flex
     align-items: flex-start
     gap: 6px
+
+    input
+        position: absolute
+        top: 0
+        left: 0
+        width: 1px
+        height: 1px
+        opacity: 0
 
     @media (max-width: 576px)
         align-items: center

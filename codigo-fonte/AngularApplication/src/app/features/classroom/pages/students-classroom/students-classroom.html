@@ -1,0 +1,91 @@
+<div class="students-card">
+    <div class="card-header">
+        <h2>Estudantes da Turma</h2>
+        <button type="button" class="btn-primary-solid" (click)="openModal()">
+            <app-svg-plus color="#ecfdf5" [size]="18"/>
+            <span>Adicionar Estudante</span>
+        </button>
+    </div>
+
+    <div class="card-body">
+        @if (isLoading) {
+            <div class="skeleton-shimmer skeleton-student-item"></div>
+            <div class="skeleton-shimmer skeleton-student-item mt-2"></div>
+            <div class="skeleton-shimmer skeleton-student-item mt-2"></div>
+        }
+        @else if (students.length === 0) {
+            <div class="empty-state">
+                <p>Nenhum estudante matriculado nesta turma.</p>
+            </div>
+        }
+        @else {
+            <div class="student-list">
+                @for (student of students; track student.id) {
+                    <div class="student-item">
+                        <div class="student-info" (click)="goToStudent(student.id)">
+                            <div class="student-avatar-mini">
+                                {{ student.name.charAt(0).toUpperCase() }}
+                            </div>
+                            <span class="student-name">{{ student.name }}</span>
+                        </div>
+                        <button type="button" class="btn-icon" title="Remover da turma" [disabled]="removingId === student.id" (click)="removeStudent(student.id)">
+                            @if (removingId === student.id) {
+                                <app-spinner-to-button color="#ef4444" [size]="18" />
+                            } @else {
+                                <app-svg-trash color="#ef4444" [size]="18" />
+                            }
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@if (isModalOpen) {
+    <div class="modal-overlay" (click)="closeModal()">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Adicionar Estudante</h3>
+            </div>
+            <div class="modal-body">
+                <div class="search-results" (scroll)="onScroll($event)">
+                    @if (isSearching && currentPage === 0) {
+                        <div class="skeleton-shimmer skeleton-student-item"></div>
+                        <div class="skeleton-shimmer skeleton-student-item mt-2"></div>
+                    }
+                    @else if (availableStudents.length === 0) {
+                        <p class="empty-text">Nenhum estudante encontrado.</p>
+                    }
+                    @else {
+                        @for (student of availableStudents; track student.id) {
+                            <div class="result-item" [class.disabled]="isAlreadyInClassroom(student.id)">
+                                <span class="result-name">{{ student.name }}</span>
+
+                                @if (isAlreadyInClassroom(student.id)) {
+                                    <span class="already-in">Já na turma</span>
+                                } @else {
+                                    <button type="button" class="btn-add" [disabled]="addingId === student.id" (click)="addStudent(student)">
+                                        @if (addingId === student.id) {
+                                            <app-spinner-to-button color="#fff" [size]="16" />
+                                        } @else {
+                                            Adicionar
+                                        }
+                                    </button>
+                                }
+                            </div>
+                        }
+                        @if (hasMore) {
+                            <div class="loading-more">
+                                <app-spinner-to-button color="var(--color-primary-600)" />
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+}

@@ -1,13 +1,15 @@
 package com.system.application.auth.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
 @Service
-public final class CookieServiceImpl implements CookieService {
+@Profile({"dev", "test"})
+public final class CookieServiceDevImpl implements CookieService {
     @Value("${app.secure-cookies}")
     private boolean secureCookies;
 
@@ -18,7 +20,7 @@ public final class CookieServiceImpl implements CookieService {
                 .secure(secureCookies) // true em HTTPS
                 .path(path)
                 .maxAge(duration)
-                .sameSite(secureCookies ? "None" : "Lax")
+                .sameSite("None")
                 .build();
     }
 }

@@ -10,5 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface ClassScheduleRepository extends CrudRepository<ClassSchedule, UUID> {
+    long countByClassroomId(UUID classroomId);
     Optional<List<ClassSchedule>> findByClassroomId(UUID classroomId);
 }

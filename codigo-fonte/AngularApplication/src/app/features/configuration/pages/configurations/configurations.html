@@ -1,1 +1,22 @@
-<p>configurations works!</p>
+<div class="config-container">
+  <div class="page-header">
+    <h1>Configurações</h1>
+    <p>Gerencie as preferências e opções do seu reforço escolar.</p>
+  </div>
+
+  <div class="config-list">
+    <app-accessibility-settings></app-accessibility-settings>
+
+    <app-settings-nav-card
+      title="Meu Perfil"
+      description="Edite seus dados pessoais e senha."
+      route="/app/profile">
+    </app-settings-nav-card>
+
+    <app-settings-nav-card
+      title="Assinatura"
+      description="Veja e gerencie sua licença."
+      route="/app/my-subscriptions">
+    </app-settings-nav-card>
+  </div>
+</div>

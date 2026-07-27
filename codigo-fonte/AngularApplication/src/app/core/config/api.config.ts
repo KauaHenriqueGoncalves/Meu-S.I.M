@@ -49,6 +49,9 @@ export class ApiConfig {
             cancel: '/school-subscriptions/{id}/cancel',
             reative: '/school-subscriptions/{id}/reactive'
         },
+        schedule: {
+            base: '/classrooms/{classroomId}/schedules',
+        },
         user: {
             base: '/users',
         },

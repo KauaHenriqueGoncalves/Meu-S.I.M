@@ -1,0 +1,29 @@
+<div class="settings-section">
+  <div class="section-header">
+    <h3>Acessibilidade</h3>
+    <p>Ajuste o tamanho da fonte e o modo de visualização.</p>
+  </div>
+
+  <div class="option-row">
+    <span class="option-label">Tamanho da fonte</span>
+    <div class="font-options">
+      @for (opt of fontOptions; track opt.value) {
+        <button
+          type="button"
+          class="font-btn"
+          [class.active]="accessibilityService.fontSize === opt.value"
+          (click)="selectFontSize(opt.value)">
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="option-row">
+    <span class="option-label">Modo visão noturna</span>
+    <label class="switch">
+      <input type="checkbox" [checked]="accessibilityService.nightMode" (change)="toggleNightMode()">
+      <span class="slider"></span>
+    </label>
+  </div>
+</div>

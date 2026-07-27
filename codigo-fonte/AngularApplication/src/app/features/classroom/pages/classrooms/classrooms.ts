@@ -90,7 +90,7 @@ export class Classrooms implements OnInit {
 
   goToDetails(id: string): void {
     this.router.navigate(
-      ['/app/details-classroom'], 
+      ['/app/about-classroom/details'], 
       { state: { id } }
     );
   }
