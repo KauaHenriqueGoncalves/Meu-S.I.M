@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { AccessibilitySettings } from '../../components/accessiblity-settings/accessibility-settings';
-import { SettingsNavCard } from '../../components/settings-nav-card/settings-nav-card';
+import { SettingsNavItem } from '../../components/settings-nav-item/settings-nav-item';
 
 @Component({
   selector: 'app-configurations',
-  imports: [SettingsNavCard, AccessibilitySettings],
+  imports: [SettingsNavItem, AccessibilitySettings],
   templateUrl: './configurations.html',
   styleUrl: './configurations.sass',
 })

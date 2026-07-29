@@ -10,7 +10,6 @@ public record BillingDiscountToClientResponseDto(
         BigDecimal discountPercent
 
 ) implements Serializable {
-
     @Serial
     private static final long serialVersionUID = 1L;
 }

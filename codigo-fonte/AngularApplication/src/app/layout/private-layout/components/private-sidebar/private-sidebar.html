@@ -5,6 +5,7 @@
         <div class="logo-icon">SIM</div>
         <h2 class="logo-text">
             @switch (role) { 
+                @case ('system_admin') { Sistema }
                 @case ('school_admin') { Administrador }
                 @case ('legal_guardian') { Responsável }
                 @case ('collaborator') { Colaborador }
@@ -64,12 +65,14 @@
     </ul>
 
     <div class="sidebar-footer">
-        <a routerLink="/app/configurations" class="nav-item">
-            <span class="icon">
-                <app-svg-gear color="#ecfdf5" [size]="24" />
-            </span>
-            <span class="nav-text">Configurações</span>
-        </a>
+        @if(role != "system_admin") {
+            <a routerLink="/app/configurations" class="nav-item">
+                <span class="icon">
+                    <app-svg-gear color="#ecfdf5" [size]="24" />
+                </span>
+                <span class="nav-text">Configurações</span>
+            </a>
+        }
         <button type="button" class="nav-item btn-logout" (click)="logout()">
             <span class="icon">
                 <app-svg-logout color="#ecfdf5" [size]="24" />

@@ -3,7 +3,20 @@ import { Role } from "./role.type";
 
 export const MENU_CONFIG: Record<Role, MenuItem[]> = {
   system_admin: [
-    { label: 'system_admin', icon: '📊', route: '/dashboard' },
+    { 
+      label: 'Início', 
+      icon: 'dashboard', 
+      route: '/admin/app/dashboard' 
+    },
+    {
+      label: 'Assinaturas',
+      icon: 'card',
+      expanded: false,
+      children: [
+        { label: 'Descontos', route: '/admin/app/billing-discount' },
+        { label: 'Planos de Licença', route: '/admin/app/school-plan' },
+      ]
+    }
   ],
 
   school_admin: [

@@ -8,7 +8,12 @@ import { NoEmojiDirective } from '../../../../shared/directives/no-emoji.directi
 
 @Component({
   selector: 'app-log-in-user',
-  imports: [ReactiveFormsModule, SpinnerToButton, RouterLink, NoEmojiDirective],
+  imports: [
+    ReactiveFormsModule, 
+    SpinnerToButton, 
+    RouterLink, 
+    NoEmojiDirective
+  ],
   templateUrl: './log-in-user.html',
   styleUrl: './log-in-user.sass',
 })

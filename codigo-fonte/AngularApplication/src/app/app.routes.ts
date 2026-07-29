@@ -38,6 +38,31 @@ export const routes: Routes = [
         children: subscriptionPaymentRoutes
     },
     {
+        path: 'admin/app',
+        canActivate: [authGuard],
+        component: PrivateLayout,
+        children: [
+            {
+                path: '',
+                canMatch: [roleGuard('system_admin')],
+                loadChildren: () => import("./features/admin/admin-dashboard/dashboard.routes")
+                    .then(m => m.adminDashboardRoutes)
+            },
+            {
+                path: '',
+                canMatch: [roleGuard('system_admin')],
+                loadChildren: () => import("./features/admin/admin-billingdiscount/admin-billingdiscount.routes")
+                    .then(m => m.adminBillingDiscountRoutes)
+            },
+            {
+                path: '',
+                canMatch: [roleGuard('system_admin')],
+                loadChildren: () => import("./features/admin/admin-schoolplans/schoolplan.routes")
+                    .then(m => m.adminSchoolPlanRoutes)
+            }
+        ]
+    },
+    {
         path: 'app',
         canActivate: [authGuard],
         component: PrivateLayout,
@@ -65,7 +90,7 @@ export const routes: Routes = [
             {
                 path: '',
                 canMatch: [roleGuard('school_admin')],
-                children: collaboratorRoutes  
+                children: collaboratorRoutes
             },
             {
                 path: '',

@@ -16,6 +16,7 @@ export class ApiConfig {
     static endpoints = {
         auth: {
             login: '/auth/login',
+            loginAdmin: '/auth/login/admin',
             refresh: '/auth/refresh',
             logout: '/auth/logout',
         },
