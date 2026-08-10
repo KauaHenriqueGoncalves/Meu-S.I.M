@@ -9,13 +9,19 @@ import { registerFlowGuard } from './guards/register-flow/register-flow-guard';
 
 export const authRoutes: Routes = [
     {
-        path: 'sign-up', 
+        path: 'sign-up',
         component: Register
     },
     {
         path: 'log-in',
         canActivate: [loginGuest],
         component: LogIn
+    },
+    {
+        path: 'log-in/admin',
+        loadComponent: () =>
+            import('./pages/log-in-admin/log-in-admin')
+                .then(m => m.LogInAdmin)
     },
     {
         path: 'verify-account',

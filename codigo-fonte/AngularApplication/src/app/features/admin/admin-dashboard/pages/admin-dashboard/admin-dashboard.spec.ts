@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SettingsNavCard } from './settings-nav-card';
+import { AdminDashboard } from './admin-dashboard';
 
-describe('SettingsNavCard', () => {
-  let component: SettingsNavCard;
-  let fixture: ComponentFixture<SettingsNavCard>;
+describe('AdminDashboard', () => {
+  let component: AdminDashboard;
+  let fixture: ComponentFixture<AdminDashboard>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SettingsNavCard]
+      imports: [AdminDashboard]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SettingsNavCard);
+    fixture = TestBed.createComponent(AdminDashboard);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

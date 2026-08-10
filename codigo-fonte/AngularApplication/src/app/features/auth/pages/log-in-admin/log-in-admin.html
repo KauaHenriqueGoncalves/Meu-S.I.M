@@ -1,0 +1,26 @@
+<div class="login-admin-container">
+  <aside class="sidebar">
+    <div class="sidebar-info">
+      <span class="system-badge">Portal do Sistema</span>
+      <h2>Meu S.I.M</h2>
+      <p>Acesso para os administradores do sistema.</p>
+    </div>
+    <div class="circle-bottom"></div>
+  </aside>
+  
+  <main class="content">
+    <button class="btn-back" (click)="backToHome()">
+      <app-svg-arrow-left color="current" [size]="18"/>
+      Voltar ao início
+    </button>
+
+    <div class="form-box">
+      <app-log-in-user-admin
+        [isLoading]="isLoading"
+        [captchaExecuting]="captchaExecuting"
+        (next)="finish($event)">
+      </app-log-in-user-admin>
+    </div>
+  </main>
+</div>
+<div id="turnstile-container"></div>
