@@ -1,1 +1,190 @@
-<p>admin-school-plan works!</p>
+<div class="list-container">
+    <div class="page-header">
+        <div class="title-row">
+            <div class="title-area">
+                <h1>Planos</h1>
+                <p>Gerencie os planos de licença disponíveis para as escolas.</p>
+            </div>
+            <div class="action-right">
+                <button class="btn-primary-solid" (click)="openModal()">
+                    <app-svg-plus color="#fff" [size]="20" />
+                    <span>Novo Plano</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading) {
+        <div class="plan-grid">
+            @for (i of [1,2,3,4,5,6]; track i) {
+                <div class="plan-card skeleton-loading">
+                    <div class="card-header">
+                        <div class="sk-item sk-title"></div>
+                        <div class="sk-item sk-badge"></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="sk-item sk-price"></div>
+                        <div class="sk-item sk-line"></div>
+                        <div class="sk-item sk-line"></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="sk-item sk-circle-btn"></div>
+                        <div class="sk-item sk-circle-btn"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    @else {
+        @if (plans.length > 0) {
+            <div class="plan-grid">
+                @for (plan of plans; track plan.id) {
+                    <div class="plan-card" [class.inactive]="!plan.isActive">
+                        <div class="card-header">
+                            <h3>{{ plan.name }}</h3>
+                            <span class="status-badge" [class.active]="plan.isActive">
+                                {{ plan.isActive ? 'Ativo' : 'Inativo' }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="price">
+                                <span class="currency">R$</span>
+                                <span class="amount">{{ plan.monthlyPrice | number:'1.2-2' }}</span>
+                                <span class="period">/mês</span>
+                            </div>
+                            <ul class="plan-limits">
+                                <li><span>Alunos:</span> <strong>{{ plan.maxStudents }}</strong></li>
+                                <li><span>Colaboradores:</span> <strong>{{ plan.maxCollaborators }}</strong></li>
+                                <li><span>Responsáveis:</span> <strong>{{ plan.maxLegalGuardian }}</strong></li>
+                                <li><span>Administradores:</span> <strong>{{ plan.maxSchoolAdmin }}</strong></li>
+                            </ul>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-action-outline" (click)="openModal(plan)" title="Editar Plano">
+                                <app-svg-edit color="currentColor" [size]="18" />
+                            </button>
+                            <button class="btn-action-outline btn-delete-action" (click)="openDeleteModal(plan.id)"
+                                title="Excluir Plano">
+                                <app-svg-trash color="#ef4444" [size]="20" />
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        @else {
+            <div class="empty-state">
+                <h3>Nenhum plano encontrado</h3>
+                <p>Você ainda não cadastrou nenhum plano.</p>
+            </div>
+        }
+    }
+</div>
+
+@if (isModalOpen) {
+    <div class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>{{ editingId ? 'Editar Plano' : 'Novo Plano' }}</h3>
+            </div>
+            <form [formGroup]="planForm" (ngSubmit)="onSavePlan()">
+                <div class="modal-body">
+                    <div class="form-group span-2" [class.has-error]="isFieldInvalid('name')">
+                        <label for="name">Nome do Plano *</label>
+                        <input id="name" type="text" formControlName="name" placeholder="Ex: Intermediário" noEmoji>
+                        @if (isFieldInvalid('name')) {
+                            <span class="error-text">Mínimo de 3 caracteres</span>
+                        }
+                    </div>
+
+                    <div class="form-group span-2" [class.has-error]="isFieldInvalid('monthlyPrice')">
+                        <label for="monthlyPrice">Preço Mensal (R$) *</label>
+                        <input id="monthlyPrice" type="number" step="0.01" formControlName="monthlyPrice" placeholder="Ex: 99.90">
+                        @if (isFieldInvalid('monthlyPrice')) {
+                            <span class="error-text">Informe um preço válido</span>
+                        }
+                    </div>
+
+                    <div class="form-group" [class.has-error]="isFieldInvalid('maxStudents')">
+                        <label for="maxStudents">Máx. Alunos *</label>
+                        <input id="maxStudents" type="number" formControlName="maxStudents" numbersOnly>
+                        @if (isFieldInvalid('maxStudents')) {
+                            <span class="error-text">Valor inválido</span>
+                        }
+                    </div>
+
+                    <div class="form-group" [class.has-error]="isFieldInvalid('maxCollaborators')">
+                        <label for="maxCollaborators">Máx. Colaboradores *</label>
+                        <input id="maxCollaborators" type="number" formControlName="maxCollaborators" numbersOnly>
+                        @if (isFieldInvalid('maxCollaborators')) {
+                            <span class="error-text">Valor inválido</span>
+                        }
+                    </div>
+
+                    <div class="form-group" [class.has-error]="isFieldInvalid('maxLegalGuardian')">
+                        <label for="maxLegalGuardian">Máx. Responsáveis *</label>
+                        <input id="maxLegalGuardian" type="number" formControlName="maxLegalGuardian" numbersOnly>
+                        @if (isFieldInvalid('maxLegalGuardian')) {
+                            <span class="error-text">Valor inválido</span>
+                        }
+                    </div>
+
+                    <div class="form-group" [class.has-error]="isFieldInvalid('maxSchoolAdmin')">
+                        <label for="maxSchoolAdmin">Máx. Administradores *</label>
+                        <input id="maxSchoolAdmin" type="number" formControlName="maxSchoolAdmin" numbersOnly>
+                        @if (isFieldInvalid('maxSchoolAdmin')) {
+                            <span class="error-text">Valor inválido</span>
+                        }
+                    </div>
+
+                    @if (editingId) {
+                        <div class="form-group span-2 status-toggle-group">
+                            <label>Status do Plano</label>
+                            <label class="status-toggle" [class.active]="planForm.get('isActive')?.value">
+                                <input type="checkbox" formControlName="isActive">
+                                <span class="slider"></span>
+                                <span class="toggle-text">{{ planForm.get('isActive')?.value ? 'Ativo' : 'Inativo' }}</span>
+                            </label>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="closeModal()"
+                        [disabled]="isSubmitting">Cancelar</button>
+                    <button type="submit" class="btn-confirm-primary" [disabled]="planForm.invalid || isSubmitting || !isFormChanged">
+                        @if (isSubmitting) {
+                            <app-spinner-to-button color="#fff" [size]="18" />
+                        } @else {
+                            Salvar Alterações
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@if (isDeleteModalOpen) {
+    <div class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="text-danger">Confirmar Exclusão</h3>
+            </div>
+            <div class="model-text-delete">
+                <p>Você tem certeza que deseja excluir este plano permanentemente? Esta ação não poderá ser revertida.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeDeleteModal()" [disabled]="isSubmitting">
+                    Cancelar
+                </button>
+                <button class="btn-confirm-danger" (click)="confirmDelete()" [disabled]="isSubmitting">
+                    @if (isSubmitting) {
+                        <app-spinner-to-button />
+                    } @else {
+                        Confirmar Exclusão
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}

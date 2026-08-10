@@ -87,6 +87,7 @@
         <div class="logo-icon">SIM</div>
         <h2 class="logo-text">
             @switch (role) { 
+                @case ('system_admin') { Sistema }
                 @case ('school_admin') { Administrador }
                 @case ('legal_guardian') { Responsável }
                 @case ('collaborator') { Colaborador }
@@ -136,7 +137,9 @@
     </ul>
 
     <div class="mobile-btns">
-        <a routerLink="/app/configurations" (click)="toggleOverlay()">Configurações</a>
+        @if(role != "system_admin") {
+            <a routerLink="/app/configurations" (click)="toggleOverlay()">Configurações</a>
+        } 
         <a (click)="logout(); toggleOverlay()">Sair</a>
     </div>
 </div>
