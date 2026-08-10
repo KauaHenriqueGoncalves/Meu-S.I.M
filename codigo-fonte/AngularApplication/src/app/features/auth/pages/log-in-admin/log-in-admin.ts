@@ -1,32 +1,32 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { ArrowLeftSvg } from '../../../../shared/components/svg/icon-arrow-left.svg';
 import { Router } from '@angular/router';
-import { LogInUser } from "../../components/log-in-user/log-in-user";
-import { LoginRequestDto } from '../../dto/login-request.dto';
+import { ArrowLeftSvg } from '../../../../shared/components/svg/icon-arrow-left.svg';
+import { LogInUserAdmin } from '../../components/log-in-admin/log-in-user-admin';
+import { AdminLoginRequestDto } from '../../dto/admin-login-request.dto';
 import { CaptchaRequestDto } from '../../dto/capcha-request.dto';
-import { AuthApi } from '../../api/auth.api';
-import { NotificationService } from '../../../../core/services/notification/notification.service';
-import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { NotificationService } from '../../../../core/services/notification/notification.service';
 import { AuthStore } from '../../../../core/auth/store/auth-store.service';
+import { AuthApi } from '../../api/auth.api';
+import { catchError, finalize, throwError, timeout } from 'rxjs';
 import { TokenResponse } from '../../dto/token-response.dto';
 
 declare const turnstile: any;
 
 @Component({
-  selector: 'app-log-in',
+  selector: 'app-log-in-admin',
   imports: [
-    ArrowLeftSvg, 
-    LogInUser
+    ArrowLeftSvg,
+    LogInUserAdmin
   ],
-  templateUrl: './log-in.html',
-  styleUrl: './log-in.sass',
+  templateUrl: './log-in-admin.html',
+  styleUrl: './log-in-admin.sass',
 })
-export class LogIn implements OnInit, OnDestroy {
+export class LogInAdmin implements OnInit, OnDestroy {
   isLoading: boolean = false;
 
-  loginData: Partial<LoginRequestDto> = {}
-  captchaData: Partial<CaptchaRequestDto> = {};
+  loginData!: AdminLoginRequestDto;
+  captchaData!: CaptchaRequestDto;
 
   captchaExecuting: boolean = false;
   private widgetId: string | null = null;
@@ -36,11 +36,11 @@ export class LogIn implements OnInit, OnDestroy {
   private captchaTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
-    private router: Router,
+    private authApi: AuthApi,
     private cdr: ChangeDetectorRef,
     private authStore: AuthStore,
     private notificationService: NotificationService,
-    private authApi: AuthApi
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -60,6 +60,49 @@ export class LogIn implements OnInit, OnDestroy {
       }
       this.widgetId = null;
     }
+  }
+
+  backToHome(): void {
+    this.router.navigate(['/']);
+  }
+
+  finish(login: AdminLoginRequestDto): void {
+    if (this.isLoading) return;
+    if (!this.widgetId) return;
+    if (this.captchaExecuting) return;
+
+    this.loginData = login;
+
+    this.isLoading = true;
+    this.captchaExecuting = true;
+    this.captchaData = { captchaToken: null };
+
+    const state: any = turnstile.getResponse(this.widgetId);
+
+    if (state !== undefined) {
+      turnstile.reset(this.widgetId);
+    }
+
+    turnstile.execute(this.widgetId);
+
+    this.captchaTimeoutRef = setTimeout(() => {
+      if (this.captchaExecuting) {
+        this.notificationService.notify({
+          type: 'warning',
+          text: 'Verificação de robô travou, tente novamente, resetando...'
+        });
+
+        this.captchaExecuting = false;
+        this.isLoading = false;
+
+        if (this.widgetId) {
+          turnstile.reset(this.widgetId);
+        }
+
+        this.cdr.detectChanges();
+      }
+    }, 8000);
+
   }
 
   private loadTurnstile(): void {
@@ -105,7 +148,7 @@ export class LogIn implements OnInit, OnDestroy {
           return;
         };
 
-        this.submitRegister();
+        this.submit();
       },
       'expired-callback': () => {
         this.captchaExecuting = false;
@@ -130,61 +173,16 @@ export class LogIn implements OnInit, OnDestroy {
     });
   }
 
-  backToHome(): void {
-    this.router.navigate(['/']);
-  }
-
-  finish(loginRequest: LoginRequestDto): void {
-    if (this.isLoading) return;
-    if (!this.widgetId) return;
-    if (this.captchaExecuting) return;
-
-    this.loginData = loginRequest;
-
-    this.isLoading = true;
-    this.captchaExecuting = true;
-    this.captchaData = { captchaToken: null };
-
-    const state: any = turnstile.getResponse(this.widgetId);
-
-    if (state !== undefined) {
-      turnstile.reset(this.widgetId);
-    }
-
-    turnstile.execute(this.widgetId);
-
-    this.captchaTimeoutRef = setTimeout(() => {
-      if (this.captchaExecuting) {
-        this.notificationService.notify({
-          type: 'warning',
-          text: 'Verificação de robô travou, tente novamente, resetando...'
-        });
-
-        this.captchaExecuting = false;
-        this.isLoading = false;
-
-        if (this.widgetId) {
-          turnstile.reset(this.widgetId);
-        }
-
-        this.cdr.detectChanges();
-      }
-    }, 8000);
-  }
-
-  private submitRegister(): void {
+  private submit(): void {
     if (!this.captchaData?.captchaToken) {
       this.isLoading = false;
-      console.error('[Register] submitRegister chamado sem token - isso não deveria acontecer');
+      console.error('[Register] submit chamado sem token - isso não deveria acontecer');
       return;
     }
 
     let success: boolean = false;
 
-    this.authApi.login(
-      this.loginData as LoginRequestDto,
-      this.captchaData as CaptchaRequestDto
-    )
+    this.authApi.loginAdmin(this.loginData, this.captchaData)
       .pipe(
         timeout(10000),
         catchError((error) => {
@@ -211,7 +209,7 @@ export class LogIn implements OnInit, OnDestroy {
         next: (res: TokenResponse) => {
           success = true;
           this.authStore.setToken(res.accessToken);
-          this.router.navigate(['/app/dashboard'], { replaceUrl: true });
+          this.router.navigate(['/admin/app/dashboard'], { replaceUrl: true });
         },
         error: (err) => {
           this.notificationService.notify({

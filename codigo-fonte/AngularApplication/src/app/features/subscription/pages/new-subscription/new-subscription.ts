@@ -31,8 +31,14 @@ export class NewSubscription implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.requestSchoolPlan();
     this.requestDiscounts();
+    this.requestSchoolPlan();
+  }
+
+  private calculatePrice(plan: SchoolPlanClientResponseDto): void {
+    const total = plan.basePrice.mul(plan.selectedMonths);
+    const discount = this.getBestDiscount(plan.selectedMonths);
+    plan.monthlyPrice = total.mul(new Decimal(1).minus(discount.div(100)));
   }
 
   incrementMonths(plan: SchoolPlanClientResponseDto) {
@@ -93,13 +99,15 @@ export class NewSubscription implements OnInit {
       )
       .subscribe({
         next: (res: SchoolPlanClientResponseDto[]) => {
-          this.plans = res.map(plan =>
-          ({
-            ...plan,
-            basePrice: new Decimal(plan.monthlyPrice),
-            monthlyPrice: new Decimal(plan.monthlyPrice),
-            selectedMonths: 1
-          }));
+          this.plans = res.map(plan => {
+            return {
+              ...plan,
+              basePrice: new Decimal(plan.monthlyPrice),
+              monthlyPrice: new Decimal(plan.monthlyPrice),
+              selectedMonths: 1
+            }
+          });
+          this.plans.forEach(plan => this.calculatePrice(plan));
           this.cdr.detectChanges();
         },
         error: (err) => {
