@@ -76,6 +76,14 @@ public final class CacheKeys {
                 ((name != null) ? name.trim() : "") + "::page";
     }
 
+    public static String systemAdminFindAll() {
+        return "systemAdmin::findAll";
+    }
+
+    public static String systemAdmin(UUID systemAdminId) {
+        return "systemAdmin::" + systemAdminId.toString();
+    }
+
     public static String classTypeList() {
         return "classType::List";
     }

@@ -142,7 +142,7 @@ public class ClassScheduleServiceImplTest {
             when(schoolService.findByUserId(userId)).thenReturn(school);
             when(classroomService.findById(classroomId)).thenReturn(classroom);
             when(classScheduleRepository.findByClassroomId(classroomId))
-                    .thenReturn(Optional.of(List.of(wednesday, mondayLate, classSchedule)));
+                    .thenReturn(List.of(wednesday, mondayLate, classSchedule));
 
             List<ClassScheduleResponse> result =
                     classScheduleService.findAllResponseByClassroom(userId, classroomId);
@@ -161,7 +161,7 @@ public class ClassScheduleServiceImplTest {
             when(schoolService.findByUserId(userId)).thenReturn(school);
             when(classroomService.findById(classroomId)).thenReturn(classroom);
             when(classScheduleRepository.findByClassroomId(classroomId))
-                    .thenReturn(Optional.of(List.of()));
+                    .thenReturn(List.of());
 
             List<ClassScheduleResponse> result =
                     classScheduleService.findAllResponseByClassroom(userId, classroomId);

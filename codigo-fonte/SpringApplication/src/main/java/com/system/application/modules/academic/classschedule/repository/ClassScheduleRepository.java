@@ -5,11 +5,10 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ClassScheduleRepository extends CrudRepository<ClassSchedule, UUID> {
     long countByClassroomId(UUID classroomId);
-    Optional<List<ClassSchedule>> findByClassroomId(UUID classroomId);
+    List<ClassSchedule> findByClassroomId(UUID classroomId);
 }
