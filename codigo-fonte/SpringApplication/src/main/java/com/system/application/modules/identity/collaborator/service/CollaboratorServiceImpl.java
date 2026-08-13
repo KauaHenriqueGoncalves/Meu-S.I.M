@@ -5,6 +5,7 @@ import com.system.application.modules.identity.collaborator.Collaborator;
 import com.system.application.modules.identity.collaborator.dto.*;
 import com.system.application.modules.identity.collaborator.repository.CollaboratorRepository;
 import com.system.application.modules.identity.role.Role;
+import com.system.application.modules.identity.user.cache.UserCacheKeys;
 import com.system.application.modules.identity.user.dto.PasswordRequest;
 import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
@@ -204,6 +205,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
         cacheService.evictByPattern(keySchool);
         cacheService.evictByPattern(keyUser);
+        cacheService.delete(UserCacheKeys.me(collaborator.getUser().getId()));
     }
 
     @Override
@@ -255,6 +257,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
         cacheService.evictByPattern(keySchool);
         cacheService.evictByPattern(keyUser);
+        cacheService.delete(UserCacheKeys.me(collaborator.getUser().getId()));
     }
 
     private void ensureCollaboratorBelongsToSchool(UUID schoolId, Collaborator collaborator) {

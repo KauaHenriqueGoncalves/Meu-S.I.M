@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface UserService {
     User findById(UUID id);
+    User findByOwnerWithCache();
     User findUserForLogin(String email, String schoolCode);
     User registerUserWithRole(UserRequest request, Role.Values role);
     void activateUser(UUID id);

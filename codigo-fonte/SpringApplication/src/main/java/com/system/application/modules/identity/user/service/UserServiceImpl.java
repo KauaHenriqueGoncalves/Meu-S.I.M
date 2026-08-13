@@ -1,14 +1,18 @@
 package com.system.application.modules.identity.user.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.system.application.auth.service.AuthenticatedUserService;
 import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.role.service.RoleService;
 import com.system.application.modules.identity.user.User;
+import com.system.application.modules.identity.user.cache.UserCacheKeys;
 import com.system.application.modules.identity.user.event.UserRegisteredEvent;
 import com.system.application.modules.identity.user.dto.UserRequest;
 import com.system.application.modules.identity.user.repository.UserRepository;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.EntityAlreadyExistsException;
 import com.system.application.shared.exception.NotFoundObjectException;
+import com.system.application.shared.services.cache.CacheService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,33 +26,55 @@ import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private static final Logger log =
-            LoggerFactory.getLogger(UserServiceImpl.class);
-
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final RoleService roleService;
+    private final AuthenticatedUserService authenticatedUserService;
+    private final CacheService cacheService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
 
     public UserServiceImpl(
             UserRepository userRepository,
             RoleService roleService,
+            AuthenticatedUserService authenticatedUserService,
+            CacheService cacheService,
             BCryptPasswordEncoder passwordEncoder,
-            ApplicationEventPublisher eventPublisher
-    ) {
+            ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.roleService = roleService;
+        this.authenticatedUserService = authenticatedUserService;
+        this.cacheService = cacheService;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
     }
 
     @Override
     public User findById(UUID id) {
-        return userRepository.findById(id)
+        log.info("Buscando usuario pelo user ID. [id={}]", id);
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Usuário não encontrado. [userId={}]", id);
                     return new NotFoundObjectException("Não encontrou o usuário");
                 });
+        log.info("Usuario encontrado pelo ID. [id={}]", id);
+        return user;
+    }
+
+    @Override
+    public User findByOwnerWithCache() {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        log.info("Buscando owner pelo user ID. [ownerId={}]", ownerId);
+        String key = UserCacheKeys.me(ownerId);
+        Optional<User> cache = cacheService.get(key, new TypeReference<>(){});
+        if (cache.isPresent()) {
+            log.info("Owner encontrado com o userID no cache. [ownerId={}]", ownerId);
+            return cache.get();
+        }
+        User user = findById(ownerId);
+        log.info("Owner encontrado com o userID e salvo no cache. [ownerId={}]", ownerId);
+        cacheService.set(key, user, UserCacheKeys.DURATION);
+        return user;
     }
 
     @Override

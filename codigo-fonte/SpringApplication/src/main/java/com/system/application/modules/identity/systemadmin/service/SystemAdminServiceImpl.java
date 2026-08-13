@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.system.application.auth.service.AuthenticatedUserService;
 import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.identity.systemadmin.SystemAdmin;
-import com.system.application.modules.identity.systemadmin.keys.SystemAdminCacheKeys;
+import com.system.application.modules.identity.systemadmin.cache.SystemAdminCacheKeys;
 import com.system.application.modules.identity.systemadmin.dto.UpdateSystemAdminRequestDTO;
 import com.system.application.modules.identity.systemadmin.repository.SystemAdminRepository;
 import com.system.application.modules.identity.systemadmin.validator.SystemAdminValidator;
 import com.system.application.modules.identity.user.User;
+import com.system.application.modules.identity.user.cache.UserCacheKeys;
 import com.system.application.modules.identity.user.dto.PasswordRequest;
 import com.system.application.modules.identity.user.dto.UserRequest;
 import com.system.application.modules.identity.user.service.UserService;
@@ -140,6 +141,7 @@ public class SystemAdminServiceImpl implements SystemAdminService {
         log.info("Atualizado o administrador do sistema com sucesso e deletando os caches relacionados. [ownerId={}] [id={}]", ownerId, id);
         cacheService.delete(SystemAdminCacheKeys.all());
         cacheService.delete(SystemAdminCacheKeys.byId(id));
+        cacheService.delete(UserCacheKeys.me(admin.getUser().getId()));
     }
 
     @Override
@@ -162,5 +164,6 @@ public class SystemAdminServiceImpl implements SystemAdminService {
         log.info("Deletado adminstrador do sistema com sucesso e deletando os caches relacionados. [ownerId={}] [id={}]", ownerId, id);
         cacheService.delete(SystemAdminCacheKeys.all());
         cacheService.delete(SystemAdminCacheKeys.byId(id));
+        cacheService.delete(UserCacheKeys.me(admin.getUser().getId()));
     }
 }

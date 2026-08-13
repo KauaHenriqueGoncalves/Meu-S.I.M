@@ -7,6 +7,7 @@ import com.system.application.modules.identity.legalguardian.LegalGuardian;
 import com.system.application.modules.identity.legalguardian.dto.*;
 import com.system.application.modules.identity.legalguardian.repository.LegalGuardianRepository;
 import com.system.application.modules.identity.role.Role;
+import com.system.application.modules.identity.user.cache.UserCacheKeys;
 import com.system.application.modules.identity.user.dto.PasswordRequest;
 import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
@@ -210,6 +211,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
         cacheService.evictByPattern(keySchool);
         cacheService.evictByPattern(keyUser);
         keysByStudent.forEach(cacheService::delete);
+        cacheService.delete(UserCacheKeys.me(legalGuardian.getUser().getId()));
     }
 
     @Override
@@ -244,9 +246,9 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
                 userId, legalGuardianId);
 
         School school = schoolService.findByUserId(userId);
-
         ensureLegalGuardianBelongsToUserSchool(userId, legalGuardianId);
 
+        LegalGuardian legalGuardian = findById(legalGuardianId);
         legalGuardianRepository.deleteById(legalGuardianId);
 
         log.info("Responsável excluído com sucesso. [legalGuardianId={}] [schoolId={}]",
@@ -260,6 +262,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
         cacheService.evictByPattern(keySchool);
         cacheService.evictByPattern(keyUser);
+        cacheService.delete(UserCacheKeys.me(legalGuardian.getUser().getId()));
     }
 
     private void ensureLegalGuardianBelongsToUserSchool(UUID userId, UUID legalGuardianId) {
