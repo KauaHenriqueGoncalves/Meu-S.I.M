@@ -1,7 +1,6 @@
 package com.system.application.modules.identity.systemadmin.dto;
 
 import com.system.application.modules.identity.systemadmin.SystemAdmin;
-
 import java.util.UUID;
 
 public record SystemAdminDetailViewResponseDTO(

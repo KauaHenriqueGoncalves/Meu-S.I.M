@@ -2,6 +2,7 @@ package com.system.application.shared.services.cache.keys;
 
 import java.util.UUID;
 
+// PREDICATE
 public final class CacheKeys {
     private CacheKeys() { }
 

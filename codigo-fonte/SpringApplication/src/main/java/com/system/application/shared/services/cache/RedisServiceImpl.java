@@ -2,14 +2,12 @@ package com.system.application.shared.services.cache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.system.application.shared.dto.PageResponse;
 import io.lettuce.core.RedisException;
 import jakarta.persistence.QueryTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.Cursor;
@@ -17,15 +15,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import java.lang.reflect.Array;
 import java.time.Duration;
 import java.util.*;
 
 @Service
 public class RedisServiceImpl implements CacheService {
-    private static final Logger log =
-            LoggerFactory.getLogger(RedisServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(RedisServiceImpl.class);
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -33,19 +29,18 @@ public class RedisServiceImpl implements CacheService {
 
     public RedisServiceImpl(
             RedisTemplate<String, String> redisTemplate,
-            ObjectMapper objectMapper
-    ) {
+            ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
     }
 
     @Override
     public <T> Optional<T> get(String key, TypeReference<T> typeReference) {
-        if (!isAvailable()) return Optional.empty();
-
+        if (!isAvailable()) {
+            return Optional.empty();
+        }
         try {
-            log.info("Buscando item no cache. [key={}] [typeReference={}]",
-                    key, typeReference.getType());
+            log.info("Buscando item no cache. [key={}] [typeReference={}]", key, typeReference.getType());
             String json = redisTemplate.opsForValue().get(key);
             if (json == null) {
                 return Optional.empty();
@@ -63,8 +58,7 @@ public class RedisServiceImpl implements CacheService {
                 markAsUnavailable("get", key, e);
                 return Optional.empty();
             }
-            log.error("Erro ao converter lista do cache. [key={}] [type={}] [error={}]",
-                    key, typeReference, e.getMessage());
+            log.error("Erro ao converter lista do cache. [key={}] [type={}] [error={}]", key, typeReference, e.getMessage());
             return Optional.empty();
         }
     }

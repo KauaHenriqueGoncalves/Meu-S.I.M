@@ -1,7 +1,6 @@
 package com.system.application.shared.services.cache;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;

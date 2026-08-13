@@ -20,7 +20,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
     @Bean
     @Order(1)
     @Profile("test")
