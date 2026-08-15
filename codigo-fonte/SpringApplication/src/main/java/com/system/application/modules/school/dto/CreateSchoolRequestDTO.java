@@ -6,10 +6,7 @@ import com.system.application.shared.validation.ValidCnpj;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import java.io.Serial;
-import java.io.Serializable;
-
-public record SchoolRequest(
+public record CreateSchoolRequestDTO(
         @NotBlank(message = "Código da escola não pode ser vazio")
         @Size(min=5, max = 50, message = "Código da escola deve ser menor que 50 caracteres")
         @NoLeadingTrailingSpace
@@ -26,7 +23,4 @@ public record SchoolRequest(
         @ValidCnpj(message = "Cnpj deve ser válido")
         @NoLeadingTrailingSpace
         String cnpj
-) implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-}
+) { }

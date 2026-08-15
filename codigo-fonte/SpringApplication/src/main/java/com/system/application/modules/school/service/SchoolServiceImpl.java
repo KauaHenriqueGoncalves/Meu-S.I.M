@@ -1,107 +1,163 @@
 package com.system.application.modules.school.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.system.application.auth.service.AuthenticatedUserService;
 import com.system.application.modules.school.School;
-import com.system.application.modules.school.dto.SchoolRequest;
+import com.system.application.modules.school.cache.SchoolCacheKeys;
+import com.system.application.modules.school.dto.CreateSchoolRequestDTO;
+import com.system.application.modules.school.dto.UpdateSchoolRequestDTO;
 import com.system.application.modules.school.repository.SchoolRepository;
-import com.system.application.shared.exception.EntityAlreadyExistsException;
+import com.system.application.modules.school.validator.SchoolValidator;
+import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.services.cache.CacheService;
-import com.system.application.shared.services.cache.keys.CacheKeys;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class SchoolServiceImpl implements SchoolService {
-    private static final Logger log =
-            LoggerFactory.getLogger(SchoolServiceImpl.class);
-
+    private static final Logger log = LoggerFactory.getLogger(SchoolServiceImpl.class);
     private final SchoolRepository schoolRepository;
+    private final SchoolValidator schoolValidator;
+    private final AuthenticatedUserService authenticatedUserService;
     private final CacheService cacheService;
 
     public SchoolServiceImpl(
             SchoolRepository schoolRepository,
-            CacheService cacheService
-    ) {
+            SchoolValidator schoolValidator,
+            AuthenticatedUserService authenticatedUserService,
+            CacheService cacheService) {
         this.schoolRepository = schoolRepository;
+        this.schoolValidator = schoolValidator;
+        this.authenticatedUserService = authenticatedUserService;
         this.cacheService = cacheService;
     }
 
     @Override
-    public School findById(UUID schoolId) {
-        log.info("Procurando School pelo ID. [schoolId={}]" , schoolId);
-
-        return schoolRepository.findById(schoolId)
-                .orElseThrow(() ->{
-                    log.warn("Escola não foi encontrada. [schoolId={}]", schoolId);
+    public School findById(UUID id) {
+        log.info("Buscando escola pelo ID. [id={}]" , id);
+        School school = schoolRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Escola nao foi encontrada. [id={}]", id);
                     return new NotFoundObjectException("Escola não encontrada");
                 });
+        log.info("Escola encontrada pelo ID. [id={}]", id);
+        return school;
+    }
+
+    @Override
+    public School findByIdWithCache(UUID id) {
+        log.info("Buscando escola pelo ID. [id={}]" , id);
+        String key = SchoolCacheKeys.byId(id);
+        Optional<School> cache = cacheService.get(key, new TypeReference<>(){});
+        if (cache.isPresent()) {
+            log.info("Escola encontrada no cache. [id={}] [key={}]", id, key);
+            return cache.get();
+        }
+        School school = findById(id);
+        log.info("Escola encontrada e salva no cache. [id={}] [key={}]", id, key);
+        cacheService.set(key, school, SchoolCacheKeys.TTL);
+        return school;
     }
 
     @Override
     public School findByUserId(UUID userId) {
-        log.info("Procurando a escola do ID usuario. [userId={}]", userId);
-
-        String key = CacheKeys.school(userId, "byUser");
-
-        Optional<School> cacheResponse = cacheService.get(
-                key,
-                new TypeReference<>() {}
-        );
-
-        if (cacheResponse.isPresent()) {
-            log.info("Encontrado a escola pelo ID usuario. [userId={}] [schoolId={}]",
-                    userId, cacheResponse.get().getId());
-            return cacheResponse.get();
-        }
-
-        School response = schoolRepository.findSchoolByUserId(userId)
+        log.info("Buscando escola pelo userId. [userId={}]" , userId);
+        School school = schoolRepository.findSchoolByUserId(userId)
                 .orElseThrow(() -> {
-                    log.warn("Escola não encontrada do ID do usuário. [userId={}]", userId);
+                    log.warn("Escola nao encontrada do userID. [userId={}]", userId);
                     return new NotFoundObjectException("Escola não encontrada");
                 });
+        log.info("Escola encontrada pelo userId. [userId={}]" , userId);
+        return school;
+    }
 
-        cacheService.set(key, response, Duration.ofHours(5));
+    @Override
+    public School findByUserIdWithCache(UUID userId) {
+        School ownerSchool = findByOwnerIdWithCache();
+        log.info("Buscando escola pelo userId. [userId={}] [schoolId={}]",
+                userId, ownerSchool.getId());
+        String key = SchoolCacheKeys.byUser(ownerSchool.getId(), userId);
+        Optional<School> cache = cacheService.get(key, new TypeReference<>(){});
+        if (cache.isPresent()) {
+            log.info("Escola encontrada no cache pelo userId. [userId={}] [schoolId={}] [key={}]",
+                    userId, ownerSchool.getId(), key);
+            return cache.get();
+        }
+        School userSchool = findByUserId(userId);
+        schoolValidator.ensureSchoolSameByOwnerId(userSchool, ownerSchool);
+        cacheService.set(key, userSchool, SchoolCacheKeys.TTL);
+        return userSchool;
+    }
 
-        return response;
+    @Override
+    public School findByOwnerId() {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        log.info("Buscando a escola pelo ownerId. [ownerId={}]", ownerId);
+        School school = findByUserId(ownerId);
+        log.info("Escola encontrada pelo ownerId. [ownerId={}] [schoolId={}]",
+                ownerId, school.getId());
+        return school;
+    }
+
+    @Override
+    public School findByOwnerIdWithCache() {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        log.info("Buscando a escola pelo ownerId. [ownerId={}]", ownerId);
+        String key = SchoolCacheKeys.byOwnerId(ownerId);
+        Optional<School> cache = cacheService.get(key, new TypeReference<>(){});
+        if (cache.isPresent()) {
+            log.info("Escola encontrada no cache pelo ownerId. [ownerId={}] [schoolId={}] [key={}]",
+                    ownerId, cache.get().getId(), key);
+            return cache.get();
+        }
+        School school = findByOwnerId();
+        log.info("Escola encontrada pelo ownerId e salvo no cache. [ownerId={}] [schoolId={}] [key={}]",
+                ownerId, school.getId(), key);
+        cacheService.set(key, school, SchoolCacheKeys.TTL);
+        return school;
     }
 
     @Override
     @Transactional
-    public School save(SchoolRequest request) {
-        log.info("Iniciando cadastro de School. [request={}]", request);
-
-        checkSchoolConflict(request);
-        School school = new School(
-                null,
-                request.nameCode(),
-                request.schoolName(),
-                request.cnpj()
-        );
-        school = schoolRepository.save(school);
-
-        log.info("School criado com sucesso. [schoolId={}]", school.getId());
-
+    public School create(CreateSchoolRequestDTO dto) {
+        log.info("Criando o reforço escolar. [nameCode={}] [schoolName={}] [cnpj={}]",
+                dto.nameCode(), dto.schoolName(), dto.cnpj());
+        schoolValidator.ensureSchoolAlreadyExistNameCode(dto.nameCode());
+        schoolValidator.ensureSchoolAlreadyExistCnpj(dto.cnpj());
+        School school = schoolRepository.save(School.of(dto));
+        log.info("Reforco escolar criado com sucesso. [schoolId={}] [nameCode={}] [schoolName={}] [cnpj={}]",
+                school.getId(), school.getNameCode(), school.getSchoolName(), school.getCnpj());
         return school;
     }
 
-    private void checkSchoolConflict(SchoolRequest request) {
-        if (schoolRepository.existsByNameCode(request.nameCode())) {
-            log.warn("Tentativa de cadastro com Codigo do reforco ja cadastrado. [nameCode={}]", request.nameCode());
-            throw new EntityAlreadyExistsException("Código do reforço já cadastrado");
-        }
-        boolean isCnpjNull = request.cnpj() == null;
-        if (!isCnpjNull) {
-            if (schoolRepository.existsByCnpj(request.cnpj())) {
-                log.warn("Tentativa de cadastro com CNPJ já cadastrado. [cnpj={}]", request.cnpj());
-                throw new EntityAlreadyExistsException("Cnpj já cadastrado");
-            }
-        }
+    @Override
+    @Transactional
+    public School update(UUID id, UpdateSchoolRequestDTO dto) {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        School ownerSchool = findByOwnerIdWithCache();
+        log.info("Atualizando as informacoes do reforco escolar. [ownerId={}] [schoolId={}] [nameCodeOld={}] [schoolNameOld={}] [cnpjOld={}]",
+                ownerId, ownerSchool.getId(), ownerSchool.getNameCode(), ownerSchool.getSchoolName(), ownerSchool.getCnpj());
+        schoolValidator.ensureSchoolSameByOwnerId(id, ownerSchool);
+        ownerSchool.setNameCode(dto.nameCode());
+        ownerSchool.setSchoolName(dto.schoolName());
+        ownerSchool.setCnpj(dto.cnpj());
+        log.info("Atualizado as informacoes do reforco escolar e limpando os caches relacionados. [ownerId={}] [schoolId={}] [nameCodeNew={}] [schoolNameNew={}] [cnpjNew={}]",
+                ownerId, ownerSchool.getId(), ownerSchool.getNameCode(), ownerSchool.getSchoolName(), ownerSchool.getCnpj());
+        cacheService.delete(SchoolCacheKeys.byId(ownerSchool.getId()));
+        cacheService.delete(SchoolCacheKeys.byOwnerId(ownerId));
+        cacheService.evictByPattern(SchoolCacheKeys.byPatternByUser(ownerSchool.getId()));
+        return ownerSchool;
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(UUID id) {
+        // TODO: fazer efeito cascata para os demais dados {deletar todos os dados}
+        throw new BusinessException("Método não implementado");
     }
 }

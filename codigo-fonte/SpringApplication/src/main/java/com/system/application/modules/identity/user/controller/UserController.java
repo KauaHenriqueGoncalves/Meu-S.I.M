@@ -4,9 +4,7 @@ import com.system.application.modules.identity.user.dto.MeResponseDTO;
 import com.system.application.modules.identity.user.facade.UserFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")

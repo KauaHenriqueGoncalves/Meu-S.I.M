@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +14,7 @@ import java.util.UUID;
 public interface SchoolAdminRepository extends CrudRepository<SchoolAdmin, UUID> {
     Optional<SchoolAdmin> findByUserId(UUID userId);
     List<SchoolAdmin> findAllBySchoolId(UUID schoolId);
-
-    long countBySchoolId(UUID schoolId);
+    int countBySchoolId(UUID schoolId);
 
     @Query("""
     SELECT sa

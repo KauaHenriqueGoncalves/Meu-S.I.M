@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,7 +28,6 @@ import java.util.UUID;
 @Service
 public class SystemAdminServiceImpl implements SystemAdminService {
     private static final Logger log = LoggerFactory.getLogger(SystemAdminServiceImpl.class);
-    private static final Duration SYSTEM_ADMIN_TTL = Duration.ofHours(30);
     private final SystemAdminRepository systemAdminRepository;
     private final SystemAdminValidator systemAdminValidator;
     private final AuthenticatedUserService authenticatedUserService;
@@ -72,7 +70,7 @@ public class SystemAdminServiceImpl implements SystemAdminService {
         }
         List<SystemAdmin> admins = systemAdminRepository.findAll();
         log.info("Admnistradores do sistema encontrados e inserir no cache. [ownerId={}] [size={}]", ownerId, admins.size());
-        cacheService.set(key, admins, SYSTEM_ADMIN_TTL);
+        cacheService.set(key, admins, SystemAdminCacheKeys.TTL);
         return admins;
     }
 
@@ -98,7 +96,7 @@ public class SystemAdminServiceImpl implements SystemAdminService {
         }
         SystemAdmin admin = findById(id);
         log.info("Administrador do sistema encontrado. [ownerId={}] [id={}]", ownerId, id);
-        cacheService.set(key, admin, SYSTEM_ADMIN_TTL);
+        cacheService.set(key, admin, SystemAdminCacheKeys.TTL);
         return admin;
     }
 

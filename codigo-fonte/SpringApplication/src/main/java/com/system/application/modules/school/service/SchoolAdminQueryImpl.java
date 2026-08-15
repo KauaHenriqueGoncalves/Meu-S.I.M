@@ -5,15 +5,12 @@ import com.system.application.modules.identity.schooladmin.repository.SchoolAdmi
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class SchoolAdminQueryImpl implements SchoolAdminQuery {
-    private final static Logger log =
-            LoggerFactory.getLogger(SchoolAdminQueryImpl.class);
-
+    private final static Logger log = LoggerFactory.getLogger(SchoolAdminQueryImpl.class);
     private final SchoolAdminRepository schoolAdminRepository;
 
     public SchoolAdminQueryImpl(SchoolAdminRepository schoolAdminRepository) {

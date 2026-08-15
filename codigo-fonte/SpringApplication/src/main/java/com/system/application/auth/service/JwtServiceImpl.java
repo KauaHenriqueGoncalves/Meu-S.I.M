@@ -52,7 +52,7 @@ public final class JwtServiceImpl implements JwtService {
                 .issuer("api-system-application")
                 .audience(List.of("system-web"))
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(604800)) //604800 == 7days
+                .expiresAt(now.plusSeconds(604800)) //604800 == 7 days
                 .subject(loginResponse.id().toString())
                 .claims(claims -> {
                     claims.put("type", "refresh_token");

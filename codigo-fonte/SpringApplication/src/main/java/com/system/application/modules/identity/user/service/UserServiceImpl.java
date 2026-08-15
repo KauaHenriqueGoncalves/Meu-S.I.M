@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
         }
         User user = findById(ownerId);
         log.info("Owner encontrado com o userID e salvo no cache. [ownerId={}]", ownerId);
-        cacheService.set(key, user, UserCacheKeys.DURATION);
+        cacheService.set(key, user, UserCacheKeys.TTL);
         return user;
     }
 

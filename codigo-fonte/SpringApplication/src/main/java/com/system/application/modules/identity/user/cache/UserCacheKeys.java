@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public final class UserCacheKeys {
     private static final String PREFIX = "user::";
-    public static final Duration DURATION = Duration.ofHours(24);
+    public static final Duration TTL = Duration.ofHours(24);
 
     private UserCacheKeys() {}
 

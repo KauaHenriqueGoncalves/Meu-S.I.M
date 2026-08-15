@@ -2,7 +2,7 @@ package com.system.application.modules.identity.schooladmin.service;
 
 import com.system.application.modules.identity.role.Role;
 import com.system.application.modules.school.School;
-import com.system.application.modules.school.dto.SchoolRequest;
+import com.system.application.modules.school.dto.CreateSchoolRequestDTO;
 import com.system.application.modules.school.service.SchoolService;
 import com.system.application.modules.identity.schooladmin.SchoolAdmin;
 import com.system.application.modules.identity.schooladmin.repository.SchoolAdminRepository;
@@ -47,9 +47,9 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
 
     @Override
     @Transactional
-    public SchoolAdmin save(UserRequest userRequest, SchoolRequest schoolRequest) {
+    public SchoolAdmin save(UserRequest userRequest, CreateSchoolRequestDTO createSchoolRequestDTO) {
         User user = userService.registerUserWithRole(userRequest, Role.Values.SCHOOL_ADMIN);
-        School school = schoolService.save(schoolRequest);
+        School school = schoolService.create(createSchoolRequestDTO);
         SchoolAdmin schoolAdmin = new SchoolAdmin(null, user, school);
         schoolAdmin = schoolAdminRepository.save(schoolAdmin);
         return schoolAdmin;

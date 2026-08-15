@@ -39,7 +39,7 @@ public class SchoolAdminController {
         }
 
         SchoolAdmin schoolAdmin =
-                schoolAdminService.save(request.userRequest(), request.schoolRequest());
+                schoolAdminService.save(request.userRequest(), request.createSchoolRequestDTO());
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")

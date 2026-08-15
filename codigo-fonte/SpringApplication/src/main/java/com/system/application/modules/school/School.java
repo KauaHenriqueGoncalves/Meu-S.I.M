@@ -1,8 +1,8 @@
 package com.system.application.modules.school;
 
+import com.system.application.modules.school.dto.CreateSchoolRequestDTO;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -40,12 +40,20 @@ public final class School implements Serializable {
             UUID id,
             String nameCode,
             String schoolName,
-            String cnpj
-    ) {
+            String cnpj) {
         this.id = id;
         this.nameCode = nameCode;
         this.schoolName = schoolName;
         this.cnpj = cnpj;
+    }
+
+    public static School of(CreateSchoolRequestDTO dto) {
+        return new School(
+                null,
+                dto.nameCode(),
+                dto.schoolName(),
+                dto.cnpj()
+        );
     }
 
     public UUID getId() {

@@ -13,9 +13,7 @@ import java.util.UUID;
 
 @Service
 public class SchoolCapacityQueryImpl implements SchoolCapacityQuery {
-    private final Logger log =
-            LoggerFactory.getLogger(SchoolCapacityQueryImpl.class);
-
+    private final Logger log = LoggerFactory.getLogger(SchoolCapacityQueryImpl.class);
     private final StudentRepository studentRepository;
     private final CollaboratorRepository collaboratorRepository;
     private final LegalGuardianRepository legalGuardianRepository;
@@ -25,8 +23,7 @@ public class SchoolCapacityQueryImpl implements SchoolCapacityQuery {
             StudentRepository studentRepository,
             CollaboratorRepository collaboratorRepository,
             LegalGuardianRepository legalGuardianRepository,
-            SchoolAdminRepository schoolAdminRepository
-    ) {
+            SchoolAdminRepository schoolAdminRepository) {
         this.studentRepository = studentRepository;
         this.collaboratorRepository = collaboratorRepository;
         this.legalGuardianRepository = legalGuardianRepository;

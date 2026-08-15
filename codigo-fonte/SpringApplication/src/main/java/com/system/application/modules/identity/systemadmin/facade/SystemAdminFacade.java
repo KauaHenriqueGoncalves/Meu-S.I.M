@@ -6,7 +6,6 @@ import com.system.application.modules.identity.systemadmin.dto.SystemAdminSimple
 import com.system.application.modules.identity.systemadmin.dto.UpdateSystemAdminRequestDTO;
 import com.system.application.modules.identity.user.dto.PasswordRequest;
 import com.system.application.modules.identity.user.dto.UserRequest;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +14,7 @@ public interface SystemAdminFacade {
     List<SystemAdminSimpleViewResponseDTO> getAll();
     SystemAdmin getByIdEntity(UUID id);
     SystemAdminDetailViewResponseDTO getById(UUID id);
+    SystemAdmin getByCpfAndEmailEntity(String cpf, String email);
     void create(UserRequest request);
     void update(UUID id, UpdateSystemAdminRequestDTO updateRequest);
     void updatePassword(UUID id, PasswordRequest request);

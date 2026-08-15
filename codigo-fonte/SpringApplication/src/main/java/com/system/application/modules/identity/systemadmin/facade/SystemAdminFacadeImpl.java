@@ -42,6 +42,11 @@ public class SystemAdminFacadeImpl implements SystemAdminFacade {
     }
 
     @Override
+    public SystemAdmin getByCpfAndEmailEntity(String cpf, String email) {
+        return service.findByCpfAndEmail(cpf, email);
+    }
+
+    @Override
     public void create(UserRequest request) {
         service.save(request);
     }
