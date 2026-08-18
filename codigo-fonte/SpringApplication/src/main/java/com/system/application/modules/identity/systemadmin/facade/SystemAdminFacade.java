@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface SystemAdminFacade {
     List<SystemAdmin> getAllEntities();
     List<SystemAdminSimpleViewResponseDTO> getAll();
-    SystemAdmin getByIdEntity(UUID id);
+    SystemAdmin getEntityById(UUID id);
     SystemAdminDetailViewResponseDTO getById(UUID id);
     SystemAdmin getByCpfAndEmailEntity(String cpf, String email);
     void create(UserRequest request);

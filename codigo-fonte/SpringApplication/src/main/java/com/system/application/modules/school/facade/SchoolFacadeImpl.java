@@ -17,45 +17,30 @@ public class SchoolFacadeImpl implements SchoolFacade {
     }
 
     @Override
-    public School getByIdEntity(UUID id) {
+    public School getEntityById(UUID id) {
         return schoolService.findById(id);
     }
 
     @Override
-    public School getByIdEntityWithCache(UUID id) {
-        return schoolService.findByIdWithCache(id);
-    }
-
-    @Override
-    public SchoolResponseDTO getById(UUID id) {
-        School school = schoolService.findByIdWithCache(id);
-        return SchoolResponseDTO.of(school);
-    }
-
-    @Override
-    public School getByUserIdEntity(UUID userId) {
+    public School getEntityByUserId(UUID userId) {
         return schoolService.findByUserId(userId);
     }
 
     @Override
-    public School getByUserIdEntityWithCache(UUID userId) {
-        return schoolService.findByUserIdWithCache(userId);
-    }
-
-    @Override
-    public School getByOwnerIdEntity() {
+    public School getEntityByOwnerId() {
         return schoolService.findByOwnerId();
     }
 
     @Override
-    public School getByOwnerIdEntityWithCache() {
-        return schoolService.findByOwnerIdWithCache();
+    public SchoolResponseDTO getById(UUID id) {
+        School s = schoolService.findByIdWithCache(id);
+        return SchoolResponseDTO.of(s);
     }
 
     @Override
     public SchoolResponseDTO getByOwnerId() {
-        School school = schoolService.findByOwnerIdWithCache();
-        return SchoolResponseDTO.of(school);
+        School s = schoolService.findByOwnerIdWithCache();
+        return SchoolResponseDTO.of(s);
     }
 
     @Override
@@ -66,10 +51,5 @@ public class SchoolFacadeImpl implements SchoolFacade {
     @Override
     public School update(UUID id, UpdateSchoolRequestDTO dto) {
         return schoolService.update(id, dto);
-    }
-
-    @Override
-    public void delete(UUID id) {
-        // NOT IMPLEMENTED
     }
 }

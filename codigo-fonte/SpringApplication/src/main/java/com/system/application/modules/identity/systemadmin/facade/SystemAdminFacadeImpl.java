@@ -31,7 +31,7 @@ public class SystemAdminFacadeImpl implements SystemAdminFacade {
     }
 
     @Override
-    public SystemAdmin getByIdEntity(UUID id) {
+    public SystemAdmin getEntityById(UUID id) {
         return service.findById(id);
     }
 

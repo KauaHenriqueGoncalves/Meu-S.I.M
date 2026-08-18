@@ -139,7 +139,7 @@ public class SchoolServiceImpl implements SchoolService {
     @Transactional
     public School update(UUID id, UpdateSchoolRequestDTO dto) {
         UUID ownerId = authenticatedUserService.getOwnerId();
-        School ownerSchool = findByOwnerIdWithCache();
+        School ownerSchool = findByOwnerId();
         log.info("Atualizando as informacoes do reforco escolar. [ownerId={}] [schoolId={}] [nameCodeOld={}] [schoolNameOld={}] [cnpjOld={}]",
                 ownerId, ownerSchool.getId(), ownerSchool.getNameCode(), ownerSchool.getSchoolName(), ownerSchool.getCnpj());
         schoolValidator.ensureSchoolSameByOwnerId(id, ownerSchool);
