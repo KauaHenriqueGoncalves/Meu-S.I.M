@@ -1,13 +1,13 @@
 package com.system.application.modules.identify.user.service;
 
-import com.system.application.modules.identity.role.Role;
-import com.system.application.modules.identity.role.service.RoleService;
-import com.system.application.modules.identity.user.User;
-import com.system.application.modules.identity.user.dto.UserRequest;
-import com.system.application.modules.identity.user.event.UserRegisteredEvent;
+import com.system.application.modules.identity.base.role.Role;
+import com.system.application.modules.identity.base.role.service.RoleService;
+import com.system.application.modules.identity.base.user.User;
+import com.system.application.modules.identity.base.user.dto.CreateUserRequestDTO;
+import com.system.application.modules.identity.base.user.event.UserRegisteredEvent;
 
-import com.system.application.modules.identity.user.repository.UserRepository;
-import com.system.application.modules.identity.user.service.UserServiceImpl;
+import com.system.application.modules.identity.base.user.repository.UserRepository;
+import com.system.application.modules.identity.base.user.service.UserServiceImpl;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.EntityAlreadyExistsException;
 import com.system.application.shared.exception.NotFoundObjectException;
@@ -54,7 +54,7 @@ public class UserServiceImplTest {
     private UUID userId;
     private User activeUser;
     private User inactiveUser;
-    private UserRequest validRequest;
+    private CreateUserRequestDTO validRequest;
     private Role role;
 
     @BeforeEach
@@ -91,7 +91,7 @@ public class UserServiceImplTest {
                 null
         );
 
-        validRequest = new UserRequest(
+        validRequest = new CreateUserRequestDTO(
                 "João Silva",
                 "joao@email.com",
                 "senha123",

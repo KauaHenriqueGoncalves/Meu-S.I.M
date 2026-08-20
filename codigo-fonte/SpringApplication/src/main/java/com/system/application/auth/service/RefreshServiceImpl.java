@@ -1,8 +1,8 @@
 package com.system.application.auth.service;
 
 import com.system.application.auth.dto.LoginResponse;
-import com.system.application.modules.identity.user.User;
-import com.system.application.modules.identity.user.service.UserService;
+import com.system.application.modules.identity.base.user.User;
+import com.system.application.modules.identity.base.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.Jwt;

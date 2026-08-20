@@ -1,6 +1,6 @@
 package com.system.application.auth.dto;
 
-import com.system.application.modules.identity.role.Role;
+import com.system.application.modules.identity.base.role.Role;
 
 import java.io.Serial;
 import java.io.Serializable;

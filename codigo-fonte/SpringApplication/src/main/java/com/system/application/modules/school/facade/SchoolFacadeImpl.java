@@ -2,8 +2,11 @@ package com.system.application.modules.school.facade;
 
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.dto.CreateSchoolRequestDTO;
+import com.system.application.modules.school.dto.SchoolCapacityResponseDTO;
 import com.system.application.modules.school.dto.SchoolResponseDTO;
 import com.system.application.modules.school.dto.UpdateSchoolRequestDTO;
+import com.system.application.modules.school.query.SchoolAdminQuery;
+import com.system.application.modules.school.query.SchoolCapacityQuery;
 import com.system.application.modules.school.service.SchoolService;
 import org.springframework.stereotype.Component;
 import java.util.UUID;
@@ -11,9 +14,16 @@ import java.util.UUID;
 @Component
 public class SchoolFacadeImpl implements SchoolFacade {
     private final SchoolService schoolService;
+    private final SchoolAdminQuery schoolAdminQuery;
+    private final SchoolCapacityQuery schoolCapacityQuery;
 
-    public SchoolFacadeImpl(SchoolService schoolService) {
+    public SchoolFacadeImpl(
+            SchoolService schoolService,
+            SchoolAdminQuery schoolAdminQuery,
+            SchoolCapacityQuery schoolCapacityQuery) {
         this.schoolService = schoolService;
+        this.schoolAdminQuery = schoolAdminQuery;
+        this.schoolCapacityQuery = schoolCapacityQuery;
     }
 
     @Override
@@ -29,6 +39,11 @@ public class SchoolFacadeImpl implements SchoolFacade {
     @Override
     public School getEntityByOwnerId() {
         return schoolService.findByOwnerId();
+    }
+
+    @Override
+    public SchoolCapacityResponseDTO getCapacity(UUID schoolId) {
+        return schoolCapacityQuery.getCapacity(schoolId);
     }
 
     @Override

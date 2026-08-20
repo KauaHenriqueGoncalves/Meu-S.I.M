@@ -1,9 +1,8 @@
 package com.system.application.modules.academic.student.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.system.application.modules.identity.legalguardian.LegalGuardian;
-import com.system.application.modules.identity.legalguardian.dto.LegalGuardianResponse;
-import com.system.application.modules.identity.legalguardian.service.LegalGuardianService;
+import com.system.application.modules.identity.profile.legalguardian.LegalGuardian;
+import com.system.application.modules.identity.profile.legalguardian.service.LegalGuardianService;
 import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.modules.school.School;
@@ -24,8 +23,6 @@ import com.system.application.shared.services.cache.keys.CacheKeys;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

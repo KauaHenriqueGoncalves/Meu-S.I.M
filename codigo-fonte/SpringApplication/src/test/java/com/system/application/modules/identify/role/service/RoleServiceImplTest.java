@@ -1,8 +1,8 @@
 package com.system.application.modules.identify.role.service;
 
-import com.system.application.modules.identity.role.Role;
-import com.system.application.modules.identity.role.repository.RoleRepository;
-import com.system.application.modules.identity.role.service.RoleServiceImpl;
+import com.system.application.modules.identity.base.role.Role;
+import com.system.application.modules.identity.base.role.repository.RoleRepository;
+import com.system.application.modules.identity.base.role.service.RoleServiceImpl;
 import com.system.application.shared.exception.NotFoundObjectException;
 import com.system.application.shared.services.cache.CacheService;
 import org.junit.jupiter.api.DisplayName;

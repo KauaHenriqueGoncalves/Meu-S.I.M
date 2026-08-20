@@ -1,6 +1,6 @@
 package com.system.application.modules.academic.student;
 
-import com.system.application.modules.identity.legalguardian.LegalGuardian;
+import com.system.application.modules.identity.profile.legalguardian.LegalGuardian;
 import com.system.application.modules.school.School;
 import jakarta.persistence.*;
 

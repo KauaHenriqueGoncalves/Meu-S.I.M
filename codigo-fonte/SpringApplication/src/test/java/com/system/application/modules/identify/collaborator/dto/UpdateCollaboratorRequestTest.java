@@ -1,6 +1,6 @@
 package com.system.application.modules.identify.collaborator.dto;
 
-import com.system.application.modules.identity.collaborator.dto.UpdateCollaboratorRequest;
+import com.system.application.modules.identity.profile.collaborator.dto.UpdateCollaboratorRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

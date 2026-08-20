@@ -1,9 +1,9 @@
 package com.system.application.integration.email.listener;
 
-import com.system.application.modules.identity.role.Role;
-import com.system.application.modules.identity.user.User;
-import com.system.application.modules.identity.user.event.UserRegisteredEvent;
-import com.system.application.modules.identity.user.service.UserService;
+import com.system.application.modules.identity.base.role.Role;
+import com.system.application.modules.identity.base.user.User;
+import com.system.application.modules.identity.base.user.event.UserRegisteredEvent;
+import com.system.application.modules.identity.base.user.service.UserService;
 import com.system.application.integration.email.service.EmailSendService;
 import com.system.application.auth.verification.service.EmailVerificationService;
 import com.system.application.modules.school.School;

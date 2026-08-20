@@ -1,7 +1,7 @@
 package com.system.application.modules.academic.student.dto;
 
 import com.system.application.modules.academic.student.Student;
-import com.system.application.modules.identity.legalguardian.dto.LegalGuardianResponse;
+import com.system.application.modules.identity.profile.legalguardian.dto.LegalGuardianResponse;
 
 import java.io.Serial;
 import java.io.Serializable;

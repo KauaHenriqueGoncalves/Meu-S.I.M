@@ -1,26 +1,23 @@
 package com.system.application.modules.identify.legalguardian.service;
 
-import com.system.application.modules.identity.legalguardian.LegalGuardian;
-import com.system.application.modules.identity.legalguardian.dto.LegalGuardianDetailResponse;
-import com.system.application.modules.identity.legalguardian.dto.LegalGuardianRequest;
-import com.system.application.modules.identity.legalguardian.dto.LegalGuardianResponse;
-import com.system.application.modules.identity.legalguardian.dto.UpdateLegalGuardianRequest;
-import com.system.application.modules.identity.legalguardian.repository.LegalGuardianRepository;
-import com.system.application.modules.identity.legalguardian.service.LegalGuardianServiceImpl;
-import com.system.application.modules.identity.role.Role;
-import com.system.application.modules.identity.user.User;
-import com.system.application.modules.identity.user.dto.PasswordRequest;
-import com.system.application.modules.identity.user.dto.UserRequest;
-import com.system.application.modules.identity.user.service.UserService;
+import com.system.application.modules.identity.profile.legalguardian.LegalGuardian;
+import com.system.application.modules.identity.profile.legalguardian.dto.LegalGuardianDetailResponse;
+import com.system.application.modules.identity.profile.legalguardian.dto.LegalGuardianRequest;
+import com.system.application.modules.identity.profile.legalguardian.dto.UpdateLegalGuardianRequest;
+import com.system.application.modules.identity.profile.legalguardian.repository.LegalGuardianRepository;
+import com.system.application.modules.identity.profile.legalguardian.service.LegalGuardianServiceImpl;
+import com.system.application.modules.identity.base.role.Role;
+import com.system.application.modules.identity.base.user.User;
+import com.system.application.modules.identity.base.user.dto.PasswordRequest;
+import com.system.application.modules.identity.base.user.dto.CreateUserRequestDTO;
+import com.system.application.modules.identity.base.user.service.UserService;
 import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.service.SchoolService;
-import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
-import com.system.application.shared.exception.SubscriptionException;
 import com.system.application.shared.services.cache.CacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,14 +27,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,7 +63,7 @@ public class LegalGuardianServiceImplTest {
     private LegalGuardian legalGuardian;
     private SchoolSubscription subscription;
 
-    private UserRequest userRequest;
+    private CreateUserRequestDTO createUserRequestDTO;
     private LegalGuardianRequest legalGuardianRequest;
     private UpdateLegalGuardianRequest updateRequest;
     private PasswordRequest passwordRequest;
@@ -114,7 +107,7 @@ public class LegalGuardianServiceImplTest {
                 null
         );
 
-        userRequest = new UserRequest(
+        createUserRequestDTO = new CreateUserRequestDTO(
                 "Maria Silva",
                 "maria@email.com",
                 "senha123",
@@ -214,12 +207,12 @@ public class LegalGuardianServiceImplTest {
             when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
                     .thenReturn(subscription);
             when(legalGuardianRepository.countBySchoolId(schoolId)).thenReturn(5L); // abaixo do limite (20)
-            when(userService.registerUserWithRole(userRequest, Role.Values.LEGAL_GUARDIAN))
+            when(userService.registerUserWithRole(createUserRequestDTO, Role.Values.LEGAL_GUARDIAN))
                     .thenReturn(user);
             when(legalGuardianRepository.save(any(LegalGuardian.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
-            LegalGuardian result = legalGuardianService.save(userId, userRequest, legalGuardianRequest);
+            LegalGuardian result = legalGuardianService.save(userId, createUserRequestDTO, legalGuardianRequest);
 
             assertThat(result.getUser()).isEqualTo(user);
             assertThat(result.getSchool()).isEqualTo(school);
@@ -237,7 +230,7 @@ public class LegalGuardianServiceImplTest {
                     .thenReturn(20L); // igual ao limite
 
             assertThatThrownBy(() ->
-                    legalGuardianService.save(userId, userRequest, legalGuardianRequest))
+                    legalGuardianService.save(userId, createUserRequestDTO, legalGuardianRequest))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("licença");
 

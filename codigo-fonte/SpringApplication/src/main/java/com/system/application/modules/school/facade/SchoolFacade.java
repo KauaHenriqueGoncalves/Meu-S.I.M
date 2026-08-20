@@ -2,6 +2,7 @@ package com.system.application.modules.school.facade;
 
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.dto.CreateSchoolRequestDTO;
+import com.system.application.modules.school.dto.SchoolCapacityResponseDTO;
 import com.system.application.modules.school.dto.SchoolResponseDTO;
 import com.system.application.modules.school.dto.UpdateSchoolRequestDTO;
 import java.util.UUID;
@@ -10,6 +11,7 @@ public interface SchoolFacade {
     School getEntityById(UUID id);
     School getEntityByUserId(UUID userId);
     School getEntityByOwnerId();
+    SchoolCapacityResponseDTO getCapacity(UUID schoolId);
     SchoolResponseDTO getById(UUID id);
     SchoolResponseDTO getByOwnerId();
     School create(CreateSchoolRequestDTO dto);

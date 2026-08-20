@@ -1,6 +1,6 @@
 package com.system.application.auth.dto;
 
-import com.system.application.integration.captcha.dto.CaptchaRequest;
+import com.system.application.integration.captcha.dto.CaptchaRequestDTO;
 import com.system.application.shared.validation.NoEmoji;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -30,7 +30,7 @@ public record LoginRequest(
 
         @Valid
         @NotNull(message = "O captcha é obrigatório")
-        CaptchaRequest captchaRequest
+        CaptchaRequestDTO captchaRequestDTO
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

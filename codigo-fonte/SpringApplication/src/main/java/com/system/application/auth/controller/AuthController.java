@@ -48,7 +48,7 @@ public final class AuthController {
             @RequestBody @Valid LoginRequest loginRequest,
             HttpServletResponse response
     ) {
-        if (!captchaService.validate(loginRequest.captchaRequest().captchaToken())) {
+        if (!captchaService.validate(loginRequest.captchaRequestDTO().token())) {
             throw new AccessDeniedException("Verificação de segurança falhou!");
         }
         LoginResponse loginResponse = loginService.login(loginRequest);
@@ -65,7 +65,7 @@ public final class AuthController {
             @RequestBody @Valid AdminLoginRequest adminLoginRequest,
             HttpServletResponse response
     ) {
-        if (!captchaService.validate(adminLoginRequest.captchaRequest().captchaToken())) {
+        if (!captchaService.validate(adminLoginRequest.captchaRequestDTO().token())) {
             throw new AccessDeniedException("Verificação de segurança falhou!");
         }
         LoginResponse loginResponse = loginService.login(adminLoginRequest);

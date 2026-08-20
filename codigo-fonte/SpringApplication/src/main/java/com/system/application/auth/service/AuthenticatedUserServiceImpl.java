@@ -5,13 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
 import java.util.UUID;
 
 @Component
 public class AuthenticatedUserServiceImpl implements AuthenticatedUserService {
     private static final Logger log = LoggerFactory.getLogger(AuthenticatedUserServiceImpl.class);
 
+    /**
+     * Retorna o userId do usuario que está logado na aplicação
+     * */
     @Override
     public UUID getOwnerId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

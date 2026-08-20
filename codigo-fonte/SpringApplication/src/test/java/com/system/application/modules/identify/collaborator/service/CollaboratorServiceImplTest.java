@@ -1,28 +1,24 @@
 package com.system.application.modules.identify.collaborator.service;
 
-import com.system.application.modules.identity.collaborator.Collaborator;
-import com.system.application.modules.identity.collaborator.dto.CollaboratorDetailResponse;
-import com.system.application.modules.identity.collaborator.dto.CollaboratorRequest;
-import com.system.application.modules.identity.collaborator.dto.CollaboratorResponse;
-import com.system.application.modules.identity.collaborator.dto.UpdateCollaboratorRequest;
-import com.system.application.modules.identity.collaborator.repository.CollaboratorRepository;
-import com.system.application.modules.identity.collaborator.service.CollaboratorServiceImpl;
-import com.system.application.modules.identity.role.Role;
-import com.system.application.modules.identity.user.User;
-import com.system.application.modules.identity.user.dto.PasswordRequest;
-import com.system.application.modules.identity.user.dto.UserRequest;
-import com.system.application.modules.identity.user.service.UserService;
+import com.system.application.modules.identity.profile.collaborator.Collaborator;
+import com.system.application.modules.identity.profile.collaborator.dto.CollaboratorDetailResponse;
+import com.system.application.modules.identity.profile.collaborator.dto.CollaboratorRequest;
+import com.system.application.modules.identity.profile.collaborator.dto.UpdateCollaboratorRequest;
+import com.system.application.modules.identity.profile.collaborator.repository.CollaboratorRepository;
+import com.system.application.modules.identity.profile.collaborator.service.CollaboratorServiceImpl;
+import com.system.application.modules.identity.base.role.Role;
+import com.system.application.modules.identity.base.user.User;
+import com.system.application.modules.identity.base.user.dto.PasswordRequest;
+import com.system.application.modules.identity.base.user.dto.CreateUserRequestDTO;
+import com.system.application.modules.identity.base.user.service.UserService;
 import com.system.application.modules.licensing.schoolsubscription.SchoolSubscription;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.modules.school.School;
 import com.system.application.modules.school.service.SchoolService;
-import com.system.application.shared.dto.PageResponse;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.BusinessException;
 import com.system.application.shared.exception.NotFoundObjectException;
-import com.system.application.shared.exception.SubscriptionException;
 import com.system.application.shared.services.cache.CacheService;
-import com.system.application.shared.services.cache.keys.CacheKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,14 +27,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -69,7 +61,7 @@ public class CollaboratorServiceImplTest {
     private Collaborator collaborator;
     private SchoolSubscription subscription;
 
-    private UserRequest userRequest;
+    private CreateUserRequestDTO createUserRequestDTO;
     private CollaboratorRequest collaboratorRequest;
     private UpdateCollaboratorRequest updateRequest;
     private PasswordRequest passwordRequest;
@@ -120,7 +112,7 @@ public class CollaboratorServiceImplTest {
                 null
         );
 
-        userRequest = new UserRequest(
+        createUserRequestDTO = new CreateUserRequestDTO(
                 "Carlos Lima",
                 "carlos@email.com",
                 "senha123",
@@ -228,12 +220,12 @@ public class CollaboratorServiceImplTest {
             when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
                     .thenReturn(subscription);
             when(collaboratorRepository.countBySchoolId(schoolId)).thenReturn(5L); // abaixo do limite (10)
-            when(userService.registerUserWithRole(userRequest, Role.Values.COLLABORATOR))
+            when(userService.registerUserWithRole(createUserRequestDTO, Role.Values.COLLABORATOR))
                     .thenReturn(user);
             when(collaboratorRepository.save(any(Collaborator.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
-            Collaborator result = collaboratorService.save(userId, userRequest, collaboratorRequest);
+            Collaborator result = collaboratorService.save(userId, createUserRequestDTO, collaboratorRequest);
 
             assertThat(result.getUser()).isEqualTo(user);
             assertThat(result.getSchool()).isEqualTo(school);
@@ -253,7 +245,7 @@ public class CollaboratorServiceImplTest {
                     .thenReturn(10L); // igual ao limite
 
             assertThatThrownBy(() ->
-                    collaboratorService.save(userId, userRequest, collaboratorRequest))
+                    collaboratorService.save(userId, createUserRequestDTO, collaboratorRequest))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("licença");
 

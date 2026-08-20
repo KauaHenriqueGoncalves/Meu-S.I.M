@@ -1,6 +1,6 @@
 package com.system.application.modules.identify.legalguardian.dto;
 
-import com.system.application.modules.identity.legalguardian.dto.LegalGuardianRequest;
+import com.system.application.modules.identity.profile.legalguardian.dto.LegalGuardianRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

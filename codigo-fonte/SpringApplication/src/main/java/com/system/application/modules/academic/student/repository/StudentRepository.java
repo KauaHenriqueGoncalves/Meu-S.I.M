@@ -1,7 +1,6 @@
 package com.system.application.modules.academic.student.repository;
 
 import com.system.application.modules.academic.student.Student;
-import com.system.application.modules.identity.legalguardian.LegalGuardian;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

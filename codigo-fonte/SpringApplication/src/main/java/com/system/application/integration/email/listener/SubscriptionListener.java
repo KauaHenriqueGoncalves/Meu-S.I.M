@@ -2,11 +2,11 @@ package com.system.application.integration.email.listener;
 
 import com.system.application.integration.email.dto.SendEmailSubscriptionPaid;
 import com.system.application.integration.email.service.EmailSendService;
-import com.system.application.modules.identity.schooladmin.SchoolAdmin;
+import com.system.application.modules.identity.profile.schooladmin.SchoolAdmin;
 import com.system.application.modules.licensing.schoolsubscription.dto.SchoolSubscriptionDetailResponse;
 import com.system.application.modules.licensing.schoolsubscription.event.SubscriptionPaidEmailToAdminsEvent;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
-import com.system.application.modules.school.service.SchoolAdminQuery;
+import com.system.application.modules.school.query.SchoolAdminQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

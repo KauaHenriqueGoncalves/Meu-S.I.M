@@ -3,11 +3,11 @@ package com.system.application.auth.service;
 import com.system.application.auth.dto.AdminLoginRequest;
 import com.system.application.auth.dto.LoginRequest;
 import com.system.application.auth.dto.LoginResponse;
-import com.system.application.modules.identity.role.Role;
-import com.system.application.modules.identity.systemadmin.SystemAdmin;
-import com.system.application.modules.identity.systemadmin.service.SystemAdminService;
-import com.system.application.modules.identity.user.User;
-import com.system.application.modules.identity.user.service.UserService;
+import com.system.application.modules.identity.base.role.Role;
+import com.system.application.modules.identity.profile.systemadmin.SystemAdmin;
+import com.system.application.modules.identity.profile.systemadmin.service.SystemAdminService;
+import com.system.application.modules.identity.base.user.User;
+import com.system.application.modules.identity.base.user.service.UserService;
 import com.system.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.system.application.shared.exception.AccessDeniedException;
 import com.system.application.shared.exception.SubscriptionException;
@@ -43,8 +43,12 @@ public final class LoginServiceImpl implements LoginService {
     public LoginResponse login(LoginRequest loginRequest) {
         log.info("Tentativa de login. [email={}] [schoolCode={}]",
                 loginRequest.email(), loginRequest.schoolCode());
-
-        User user = userService.findUserForLogin(loginRequest.email(), loginRequest.schoolCode());
+        User user;
+        try {
+            user = userService.findUserForLogin(loginRequest.email(), loginRequest.schoolCode());
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Credenciais incorretas");
+        }
 
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             log.warn("Senha incorreta na tentativa de login. [userId={}] [email={}]",

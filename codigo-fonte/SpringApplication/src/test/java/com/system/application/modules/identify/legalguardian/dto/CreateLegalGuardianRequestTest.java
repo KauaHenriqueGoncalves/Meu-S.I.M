@@ -1,8 +1,8 @@
 package com.system.application.modules.identify.legalguardian.dto;
 
-import com.system.application.modules.identity.legalguardian.dto.CreateLegalGuardianRequest;
-import com.system.application.modules.identity.legalguardian.dto.LegalGuardianRequest;
-import com.system.application.modules.identity.user.dto.UserRequest;
+import com.system.application.modules.identity.profile.legalguardian.dto.CreateLegalGuardianRequest;
+import com.system.application.modules.identity.profile.legalguardian.dto.LegalGuardianRequest;
+import com.system.application.modules.identity.base.user.dto.CreateUserRequestDTO;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -21,14 +21,14 @@ public class CreateLegalGuardianRequestTest {
 
     private static final String CPF_VALIDO = "52998224725";
 
-    private UserRequest validUserRequest;
+    private CreateUserRequestDTO validCreateUserRequestDTO;
     private LegalGuardianRequest validLegalGuardianRequest;
 
     @BeforeEach
     void setUp() {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-        validUserRequest = new UserRequest(
+        validCreateUserRequestDTO = new CreateUserRequestDTO(
                 "Maria Silva",
                 "maria@email.com",
                 "senha123",
@@ -41,9 +41,9 @@ public class CreateLegalGuardianRequestTest {
     }
 
     private Set<ConstraintViolation<CreateLegalGuardianRequest>> validate(
-            UserRequest userRequest, LegalGuardianRequest legalGuardianRequest
+            CreateUserRequestDTO createUserRequestDTO, LegalGuardianRequest legalGuardianRequest
     ) {
-        return validator.validate(new CreateLegalGuardianRequest(userRequest, legalGuardianRequest));
+        return validator.validate(new CreateLegalGuardianRequest(createUserRequestDTO, legalGuardianRequest));
     }
 
     private void assertViolationOnField(
@@ -64,14 +64,14 @@ public class CreateLegalGuardianRequestTest {
         @Test
         @DisplayName("deve passar sem violações quando ambos os campos forem válidos")
         void shouldPassWithNoViolations() {
-            var violations = validate(validUserRequest, validLegalGuardianRequest);
+            var violations = validate(validCreateUserRequestDTO, validLegalGuardianRequest);
             assertThat(violations).isEmpty();
         }
     }
 
     @Nested
     @DisplayName("userRequest")
-    final class UserRequestField {
+    final class CreateUserRequestDTOField {
         @Test
         @DisplayName("deve falhar quando userRequest for null")
         void shouldFail_whenNull() {
@@ -82,7 +82,7 @@ public class CreateLegalGuardianRequestTest {
         @Test
         @DisplayName("deve propagar violação quando username do userRequest for blank")
         void shouldPropagateViolation_whenUsernameIsBlank() {
-            UserRequest invalid = new UserRequest(
+            CreateUserRequestDTO invalid = new CreateUserRequestDTO(
                     "   ",
                     "maria@email.com",
                     "senha123",
@@ -98,7 +98,7 @@ public class CreateLegalGuardianRequestTest {
         @Test
         @DisplayName("deve propagar violação quando email do userRequest for inválido")
         void shouldPropagateViolation_whenEmailIsInvalid() {
-            UserRequest invalid = new UserRequest(
+            CreateUserRequestDTO invalid = new CreateUserRequestDTO(
                     "Maria Silva",
                     "nao-e-email",
                     "senha123",
@@ -114,7 +114,7 @@ public class CreateLegalGuardianRequestTest {
         @Test
         @DisplayName("deve propagar violação quando cpf do userRequest for inválido")
         void shouldPropagateViolation_whenCpfIsInvalid() {
-            UserRequest invalid = new UserRequest(
+            CreateUserRequestDTO invalid = new CreateUserRequestDTO(
                     "Maria Silva",
                     "maria@email.com",
                     "senha123",
@@ -134,7 +134,7 @@ public class CreateLegalGuardianRequestTest {
         @Test
         @DisplayName("deve falhar quando legalGuardianRequest for null")
         void shouldFail_whenNull() {
-            var violations = validate(validUserRequest, null);
+            var violations = validate(validCreateUserRequestDTO, null);
             assertViolationOnField(violations, "legalGuardianRequest", "não deve ser nulo");
         }
 
@@ -142,7 +142,7 @@ public class CreateLegalGuardianRequestTest {
         @DisplayName("deve propagar violação quando degreeOfKinship for blank")
         void shouldPropagateViolation_whenDegreeOfKinshipIsBlank() {
             LegalGuardianRequest invalid = new LegalGuardianRequest("   ");
-            var violations = validate(validUserRequest, invalid);
+            var violations = validate(validCreateUserRequestDTO, invalid);
             assertThat(violations)
                     .anyMatch(v -> v.getPropertyPath().toString().contains("degreeOfKinship"));
         }
@@ -151,7 +151,7 @@ public class CreateLegalGuardianRequestTest {
         @DisplayName("deve propagar violação quando degreeOfKinship tiver menos de 3 caracteres")
         void shouldPropagateViolation_whenDegreeOfKinshipTooShort() {
             LegalGuardianRequest invalid = new LegalGuardianRequest("Av");
-            var violations = validate(validUserRequest, invalid);
+            var violations = validate(validCreateUserRequestDTO, invalid);
             assertThat(violations)
                     .anyMatch(v -> v.getPropertyPath().toString().contains("degreeOfKinship"));
         }

@@ -1,7 +1,6 @@
 package com.system.application.auth.service;
 
 import org.springframework.http.ResponseCookie;
-
 import java.time.Duration;
 
 public interface CookieService {
