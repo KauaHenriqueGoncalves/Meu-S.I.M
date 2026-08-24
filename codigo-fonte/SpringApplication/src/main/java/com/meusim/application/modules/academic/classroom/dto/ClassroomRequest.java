@@ -1,0 +1,36 @@
+package com.meusim.application.modules.academic.classroom.dto;
+
+import com.meusim.application.shared.validation.NoEmoji;
+import com.meusim.application.shared.validation.NoLeadingTrailingSpace;
+import jakarta.validation.constraints.*;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.UUID;
+
+public record ClassroomRequest(
+        @NotNull(message = "Selecione o tipo da classe")
+        Long classTypeId,
+
+        @NotNull(message = "Selecione uma disciplina")
+        UUID subjectId,
+
+        @NotNull(message = "Informe a quantidade máxima de estudante")
+        @Min(value = 1, message = "A turma deve ter pelo menos 1 estudante")
+        @Max(value = 200, message = "Número máximo da turma é 999 estudantes")
+        Integer maxStudents,
+
+        @NotBlank(message = "Nome é obrigatório")
+        @Size(max = 60, message = "Nome da turma deve ter no máximo 30 caracteres")
+        @NoLeadingTrailingSpace
+        @NoEmoji(message = "Não é permitido o recebimento de emoji")
+        String name,
+
+        @NotNull(message = "A descrição da turma não pode ser nula")
+        @Size(max = 200, message = "Descrição da turma até 200 caracteres")
+        @NoLeadingTrailingSpace
+        @NoEmoji(message = "Não é permitido o recebimento de emoji")
+        String description
+) implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+}

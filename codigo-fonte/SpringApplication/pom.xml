@@ -9,11 +9,11 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>com.system</groupId>
+	<groupId>com.meusim</groupId>
 	<artifactId>application</artifactId>
 	<version>0.0.1</version>
 	<name>Meu SIM API</name>
-	<description>Administrative management system for &quot;reforco academico&quot;.</description>
+	<description>Sistema admnistrativo para Reforços escolares</description>
 	<url/>
 
 	<licenses>

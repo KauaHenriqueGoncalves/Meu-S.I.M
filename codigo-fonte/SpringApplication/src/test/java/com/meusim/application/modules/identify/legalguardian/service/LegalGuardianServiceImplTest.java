@@ -1,0 +1,348 @@
+package com.meusim.application.modules.identify.legalguardian.service;
+
+import com.meusim.application.modules.identity.profile.legalguardian.LegalGuardian;
+import com.meusim.application.modules.identity.profile.legalguardian.dto.LegalGuardianDetailResponse;
+import com.meusim.application.modules.identity.profile.legalguardian.dto.LegalGuardianRequest;
+import com.meusim.application.modules.identity.profile.legalguardian.dto.UpdateLegalGuardianRequest;
+import com.meusim.application.modules.identity.profile.legalguardian.repository.LegalGuardianRepository;
+import com.meusim.application.modules.identity.profile.legalguardian.service.LegalGuardianServiceImpl;
+import com.meusim.application.modules.identity.base.role.Role;
+import com.meusim.application.modules.identity.base.user.User;
+import com.meusim.application.modules.identity.base.user.dto.PasswordRequest;
+import com.meusim.application.modules.identity.base.user.dto.CreateUserRequestDTO;
+import com.meusim.application.modules.identity.base.user.service.UserService;
+import com.meusim.application.modules.licensing.schoolsubscription.SchoolSubscription;
+import com.meusim.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
+import com.meusim.application.modules.school.School;
+import com.meusim.application.modules.school.service.SchoolService;
+import com.meusim.application.shared.exception.AccessDeniedException;
+import com.meusim.application.shared.exception.BusinessException;
+import com.meusim.application.shared.exception.NotFoundObjectException;
+import com.meusim.application.shared.services.cache.CacheService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("LegalGuardianServiceImpl")
+public class LegalGuardianServiceImplTest {
+    @Mock private LegalGuardianRepository legalGuardianRepository;
+    @Mock private SchoolSubscriptionService schoolSubscriptionService;
+    @Mock private UserService userService;
+    @Mock private SchoolService schoolService;
+    @Mock private BCryptPasswordEncoder passwordEncoder;
+    @Mock private CacheService cacheService;
+
+    @InjectMocks
+    private LegalGuardianServiceImpl legalGuardianService;
+
+    private UUID userId;
+    private UUID schoolId;
+    private UUID legalGuardianId;
+
+    private School school;
+    private User user;
+    private LegalGuardian legalGuardian;
+    private SchoolSubscription subscription;
+
+    private CreateUserRequestDTO createUserRequestDTO;
+    private LegalGuardianRequest legalGuardianRequest;
+    private UpdateLegalGuardianRequest updateRequest;
+    private PasswordRequest passwordRequest;
+
+    @BeforeEach
+    void setUp() {
+        userId = UUID.randomUUID();
+        schoolId = UUID.randomUUID();
+        legalGuardianId = UUID.randomUUID();
+
+        school = new School(schoolId, "escola-01", "Escola Teste", "12345678000195");
+
+        user = new User(
+                UUID.randomUUID(),
+                "Maria Silva",
+                "maria@email.com",
+                "hashed_password",
+                "52998224725",
+                "81999990000",
+                "Rua B, 200",
+                true,
+                null,
+                null
+        );
+
+        legalGuardian = new LegalGuardian(legalGuardianId, user, school, "Mãe");
+
+        subscription = new SchoolSubscription(
+                UUID.randomUUID(),
+                school,
+                null,
+                12,
+                "Plano Básico",
+                BigDecimal.valueOf(99.90),
+                50,
+                10,
+                20, // maxLegalGuardian
+                5,
+                LocalDate.now(),
+                LocalDate.now().plusMonths(12),
+                null
+        );
+
+        createUserRequestDTO = new CreateUserRequestDTO(
+                "Maria Silva",
+                "maria@email.com",
+                "senha123",
+                "52998224725",
+                "81999990000",
+                "Rua B, 200"
+        );
+
+        legalGuardianRequest = new LegalGuardianRequest("Mãe");
+
+        updateRequest = new UpdateLegalGuardianRequest(
+                "Maria Atualizada",
+                "maria.nova@email.com",
+                "81988880000",
+                "Rua C, 300",
+                true,
+                "Pai"
+        );
+
+        passwordRequest = new PasswordRequest("novaSenha123");
+    }
+
+    @Nested
+    @DisplayName("findById()")
+    final class FindById {
+        @Test
+        @DisplayName("deve retornar o responsável quando ID existir")
+        void shouldReturnLegalGuardian_whenIdExists() {
+            when(legalGuardianRepository.findById(legalGuardianId))
+                    .thenReturn(Optional.of(legalGuardian));
+
+            LegalGuardian result = legalGuardianService.findById(legalGuardianId);
+
+            assertThat(result).isEqualTo(legalGuardian);
+            verify(legalGuardianRepository).findById(legalGuardianId);
+        }
+
+        @Test
+        @DisplayName("deve lançar NotFoundObjectException quando ID não existir")
+        void shouldThrowNotFound_whenIdDoesNotExist() {
+            when(legalGuardianRepository.findById(legalGuardianId))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> legalGuardianService.findById(legalGuardianId))
+                    .isInstanceOf(NotFoundObjectException.class)
+                    .hasMessageContaining("Não encontrou o responsável");
+        }
+    }
+
+    @Nested
+    @DisplayName("findResponseDetailById()")
+    final class FindResponseDetailById {
+        @Test
+        @DisplayName("deve retornar o detalhe do responsável quando ID existir")
+        void shouldReturnDetail_whenIdExists() {
+            when(legalGuardianRepository.findById(legalGuardianId))
+                    .thenReturn(Optional.of(legalGuardian));
+
+            LegalGuardianDetailResponse result =
+                    legalGuardianService.findResponseDetailById(legalGuardianId);
+
+            assertThat(result.id()).isEqualTo(legalGuardianId);
+            assertThat(result.username()).isEqualTo(user.getUsername());
+            assertThat(result.email()).isEqualTo(user.getEmail());
+            assertThat(result.cpf()).isEqualTo(user.getCpf());
+            assertThat(result.phoneNumber()).isEqualTo(user.getPhoneNumber());
+            assertThat(result.address()).isEqualTo(user.getAddress());
+            assertThat(result.isActive()).isEqualTo(user.getActive());
+            assertThat(result.degreeOfKinship()).isEqualTo(legalGuardian.getDegreeOfKinship());
+        }
+
+        @Test
+        @DisplayName("deve lançar NotFoundObjectException quando ID não existir")
+        void shouldThrowNotFound_whenIdDoesNotExist() {
+            when(legalGuardianRepository.findById(legalGuardianId))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> legalGuardianService.findResponseDetailById(legalGuardianId))
+                    .isInstanceOf(NotFoundObjectException.class)
+                    .hasMessageContaining("Não encontrou o responsável");
+        }
+    }
+
+    @Nested
+    @DisplayName("findAllResponseBySchool()")
+    final class FindAllResponseBySchool {
+
+    }
+
+    @Nested
+    @DisplayName("save()")
+    final class Save {
+        @Test
+        @DisplayName("deve cadastrar responsável com sucesso quando licença suportar")
+        void shouldSaveLegalGuardian_whenSubscriptionSupports() {
+            when(schoolService.findByUserId(userId)).thenReturn(school);
+            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
+                    .thenReturn(subscription);
+            when(legalGuardianRepository.countBySchoolId(schoolId)).thenReturn(5); // abaixo do limite (20)
+            when(userService.registerUserWithRole(createUserRequestDTO, Role.Values.LEGAL_GUARDIAN))
+                    .thenReturn(user);
+            when(legalGuardianRepository.save(any(LegalGuardian.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            LegalGuardian result = legalGuardianService.save(userId, createUserRequestDTO, legalGuardianRequest);
+
+            assertThat(result.getUser()).isEqualTo(user);
+            assertThat(result.getSchool()).isEqualTo(school);
+            assertThat(result.getDegreeOfKinship()).isEqualTo("Mãe");
+            verify(legalGuardianRepository).save(any(LegalGuardian.class));
+        }
+
+        @Test
+        @DisplayName("deve lançar BusinessException quando limite de responsáveis for atingido")
+        void shouldThrowBusiness_whenLegalGuardianLimitReached() {
+            when(schoolService.findByUserId(userId)).thenReturn(school);
+            when(schoolSubscriptionService.findActiveSubscriptionBySchoolId(schoolId))
+                    .thenReturn(subscription);
+            when(legalGuardianRepository.countBySchoolId(schoolId))
+                    .thenReturn(20); // igual ao limite
+
+            assertThatThrownBy(() ->
+                    legalGuardianService.save(userId, createUserRequestDTO, legalGuardianRequest))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("licença");
+
+            verify(legalGuardianRepository, never()).save(any());
+            verify(userService, never()).registerUserWithRole(any(), any());
+        }
+    }
+
+    @Nested
+    @DisplayName("update()")
+    final class Update {
+        @Test
+        @DisplayName("deve atualizar os dados do responsável com sucesso")
+        void shouldUpdateLegalGuardian_whenValid() {
+            when(schoolService.findByUserId(userId)).thenReturn(school);
+            when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
+                    .thenReturn(true);
+            when(legalGuardianRepository.findById(legalGuardianId))
+                    .thenReturn(Optional.of(legalGuardian));
+            when(legalGuardianRepository.save(any(LegalGuardian.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            legalGuardianService.update(userId, legalGuardianId, updateRequest);
+
+            assertThat(legalGuardian.getUser().getUsername()).isEqualTo("Maria Atualizada");
+            assertThat(legalGuardian.getUser().getEmail()).isEqualTo("maria.nova@email.com");
+            assertThat(legalGuardian.getUser().getPhoneNumber()).isEqualTo("81988880000");
+            assertThat(legalGuardian.getUser().getAddress()).isEqualTo("Rua C, 300");
+            assertThat(legalGuardian.getUser().getActive()).isTrue();
+            assertThat(legalGuardian.getDegreeOfKinship()).isEqualTo("Pai");
+            verify(legalGuardianRepository).save(legalGuardian);
+        }
+
+        @Test
+        @DisplayName("deve lançar AccessDeniedException quando responsável não pertencer à escola do usuário")
+        void shouldThrowAccessDenied_whenLegalGuardianBelongsToDifferentSchool() {
+            when(schoolService.findByUserId(userId)).thenReturn(school);
+            when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
+                    .thenReturn(false);
+
+            assertThatThrownBy(() ->
+                    legalGuardianService.update(userId, legalGuardianId, updateRequest)
+            ).isInstanceOf(AccessDeniedException.class);
+
+            verify(legalGuardianRepository, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("updatePassword()")
+    final class UpdatePassword {
+        @Test
+        @DisplayName("deve atualizar a senha do responsável com sucesso")
+        void shouldUpdatePassword_whenValid() {
+            when(schoolService.findByUserId(userId)).thenReturn(school);
+            when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
+                    .thenReturn(true);
+            when(legalGuardianRepository.findById(legalGuardianId))
+                    .thenReturn(Optional.of(legalGuardian));
+            when(passwordEncoder.encode("novaSenha123")).thenReturn("nova_hash");
+            when(legalGuardianRepository.save(any(LegalGuardian.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            legalGuardianService.updatePassword(userId, legalGuardianId, passwordRequest);
+
+            assertThat(legalGuardian.getUser().getPassword()).isEqualTo("nova_hash");
+            verify(legalGuardianRepository).save(legalGuardian);
+        }
+
+        @Test
+        @DisplayName("deve lançar AccessDeniedException quando responsável não pertencer à escola do usuário")
+        void shouldThrowAccessDenied_whenLegalGuardianBelongsToDifferentSchool() {
+            when(schoolService.findByUserId(userId)).thenReturn(school);
+            when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
+                    .thenReturn(false);
+
+            assertThatThrownBy(() ->
+                    legalGuardianService.updatePassword(userId, legalGuardianId, passwordRequest))
+                    .isInstanceOf(AccessDeniedException.class);
+
+            verify(legalGuardianRepository, never()).save(any());
+            verifyNoInteractions(passwordEncoder);
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteById()")
+    final class DeleteById {
+        @Test
+        @DisplayName("deve excluir o responsável com sucesso")
+        void shouldDelete_whenValid() {
+            when(schoolService.findByUserId(userId)).thenReturn(school);
+            when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
+                    .thenReturn(true);
+
+            legalGuardianService.deleteById(userId, legalGuardianId);
+
+            verify(legalGuardianRepository).deleteById(legalGuardianId);
+        }
+
+        @Test
+        @DisplayName("deve lançar AccessDeniedException quando responsável não pertencer à escola do usuário")
+        void shouldThrowAccessDenied_whenLegalGuardianBelongsToDifferentSchool() {
+            when(schoolService.findByUserId(userId)).thenReturn(school);
+            when(legalGuardianRepository.existsByIdAndSchoolId(legalGuardianId, schoolId))
+                    .thenReturn(false);
+
+            assertThatThrownBy(() ->
+                    legalGuardianService.deleteById(userId, legalGuardianId))
+                    .isInstanceOf(AccessDeniedException.class);
+
+            verify(legalGuardianRepository, never()).deleteById(any());
+        }
+    }
+}
