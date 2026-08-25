@@ -3,6 +3,7 @@ package com.meusim.application.auth.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import java.util.UUID;
@@ -23,5 +24,18 @@ public class AuthenticatedUserServiceImpl implements AuthenticatedUserService {
             throw new IllegalStateException("Usuário não autenticado");
         }
         return UUID.fromString(authentication.getName());
+    }
+
+    @Override
+    public String getOwnerRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("Coletando o Role da autheticacao");
+        String role = authentication.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Usuário sem role"));
+        log.info("Role coletada com sucesso");
+        return role;
     }
 }

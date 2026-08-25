@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.Function;
 
 public record PageResponse<T>(
         List<T> content,
@@ -33,6 +34,18 @@ public record PageResponse<T>(
                 page.getTotalElements(),
                 page.hasNext(),
                 page.hasPrevious()
+        );
+    }
+
+    public <R> PageResponse<R> map(Function<T, R> mapper) {
+        return new PageResponse<>(
+                content.stream().map(mapper).toList(),
+                page,
+                size,
+                totalPages,
+                totalElements,
+                hasNext,
+                hasPrevious
         );
     }
 }

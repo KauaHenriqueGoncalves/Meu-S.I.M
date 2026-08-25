@@ -14,6 +14,7 @@ import com.meusim.application.modules.identity.profile.schooladmin.SchoolAdmin;
 import com.meusim.application.modules.identity.profile.schooladmin.repository.SchoolAdminRepository;
 import com.meusim.application.modules.identity.base.user.User;
 import com.meusim.application.modules.identity.base.user.dto.CreateUserRequestDTO;
+import com.meusim.application.shared.dto.PageResponse;
 import com.meusim.application.shared.exception.NotFoundObjectException;
 import com.meusim.application.shared.services.cache.CacheService;
 import jakarta.transaction.Transactional;
@@ -67,23 +68,24 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     }
 
     @Override
-    public Page<SchoolAdmin> pageBySchoolWithCache(String name, int page, int size) {
+    public PageResponse<SchoolAdmin> pageBySchoolWithCache(String name, int page, int size) {
         UUID ownerId = authenticatedUserService.getOwnerId();
         School ownerSchool = schoolFacade.getEntityByOwnerIdWithCache();
         String nameFilter = (name != null && !name.isBlank()) ? name.trim() : null;
         log.info("Buscando todos os administradores do reforco - With Cache. [ownerId={}]", ownerId);
         String key = SchoolAdminCacheKeys.page(ownerSchool.getId(), page, size, name);
-        Optional<Page<SchoolAdmin>> cache = cacheService.get(key, new TypeReference<>(){});
+        Optional<PageResponse<SchoolAdmin>> cache = cacheService.get(key, new TypeReference<>(){});
         if (cache.isPresent()) {
-            log.info("Admnistradores do reforco encontrados no cache. [ownerId={}] [ownerSchoolId={}] [number={}] [size={}] [totalPages={}] [totalElements={}]",
-                    ownerId, ownerSchool.getId(), cache.get().getNumber(), cache.get().getSize(), cache.get().getTotalPages(), cache.get().getTotalElements());
+            log.info("Admnistradores do reforco encontrados no cache. [ownerId={}] [ownerSchoolId={}] [size={}] [totalPages={}] [totalElements={}]",
+                    ownerId, ownerSchool.getId(), cache.get().size(), cache.get().totalPages(), cache.get().totalElements());
             return cache.get();
         }
         Page<SchoolAdmin> pageAdmins = pageBySchool(nameFilter, page, size);
         log.info("Admnistradores do encontrados e inserir no cache. [ownerId={}] [ownerSchoolId={}] [number={}] [size={}]",
                 ownerId, ownerSchool.getId(), pageAdmins.getNumber(), pageAdmins.getSize());
-        cacheService.set(key, pageAdmins, SchoolAdminCacheKeys.TTL);
-        return pageAdmins;
+        PageResponse<SchoolAdmin> pageResponse = PageResponse.from(pageAdmins);
+        cacheService.set(key, pageResponse, SchoolAdminCacheKeys.TTL);
+        return pageResponse;
     }
 
     @Override

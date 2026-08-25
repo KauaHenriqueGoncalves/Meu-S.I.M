@@ -54,6 +54,8 @@ public final class Classroom implements Serializable {
     @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ClassSchedule> schedules = new ArrayList<>();
 
+    // TODO: cascade para apagar LESSON
+
     public Classroom() {
     }
 

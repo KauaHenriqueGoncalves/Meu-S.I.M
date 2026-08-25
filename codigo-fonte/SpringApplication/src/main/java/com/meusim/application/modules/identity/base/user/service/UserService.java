@@ -3,7 +3,6 @@ package com.meusim.application.modules.identity.base.user.service;
 import com.meusim.application.modules.identity.base.role.Role;
 import com.meusim.application.modules.identity.base.user.User;
 import com.meusim.application.modules.identity.base.user.dto.CreateUserRequestDTO;
-
 import java.util.UUID;
 
 public interface UserService {

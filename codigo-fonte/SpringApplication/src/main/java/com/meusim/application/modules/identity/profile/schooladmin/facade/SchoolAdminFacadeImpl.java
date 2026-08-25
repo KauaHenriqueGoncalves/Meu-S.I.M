@@ -8,7 +8,6 @@ import com.meusim.application.modules.identity.profile.schooladmin.dto.UpdateSch
 import com.meusim.application.modules.identity.profile.schooladmin.service.SchoolAdminService;
 import com.meusim.application.modules.school.dto.CreateSchoolRequestDTO;
 import com.meusim.application.shared.dto.PageResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import java.util.UUID;
 
@@ -27,9 +26,8 @@ public class SchoolAdminFacadeImpl implements SchoolAdminFacade {
 
     @Override
     public PageResponse<SchoolAdminSimpleViewResponseDTO> pageBySchool(String name, int page, int size) {
-        Page<SchoolAdmin> pageAdmin = service.pageBySchoolWithCache(name, page, size);
-        Page<SchoolAdminSimpleViewResponseDTO> simpleView = pageAdmin.map(SchoolAdminSimpleViewResponseDTO::of);
-        return PageResponse.from(simpleView);
+        PageResponse<SchoolAdmin> pageAdmin = service.pageBySchoolWithCache(name, page, size);
+        return pageAdmin.map(SchoolAdminSimpleViewResponseDTO::of);
     }
 
     @Override
