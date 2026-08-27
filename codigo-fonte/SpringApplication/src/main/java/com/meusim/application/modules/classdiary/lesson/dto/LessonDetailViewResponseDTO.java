@@ -2,6 +2,8 @@ package com.meusim.application.modules.classdiary.lesson.dto;
 
 import com.meusim.application.modules.classdiary.lesson.Lesson;
 import com.meusim.application.modules.classdiary.lesson.enums.LessonStatus;
+
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -20,7 +22,8 @@ public record LessonDetailViewResponseDTO(
         int weekday,
         LocalTime startTime,
         LocalTime endTime,
-        String description
+        String description,
+        Instant createdAt
 ) {
     public static LessonDetailViewResponseDTO of(Lesson l) {
         return new LessonDetailViewResponseDTO(
@@ -37,7 +40,8 @@ public record LessonDetailViewResponseDTO(
                 l.getWeekday(),
                 l.getStartTime(),
                 l.getEndTime(),
-                l.getDescription()
+                l.getDescription(),
+                l.getCreatedAt()
         );
     }
 }

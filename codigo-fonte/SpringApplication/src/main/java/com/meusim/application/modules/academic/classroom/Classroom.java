@@ -2,11 +2,11 @@ package com.meusim.application.modules.academic.classroom;
 
 import com.meusim.application.modules.academic.classschedule.ClassSchedule;
 import com.meusim.application.modules.academic.classtype.ClassType;
+import com.meusim.application.modules.classdiary.lesson.Lesson;
 import com.meusim.application.modules.school.School;
 import com.meusim.application.modules.academic.student.Student;
 import com.meusim.application.modules.academic.subject.Subject;
 import jakarta.persistence.*;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
@@ -54,7 +54,8 @@ public final class Classroom implements Serializable {
     @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ClassSchedule> schedules = new ArrayList<>();
 
-    // TODO: cascade para apagar LESSON
+    @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Lesson> lessons = new ArrayList<>();
 
     public Classroom() {
     }

@@ -12,6 +12,5 @@ public record AgendaDayResponseDTO(
         String weekday,
         LocalTime startTime,
         LocalTime endTime,
-        LessonDisplayStatus displayStatus,
-        String content                     // null se não existe lesson ainda
+        LessonDisplayStatus displayStatus
 ) { }

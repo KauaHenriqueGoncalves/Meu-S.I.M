@@ -1,11 +1,13 @@
 package com.meusim.application.modules.classdiary.lesson.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.meusim.application.auth.service.AuthenticatedUserService;
 import com.meusim.application.modules.academic.classroom.Classroom;
 import com.meusim.application.modules.academic.classroom.service.ClassroomService;
 import com.meusim.application.modules.academic.classschedule.ClassSchedule;
 import com.meusim.application.modules.academic.classschedule.service.ClassScheduleService;
 import com.meusim.application.modules.classdiary.lesson.Lesson;
+import com.meusim.application.modules.classdiary.lesson.cache.LessonCacheKeys;
 import com.meusim.application.modules.classdiary.lesson.dto.AgendaDayResponseDTO;
 import com.meusim.application.modules.classdiary.lesson.dto.CreateLessonRequestDTO;
 import com.meusim.application.modules.classdiary.lesson.enums.LessonDisplayStatus;
@@ -16,8 +18,10 @@ import com.meusim.application.modules.identity.base.user.dto.ResponsibleSnapshot
 import com.meusim.application.modules.identity.base.user.facade.UserFacade;
 import com.meusim.application.modules.school.School;
 import com.meusim.application.modules.school.facade.SchoolFacade;
+import com.meusim.application.shared.dto.PageResponse;
 import com.meusim.application.shared.exception.BusinessException;
 import com.meusim.application.shared.exception.NotFoundObjectException;
+import com.meusim.application.shared.services.cache.CacheService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +45,7 @@ public class LessonServiceImpl implements LessonService {
     private final UserFacade userFacade;
     private final ClassroomService classroomService;
     private final ClassScheduleService scheduleService;
+    private final CacheService cacheService;
 
     public LessonServiceImpl(AuthenticatedUserService authenticatedUserService,
                              LessonRepository lessonRepository,
@@ -48,7 +53,8 @@ public class LessonServiceImpl implements LessonService {
                              SchoolFacade schoolFacade,
                              UserFacade userFacade,
                              ClassroomService classroomService,
-                             ClassScheduleService scheduleService) {
+                             ClassScheduleService scheduleService,
+                             CacheService cacheService) {
         this.authenticatedUserService = authenticatedUserService;
         this.lessonRepository = lessonRepository;
         this.validator = validator;
@@ -56,6 +62,7 @@ public class LessonServiceImpl implements LessonService {
         this.userFacade = userFacade;
         this.classroomService = classroomService;
         this.scheduleService = scheduleService;
+        this.cacheService = cacheService;
     }
 
 
@@ -67,7 +74,7 @@ public class LessonServiceImpl implements LessonService {
         log.info("Buscando página de agenda da turma pelo ID. [ownerId={}] [classroomId={}] [ownerSchoolId={}] [page={}] [size={}]",
                 ownerId, classroom.getId(), ownerSchool.getId(), page, size);
         validator.ensureLessonClassroomBelongsSameSchool(ownerSchool, classroom);
-        Pageable sortedPageable = PageRequest.of(page, size, Sort.by("lesson_date").ascending());
+        Pageable sortedPageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("lessonDate"), Sort.Order.desc("startTime")));
         Page<Lesson> lessonPage = lessonRepository.findAllByClassroomId(classroomId, sortedPageable);
         log.info("Pagina da agenda da turma pelo ID retornada com sucesso. [ownerId={}] [classroomId={}] [ownerSchoolId={}] [page={}] [size={}]",
                 ownerId, classroom.getId(), ownerSchool.getId(), page, size);
@@ -75,16 +82,42 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
+    public PageResponse<Lesson> pageByClassroomIdWithCache(UUID classroomId, int page, int size) {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        String key = LessonCacheKeys.page(classroomId, page, size);
+        log.info("Buscando página de agenda da turma pelo ID - with cache. [ownerId={}] [classroomId={}] [page={}] [size={}] [key={}]",
+                ownerId, classroomId, page, size, key);
+        Optional<PageResponse<Lesson>> cache = cacheService.get(key, new TypeReference<>(){});
+        if (cache.isPresent()) {
+            log.info("Pagina da agenda da turma encontrada com sucesso no cache. [ownerId={}] [classroomId={}] [page={}] [size={}]",
+                    ownerId, classroomId, page, size);
+            return cache.get();
+        }
+        Page<Lesson> lessonPage = pageByClassroomId(classroomId, page, size);
+        PageResponse<Lesson> lessonPageResponse = PageResponse.from(lessonPage);
+        log.info("Pagina da agenda da turma pelo ID retornada com sucesso e insirir no cache. [ownerId={}] [classroomId={}] [page={}] [size={}]",
+                ownerId, classroomId, page, size);
+        cacheService.set(key, lessonPageResponse, LessonCacheKeys.TTL);
+        return lessonPageResponse;
+    }
+
+    @Override
     public List<AgendaDayResponseDTO> findAgendaByMonth(UUID classroomId, int year, int month) {
         UUID ownerId = authenticatedUserService.getOwnerId();
         School ownerSchool = schoolFacade.getEntityByOwnerIdWithCache();
+        log.info("Buscando a agenda do pelo mes e ano. [ownerId={}] [schoolId={}] [classroomId={}] [year={}] [month={}]",
+                ownerId, ownerSchool.getId(), classroomId, year, month);
         Classroom classroom = classroomService.findById(classroomId);
         validator.ensureLessonClassroomBelongsSameSchool(ownerSchool, classroom);
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
+        log.info("Bucando pelo perido. [ownerId={}] [classroomId={}] [start={}] [end={}]",
+                ownerId, classroomId, startDate, endDate);
         List<ClassSchedule> schedules = scheduleService.findAllByClassroomId(classroomId);
         List<Lesson> existingLessons = lessonRepository.findByClassroomIdAndLessonDateBetween(classroomId, startDate, endDate);
+        log.info("Total de agenda encontradas. [ownerId={}] [classroomId={}] [size={}]",
+                ownerId, classroomId, existingLessons.size());
         Map<String, Lesson> lessonByKey = existingLessons.stream()
                 .collect(Collectors.toMap(
                         l -> l.getScheduleId() + "_" + l.getLessonDate(), // key
@@ -118,14 +151,34 @@ public class LessonServiceImpl implements LessonService {
                         schedule.getWeekday().getDescription(),
                         schedule.getStartTime(),
                         schedule.getEndTime(),
-                        displayStatus,
-                        lesson != null ? lesson.getDescription() : null
+                        displayStatus
                 ));
             }
         }
         agendas.sort(Comparator.comparing(AgendaDayResponseDTO::date)
                 .thenComparing(AgendaDayResponseDTO::startTime));
+        log.info("Total de agendas enviadas. [ownerId={}] [classroomId={}] [registred={}] [total={}]",
+                ownerId, classroomId, existingLessons.size(), agendas.size());
         return agendas;
+    }
+
+    @Override
+    public List<AgendaDayResponseDTO> findAgendaByMonthWithCache(UUID classroomId, int year, int month) {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        String key = LessonCacheKeys.agenda(classroomId, year, month);
+        log.info("Buscando a agenda do pelo mes e ano - with cache. [ownerId={}] [classroomId={}] [year={}] [month={}] [key={}]",
+                ownerId, classroomId, year, month, key);
+        Optional<List<AgendaDayResponseDTO>> cache = cacheService.get(key, new TypeReference<>(){});
+        if (cache.isPresent()) {
+            log.info("Total de agendas encontrados no cache. [ownerId={}] [classroomId={}] [total={}]",
+                    ownerId, classroomId, cache.get().size());
+            return cache.get();
+        }
+        List<AgendaDayResponseDTO> agenda = findAgendaByMonth(classroomId, year, month);
+        log.info("Total de agendas encontrados e insirir no cache. [ownerId={}] [classroomId={}] [total={}]",
+                ownerId, classroomId, agenda.size());
+        cacheService.set(key, agenda, LessonCacheKeys.TTL);
+        return agenda;
     }
 
     @Override
@@ -141,6 +194,25 @@ public class LessonServiceImpl implements LessonService {
                 });
         log.info("Agenda encontrada com sucesso pelo ID do banco. [ownerId={}] [lessonId={}]",
                 ownerId, id);
+        return lesson;
+    }
+
+    @Override
+    public Lesson findByIdWithCache(UUID id) {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        String key = LessonCacheKeys.byId(id);
+        log.info("Buscando agenda do reforco pelo ID - with cache. [ownerId={}] [lessonId={}]",
+                ownerId, id);
+        Optional<Lesson> cache = cacheService.get(key, new TypeReference<>(){});
+        if (cache.isPresent()) {
+            log.info("Agenda encontrada com sucesso pelo ID no cache. [ownerId={}] [lessonId={}]",
+                    ownerId, id);
+            return cache.get();
+        }
+        Lesson lesson = findById(id);
+        log.info("Agenda encontrada com sucesso pelo ID e inserir no cache. [ownerId={}] [lessonId={}]",
+                ownerId, id);
+        cacheService.set(key, lesson, LessonCacheKeys.TTL);
         return lesson;
     }
 
@@ -180,8 +252,10 @@ public class LessonServiceImpl implements LessonService {
         lesson.setEndTime(schedule.getEndTime());
         lesson.setDescription(dto.description());
         lesson = lessonRepository.save(lesson);
-        log.info("Agenda criada. [ownerId={}] [schoolId={}] [lessonId={}] [status={}]",
+        log.info("Agenda criada e limpar os cache relacionados. [ownerId={}] [schoolId={}] [lessonId={}] [status={}]",
                 ownerId, school.getId(), lesson.getId(), lesson.getStatus());
+        cacheService.delete(LessonCacheKeys.agenda(classroom.getId(), lessonDate.getYear(), lessonDate.getMonth().getValue()));
+        cacheService.evictByPattern(LessonCacheKeys.pagePattern(classroom.getId()));
         return lesson;
     }
 }
