@@ -13,4 +13,5 @@ import java.util.UUID;
 public interface LessonRepository extends JpaRepository<Lesson, UUID> {
     Page<Lesson> findAllByClassroomId(UUID classroomId, Pageable pageable);
     List<Lesson> findByClassroomIdAndLessonDateBetween(UUID classroomId, LocalDate start, LocalDate end);
+    boolean existsByScheduleIdAndLessonDate(UUID scheduleId, LocalDate lessonDate);
 }

@@ -1,5 +1,6 @@
 package com.meusim.application.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.meusim.application.integration.captcha.dto.CaptchaRequestDTO;
 import com.meusim.application.shared.validation.NoEmoji;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public record LoginRequest(
 
         @Valid
         @NotNull(message = "O captcha é obrigatório")
+        @JsonProperty("captcha")
         CaptchaRequestDTO captchaRequestDTO
 ) implements Serializable {
     @Serial

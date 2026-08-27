@@ -1,6 +1,7 @@
 package com.meusim.application.modules.academic.classschedule.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.meusim.application.auth.service.AuthenticatedUserService;
 import com.meusim.application.modules.academic.classschedule.ClassSchedule;
 import com.meusim.application.modules.academic.classschedule.dto.ClassScheduleRequest;
 import com.meusim.application.modules.academic.classschedule.dto.ClassScheduleResponse;
@@ -31,7 +32,7 @@ import java.util.UUID;
 public class ClassScheduleServiceImpl implements ClassScheduleService {
     private static final Logger log =
             LoggerFactory.getLogger(ClassScheduleServiceImpl.class);
-
+    private final AuthenticatedUserService authenticatedUserService;
     private final ClassScheduleRepository classScheduleRepository;
     private final SchoolSubscriptionService schoolSubscriptionService;
     private final SchoolService schoolService;
@@ -41,17 +42,30 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
     private static final Duration CLASSSCHEDULE_TTL = Duration.ofHours(60);
 
     public ClassScheduleServiceImpl(
+            AuthenticatedUserService authenticatedUserService,
             ClassScheduleRepository classScheduleRepository,
             SchoolSubscriptionService schoolSubscriptionService,
             SchoolService schoolService,
             ClassroomService classroomService,
             CacheService cacheService
     ) {
+        this.authenticatedUserService = authenticatedUserService;
         this.classScheduleRepository = classScheduleRepository;
         this.schoolSubscriptionService = schoolSubscriptionService;
         this.schoolService = schoolService;
         this.classroomService = classroomService;
         this.cacheService = cacheService;
+    }
+
+    @Override
+    public List<ClassSchedule> findAllByClassroomId(UUID classroomId) {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        log.info("Buscando todos os horarios da turma. [ownerId={}] [classroomId={}]",
+                ownerId, classroomId);
+        List<ClassSchedule> schedules = classScheduleRepository.findByClassroomId(classroomId);
+        log.info("Encontrado com sucesso todos os horarios da turma. [ownerId={}] [classroomId={}] [size={}]",
+                ownerId, classroomId, schedules.size());
+        return schedules;
     }
 
     @Override

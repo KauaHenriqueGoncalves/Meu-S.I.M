@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public record AgendaDayResponseDTO(
         UUID lessonId,          // null se não foi gerado ainda
-        UUID classScheduleId,
+        UUID scheduleId,
         LocalDate date,
         String weekday,
         LocalTime startTime,

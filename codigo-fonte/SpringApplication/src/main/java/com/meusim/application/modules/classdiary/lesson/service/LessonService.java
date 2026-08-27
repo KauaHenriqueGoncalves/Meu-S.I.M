@@ -9,7 +9,8 @@ import java.util.UUID;
 
 public interface LessonService {
     Page<Lesson> pageByClassroomId(UUID classroomId, int page, int size);
+    List<AgendaDayResponseDTO> findAgendaByMonth(UUID classroomId, int year, int month);
     Lesson findById(UUID id);
     Lesson create(CreateLessonRequestDTO dto);
-    List<AgendaDayResponseDTO> findAgendaByMonth(UUID classroomId, int year, int month);
+
 }
