@@ -1,0 +1,30 @@
+package com.meusim.application.modules.academic.classtype.controller;
+
+import com.meusim.application.modules.academic.classtype.ClassType;
+import com.meusim.application.modules.academic.classtype.service.ClassTypeService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/class-types")
+public class ClassTypeController {
+    private final ClassTypeService classTypeService;
+
+    public ClassTypeController(
+            ClassTypeService classTypeService
+    ) {
+        this.classTypeService = classTypeService;
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_school_admin', 'SCOPE_collaborator', 'SCOPE_legal_guardian')")
+    public ResponseEntity<List<ClassType>> findAll() {
+        List<ClassType> types = classTypeService.findAll();
+        return ResponseEntity.ok(types);
+    }
+}

@@ -1,0 +1,104 @@
+package com.meusim.application.auth.controller;
+
+import com.meusim.application.auth.dto.AdminLoginRequest;
+import com.meusim.application.auth.dto.LoginRequest;
+import com.meusim.application.auth.dto.LoginResponse;
+import com.meusim.application.auth.service.CookieService;
+import com.meusim.application.auth.service.JwtService;
+import com.meusim.application.auth.service.LoginService;
+import com.meusim.application.auth.service.RefreshService;
+import com.meusim.application.auth.token.TokenResponse;
+import com.meusim.application.integration.captcha.service.CaptchaService;
+import com.meusim.application.shared.exception.AccessDeniedException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
+
+@RestController
+@RequestMapping("/auth")
+public final class AuthController {
+    private final LoginService loginService;
+    private final RefreshService  refreshService;
+    private final JwtService jwtService;
+    private final CookieService cookieService;
+    private final CaptchaService captchaService;
+
+    public AuthController(
+            LoginService loginService,
+            RefreshService refreshService,
+            JwtService jwtService,
+            CookieService cookieService,
+            @Qualifier("turnstile") CaptchaService captchaService
+    ) {
+        this.loginService = loginService;
+        this.refreshService = refreshService;
+        this.jwtService = jwtService;
+        this.cookieService = cookieService;
+        this.captchaService = captchaService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(
+            @RequestBody @Valid LoginRequest loginRequest,
+            HttpServletResponse response
+    ) {
+        if (!captchaService.validate(loginRequest.captchaRequestDTO().token())) {
+            throw new AccessDeniedException("Verificação de segurança falhou!");
+        }
+        LoginResponse loginResponse = loginService.login(loginRequest);
+        String accessToken = jwtService.generateAccessToken(loginResponse);
+        String refreshToken = jwtService.generateRefreshToken(loginResponse);
+        ResponseCookie cookie =
+                cookieService.createCookie("/api/v1/auth/refresh", "refreshToken", refreshToken, Duration.ofDays(7));
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.ok(new TokenResponse(accessToken));
+    }
+
+    @PostMapping("/login/admin")
+    public ResponseEntity<TokenResponse> loginAdmin(
+            @RequestBody @Valid AdminLoginRequest adminLoginRequest,
+            HttpServletResponse response
+    ) {
+        if (!captchaService.validate(adminLoginRequest.captchaRequestDTO().token())) {
+            throw new AccessDeniedException("Verificação de segurança falhou!");
+        }
+        LoginResponse loginResponse = loginService.login(adminLoginRequest);
+        String accessToken = jwtService.generateAccessToken(loginResponse);
+        String refreshToken = jwtService.generateRefreshToken(loginResponse);
+        ResponseCookie cookie =
+                cookieService.createCookie("/api/v1/auth/refresh", "refreshToken", refreshToken, Duration.ofDays(7));
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.ok(new TokenResponse(accessToken));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refresh(
+            @CookieValue("refreshToken") String refreshToken
+    ) {
+        //TODO: implements Redis
+
+        // TODO: Criar serviço para refresh
+
+        // TODO: Refresh vazio, retorne um erro no body
+
+        String accessToken = refreshService.getAccessToken(refreshToken);
+        return ResponseEntity.ok(new TokenResponse(accessToken));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            HttpServletResponse response
+    ) {
+        //TODO: RefreshToken still valid, the future implements Redis
+        ResponseCookie cookie =
+                cookieService.createCookie("/api/v1/auth/refresh", "refreshToken", "", Duration.ofDays(7));
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.noContent().build();
+    }
+}

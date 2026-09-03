@@ -28,17 +28,3 @@ SELECT setval(
     pg_get_serial_sequence('class_type', 'id'),
     (SELECT MAX(id) FROM class_type)
 );
-
--- INDEXES
-CREATE INDEX IF NOT EXISTS idx_school_admin_user_id ON school_admin(user_id);
-CREATE INDEX IF NOT EXISTS idx_school_admin_school_id ON school_admin(school_id);
-
-CREATE INDEX IF NOT EXISTS idx_collaborator_user_id ON collaborator(user_id);
-CREATE INDEX IF NOT EXISTS idx_collaborator_school_id ON collaborator(school_id);
-
-CREATE INDEX IF NOT EXISTS idx_legal_guardian_user_id ON legal_guardian(user_id);
-CREATE INDEX IF NOT EXISTS idx_legal_guardian_school_id ON legal_guardian(school_id);
-
-CREATE INDEX IF NOT EXISTS idx_student_school_id ON student(school_id);
-
-CREATE INDEX IF NOT EXISTS idx_subject_school_id ON subject(school_id);
