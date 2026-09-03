@@ -1,10 +1,7 @@
 package com.meusim.application.modules.classdiary.lesson.facade;
 
 import com.meusim.application.modules.classdiary.lesson.Lesson;
-import com.meusim.application.modules.classdiary.lesson.dto.AgendaDayResponseDTO;
-import com.meusim.application.modules.classdiary.lesson.dto.CreateLessonRequestDTO;
-import com.meusim.application.modules.classdiary.lesson.dto.LessonDetailViewResponseDTO;
-import com.meusim.application.modules.classdiary.lesson.dto.LessonSimpleViewResponseDTO;
+import com.meusim.application.modules.classdiary.lesson.dto.*;
 import com.meusim.application.modules.classdiary.lesson.service.LessonService;
 import com.meusim.application.shared.dto.PageResponse;
 import org.springframework.stereotype.Component;
@@ -28,6 +25,11 @@ public class LessonFacadeImpl implements LessonFacade {
     @Override
     public List<AgendaDayResponseDTO> getAgendaByMonth(UUID classroomId, int year, int month) {
         return lessonService.findAgendaByMonthWithCache(classroomId, year, month);
+    }
+
+    @Override
+    public LabelToCreateLessonResponseDTO getLabelToCreateLesson(UUID classroomId, GetToCreateLessonRequestDTO dto) {
+        return lessonService.getLabelToCreateLesson(classroomId, dto);
     }
 
     @Override

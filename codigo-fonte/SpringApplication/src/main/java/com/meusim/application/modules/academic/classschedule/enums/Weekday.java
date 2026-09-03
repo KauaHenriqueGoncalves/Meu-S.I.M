@@ -24,4 +24,13 @@ public enum Weekday {
     public String getDescription() {
         return description;
     }
+
+    public static Weekday fromOrder(int order) {
+        for (Weekday weekday : values()) {
+            if (weekday.order == order) {
+                return weekday;
+            }
+        }
+        throw new IllegalArgumentException("Dia da semana inválido: " + order);
+    }
 }

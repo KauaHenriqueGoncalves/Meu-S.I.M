@@ -1,5 +1,6 @@
 package com.meusim.application.modules.school.validator;
 
+import com.meusim.application.modules.licensing.schoolsubscription.validator.SubscriptionValidator;
 import com.meusim.application.modules.school.School;
 import com.meusim.application.modules.school.repository.SchoolRepository;
 import com.meusim.application.shared.exception.AccessDeniedException;
@@ -13,9 +14,12 @@ import java.util.UUID;
 public class SchoolValidatorImpl implements SchoolValidator {
     private static final Logger log = LoggerFactory.getLogger(SchoolValidatorImpl.class);
     private final SchoolRepository schoolRepository;
+    private final SubscriptionValidator subscriptionValidator;
 
-    public SchoolValidatorImpl(SchoolRepository schoolRepository) {
+    public SchoolValidatorImpl(SchoolRepository schoolRepository,
+                               SubscriptionValidator subscriptionValidator) {
         this.schoolRepository = schoolRepository;
+        this.subscriptionValidator = subscriptionValidator;
     }
 
     @Override
@@ -53,5 +57,10 @@ public class SchoolValidatorImpl implements SchoolValidator {
                 throw new EntityAlreadyExistsException("CNPJ já cadastrado");
             }
         }
+    }
+
+    @Override
+    public void ensureSchoolHasSubscription(School school) {
+        subscriptionValidator.ensureSchoolHasActiveSubscription(school);
     }
 }

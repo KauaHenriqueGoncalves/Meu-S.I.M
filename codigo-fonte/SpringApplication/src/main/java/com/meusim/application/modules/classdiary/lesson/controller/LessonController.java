@@ -1,9 +1,6 @@
 package com.meusim.application.modules.classdiary.lesson.controller;
 
-import com.meusim.application.modules.classdiary.lesson.dto.AgendaDayResponseDTO;
-import com.meusim.application.modules.classdiary.lesson.dto.CreateLessonRequestDTO;
-import com.meusim.application.modules.classdiary.lesson.dto.LessonDetailViewResponseDTO;
-import com.meusim.application.modules.classdiary.lesson.dto.LessonSimpleViewResponseDTO;
+import com.meusim.application.modules.classdiary.lesson.dto.*;
 import com.meusim.application.modules.classdiary.lesson.facade.LessonFacade;
 import com.meusim.application.shared.dto.PageResponse;
 import jakarta.validation.Valid;
@@ -45,6 +42,15 @@ public class LessonController {
         List<AgendaDayResponseDTO> agendas = facade.getAgendaByMonth(classroomId, year, month);
         return ResponseEntity.ok(agendas);
     }
+
+    @GetMapping("/{classroomId}/agenda/label")
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<LabelToCreateLessonResponseDTO> getLabel(@PathVariable UUID classroomId,
+                                                                   @RequestBody @Valid GetToCreateLessonRequestDTO body) {
+        LabelToCreateLessonResponseDTO label = facade.getLabelToCreateLesson(classroomId, body);
+        return ResponseEntity.ok(label);
+    }
+
 
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")

@@ -8,6 +8,7 @@ import com.meusim.application.modules.academic.classschedule.dto.ClassScheduleRe
 import com.meusim.application.modules.academic.classschedule.repository.ClassScheduleRepository;
 import com.meusim.application.modules.academic.classroom.Classroom;
 import com.meusim.application.modules.academic.classroom.service.ClassroomService;
+import com.meusim.application.modules.classdiary.lesson.cache.LessonCacheKeys;
 import com.meusim.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.meusim.application.modules.school.School;
 import com.meusim.application.modules.school.service.SchoolService;
@@ -135,6 +136,7 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
         log.info("Apagando todos os cache de horario de classe ligado à escola e classe. [school={}] [key={}]",
                 school.getId(), key);
         cacheService.evictByPattern(key);
+        cacheService.evictByPattern(LessonCacheKeys.agendaPattern(classroom.getId()));
         return classSchedule;
     }
 
@@ -158,6 +160,7 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
         log.info("Apagando todos os cache de horario de classe ligado à escola e classe. [school={}] [key={}]",
                 school.getId(), key);
         cacheService.evictByPattern(key);
+        cacheService.evictByPattern(LessonCacheKeys.agendaPattern(classroomId));
     }
 
     @Override
@@ -177,6 +180,7 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
         log.info("Apagando todos os cache de horario de classe ligado à escola e classe. [school={}] [key={}]",
                 school.getId(), key);
         cacheService.evictByPattern(key);
+        cacheService.evictByPattern(LessonCacheKeys.agendaPattern(classroomId));
     }
 
     private void ensureClassroomBelongsSchool(UUID schoolId, Classroom classroom) {

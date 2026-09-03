@@ -25,4 +25,8 @@ public final class LessonCacheKeys {
     public static String pagePattern(UUID classroomId) {
         return PREFIX + classroomId + "::*::page";
     }
+
+    public static String agendaPattern(UUID classroomId) {
+        return PREFIX + classroomId + "::*::agenda";
+    }
 }

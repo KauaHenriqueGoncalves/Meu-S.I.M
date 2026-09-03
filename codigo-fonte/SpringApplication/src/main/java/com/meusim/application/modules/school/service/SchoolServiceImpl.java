@@ -143,6 +143,7 @@ public class SchoolServiceImpl implements SchoolService {
         log.info("Atualizando as informacoes do reforco escolar. [ownerId={}] [schoolId={}] [nameCodeOld={}] [schoolNameOld={}] [cnpjOld={}]",
                 ownerId, ownerSchool.getId(), ownerSchool.getNameCode(), ownerSchool.getSchoolName(), ownerSchool.getCnpj());
         schoolValidator.ensureSchoolSameByOwnerId(id, ownerSchool);
+        schoolValidator.ensureSchoolHasSubscription(ownerSchool);
         ownerSchool.setNameCode(dto.nameCode());
         ownerSchool.setSchoolName(dto.schoolName());
         ownerSchool.setCnpj(dto.cnpj());

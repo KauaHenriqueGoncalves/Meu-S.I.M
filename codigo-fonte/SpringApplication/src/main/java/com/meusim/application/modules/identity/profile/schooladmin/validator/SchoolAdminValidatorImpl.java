@@ -14,9 +14,8 @@ public class SchoolAdminValidatorImpl implements SchoolAdminValidator {
     private final SchoolAdminRepository repository;
     private final SubscriptionValidator subscriptionValidator;
 
-    public SchoolAdminValidatorImpl(
-            SchoolAdminRepository repository,
-            SubscriptionValidator subscriptionValidator) {
+    public SchoolAdminValidatorImpl(SchoolAdminRepository repository,
+                                    SubscriptionValidator subscriptionValidator) {
         this.repository = repository;
         this.subscriptionValidator = subscriptionValidator;
     }

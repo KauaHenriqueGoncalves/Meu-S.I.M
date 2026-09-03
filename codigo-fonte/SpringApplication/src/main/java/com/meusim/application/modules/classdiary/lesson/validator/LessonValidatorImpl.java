@@ -3,22 +3,25 @@ package com.meusim.application.modules.classdiary.lesson.validator;
 import com.meusim.application.modules.academic.classroom.Classroom;
 import com.meusim.application.modules.academic.classschedule.ClassSchedule;
 import com.meusim.application.modules.classdiary.lesson.repository.LessonRepository;
+import com.meusim.application.modules.licensing.schoolsubscription.validator.SubscriptionValidator;
 import com.meusim.application.modules.school.School;
 import com.meusim.application.shared.exception.AccessDeniedException;
 import com.meusim.application.shared.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 
 @Component
 public class LessonValidatorImpl implements LessonValidator {
     private final static Logger log = LoggerFactory.getLogger(LessonValidatorImpl.class);
     private final LessonRepository repository;
+    private final SubscriptionValidator subscriptionValidator;
 
-    public LessonValidatorImpl(LessonRepository repository) {
+    public LessonValidatorImpl(LessonRepository repository,
+                               SubscriptionValidator subscriptionValidator) {
         this.repository = repository;
+        this.subscriptionValidator = subscriptionValidator;
     }
 
     @Override
@@ -65,5 +68,10 @@ public class LessonValidatorImpl implements LessonValidator {
                     schedule.getId(), lessonDate);
             throw new BusinessException("Já existe uma agenda registrada para este horário nesta data");
         }
+    }
+
+    @Override
+    public void ensureSchoolHasSubscription(School school) {
+        subscriptionValidator.ensureSchoolHasActiveSubscription(school);
     }
 }

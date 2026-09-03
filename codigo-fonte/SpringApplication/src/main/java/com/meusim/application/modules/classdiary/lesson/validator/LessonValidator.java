@@ -12,4 +12,5 @@ public interface LessonValidator {
     void ensureLessonDateIsNotFuture(LocalDate lessonDate);
     void ensureLessonDateMatchesScheduleWeekday(ClassSchedule schedule, LocalDate lessonDate);
     void ensureDontExistsByScheduleIdAndLessonDate(ClassSchedule schedule, LocalDate lessonDate);
+    void ensureSchoolHasSubscription(School school);
 }

@@ -64,7 +64,7 @@ public final class Lesson {
     @Column(name = "end_time_snap")
     private LocalTime endTime;
 
-    @Column(name = "content", length = 500, columnDefinition = "TEXT")
+    @Column(name = "content", nullable = false, length = 500, columnDefinition = "TEXT")
     private String description;
 
     @CreationTimestamp
@@ -87,8 +87,7 @@ public final class Lesson {
                   int weekday,
                   LocalTime startTime,
                   LocalTime endTime,
-                  String description,
-                  Instant createdAt) {
+                  String description) {
         this.id = id;
         this.classroom = classroom;
         this.lessonDate = lessonDate;
@@ -103,7 +102,6 @@ public final class Lesson {
         this.startTime = startTime;
         this.endTime = endTime;
         this.description = description;
-        this.createdAt = createdAt;
     }
 
     public UUID getId() {

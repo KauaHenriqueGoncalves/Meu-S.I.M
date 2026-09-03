@@ -5,11 +5,15 @@ import com.meusim.application.auth.service.AuthenticatedUserService;
 import com.meusim.application.modules.academic.classroom.Classroom;
 import com.meusim.application.modules.academic.classroom.service.ClassroomService;
 import com.meusim.application.modules.academic.classschedule.ClassSchedule;
+import com.meusim.application.modules.academic.classschedule.enums.Weekday;
 import com.meusim.application.modules.academic.classschedule.service.ClassScheduleService;
+import com.meusim.application.modules.classdiary.attendance.dto.CreateAttendanceRequestDTO;
 import com.meusim.application.modules.classdiary.lesson.Lesson;
 import com.meusim.application.modules.classdiary.lesson.cache.LessonCacheKeys;
 import com.meusim.application.modules.classdiary.lesson.dto.AgendaDayResponseDTO;
 import com.meusim.application.modules.classdiary.lesson.dto.CreateLessonRequestDTO;
+import com.meusim.application.modules.classdiary.lesson.dto.GetToCreateLessonRequestDTO;
+import com.meusim.application.modules.classdiary.lesson.dto.LabelToCreateLessonResponseDTO;
 import com.meusim.application.modules.classdiary.lesson.enums.LessonDisplayStatus;
 import com.meusim.application.modules.classdiary.lesson.enums.LessonStatus;
 import com.meusim.application.modules.classdiary.lesson.repository.LessonRepository;
@@ -31,7 +35,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,6 +71,32 @@ public class LessonServiceImpl implements LessonService {
         this.cacheService = cacheService;
     }
 
+    private AgendaDayResponseDTO buildAgendaDay(Lesson lesson,
+                                                UUID scheduleId,
+                                                LocalDate date,
+                                                String weekdayDescription,
+                                                LocalTime startTime,
+                                                LocalTime endTime) {
+        LessonDisplayStatus displayStatus;
+        if (lesson != null) {
+            displayStatus = lesson.getStatus() == LessonStatus.DONE
+                    ? LessonDisplayStatus.DONE
+                    : LessonDisplayStatus.CANCELED;
+        } else {
+            displayStatus = date.isBefore(LocalDate.now())
+                    ? LessonDisplayStatus.LATE
+                    : LessonDisplayStatus.PENDING;
+        }
+        return new AgendaDayResponseDTO(
+                lesson != null ? lesson.getId() : null,
+                scheduleId,
+                date,
+                weekdayDescription,
+                startTime,
+                endTime,
+                displayStatus
+        );
+    }
 
     @Override
     public Page<Lesson> pageByClassroomId(UUID classroomId, int page, int size) {
@@ -112,7 +144,7 @@ public class LessonServiceImpl implements LessonService {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
-        log.info("Bucando pelo perido. [ownerId={}] [classroomId={}] [start={}] [end={}]",
+        log.info("Bucando pelo periodo. [ownerId={}] [classroomId={}] [start={}] [end={}]",
                 ownerId, classroomId, startDate, endDate);
         List<ClassSchedule> schedules = scheduleService.findAllByClassroomId(classroomId);
         List<Lesson> existingLessons = lessonRepository.findByClassroomIdAndLessonDateBetween(classroomId, startDate, endDate);
@@ -121,39 +153,54 @@ public class LessonServiceImpl implements LessonService {
         Map<String, Lesson> lessonByKey = existingLessons.stream()
                 .collect(Collectors.toMap(
                         l -> l.getScheduleId() + "_" + l.getLessonDate(), // key
-                        l -> l // value
+                        l -> l                                            // value
                 ));
+        Set<String> visitedKeys = new HashSet<>();
+        ZoneId zoneId = ZoneId.systemDefault();
         List<AgendaDayResponseDTO> agendas = new ArrayList<>();
+
+        // Passo 1: schedules ainda existentes (comportamento normal)
         for (ClassSchedule schedule : schedules) {
+            LocalDate scheduleCreatedDate = schedule.getCreatedAt().atZone(zoneId).toLocalDate();
             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                 if (date.getDayOfWeek().getValue() != schedule.getWeekday().getOrder()) {
                     continue;
                 }
                 String key = schedule.getId() + "_" + date;
                 Lesson lesson = lessonByKey.get(key);
+                boolean isBeforeScheduleCreation = date.isBefore(scheduleCreatedDate);
+                if (lesson == null && isBeforeScheduleCreation) {
+                    continue;
+                }
                 if (date.getYear() != LocalDate.now().getYear() && lesson == null) {
                     continue;
                 }
-                LessonDisplayStatus displayStatus;
-                if (lesson != null) {
-                    displayStatus = lesson.getStatus() == LessonStatus.DONE
-                            ? LessonDisplayStatus.DONE
-                            : LessonDisplayStatus.CANCELED;
-                } else {
-                    displayStatus = date.isBefore(LocalDate.now())
-                            ? LessonDisplayStatus.LATE
-                            : LessonDisplayStatus.PENDING;
-                }
-                agendas.add(new AgendaDayResponseDTO(
-                        lesson != null ? lesson.getId() : null,
+                visitedKeys.add(key);
+                agendas.add(buildAgendaDay(
+                        lesson,
                         schedule.getId(),
                         date,
                         schedule.getWeekday().getDescription(),
                         schedule.getStartTime(),
-                        schedule.getEndTime(),
-                        displayStatus
-                ));
+                        schedule.getEndTime())
+                );
             }
+        }
+
+        // Passo 2: lessons "órfãs", schedule foi excluído, mas o registro existe
+        for (Lesson lesson : existingLessons) {
+            String key = lesson.getScheduleId() + "_" + lesson.getLessonDate();
+            if (visitedKeys.contains(key)) {
+                continue;
+            }
+            agendas.add(buildAgendaDay(
+                    lesson,
+                    lesson.getScheduleId(),
+                    lesson.getLessonDate(),
+                    Weekday.fromOrder(lesson.getWeekday()).getDescription(),
+                    lesson.getStartTime(),
+                    lesson.getEndTime())
+            );
         }
         agendas.sort(Comparator.comparing(AgendaDayResponseDTO::date)
                 .thenComparing(AgendaDayResponseDTO::startTime));
@@ -179,6 +226,42 @@ public class LessonServiceImpl implements LessonService {
                 ownerId, classroomId, agenda.size());
         cacheService.set(key, agenda, LessonCacheKeys.TTL);
         return agenda;
+    }
+
+    @Override
+    public LabelToCreateLessonResponseDTO getLabelToCreateLesson(UUID classroomId, GetToCreateLessonRequestDTO dto) {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        School ownerSchool = schoolFacade.getEntityByOwnerIdWithCache();
+        log.info("Buscando o label para criar a agenda. [ownerId={}] [schoolId={}] [classroomId={}] [lessonDate={}]",
+                ownerId, ownerSchool.getId(), classroomId, dto.lessonDate());
+        Classroom classroom = classroomService.findById(classroomId);
+        validator.ensureLessonClassroomBelongsSameSchool(ownerSchool, classroom);
+        ClassSchedule schedule = scheduleService.findById(dto.scheduleId());
+        validator.ensureLessonClassroomBelongsSchedule(schedule, classroom);
+        LocalDate lessonDate = (dto.lessonDate() != null) ? dto.lessonDate() : LocalDate.now();
+        validator.ensureLessonDateIsNotFuture(lessonDate);
+        validator.ensureLessonDateMatchesScheduleWeekday(schedule, lessonDate);
+        validator.ensureDontExistsByScheduleIdAndLessonDate(schedule, lessonDate);
+        if (lessonDate.getYear() != LocalDate.now().getYear()) {
+            log.warn("Tentativa de buscar label com data não correspondente ao ano atual. [ownerId={}] [schoolId={}] [classroomId={}] [scheduleId={}]",
+                    ownerId, ownerSchool.getId(), classroomId, dto.scheduleId());
+            throw new BusinessException("A data informada não corresponde ao ano atual.");
+        }
+        List<CreateAttendanceRequestDTO> attendances =
+                CreateAttendanceRequestDTO.labelToCreateLesson(classroom.getStudents());
+        log.info("Label de presença montado a partir dos estudantes da turma. [ownerId={}] [classroomId={}] [totalStudents={}]",
+                ownerId, classroomId, attendances.size());
+        LabelToCreateLessonResponseDTO label = new LabelToCreateLessonResponseDTO(
+                schedule.getId(),
+                classroom.getId(),
+                dto.lessonDate(),
+                false,
+                "",
+                attendances
+        );
+        log.info("Label para criação de agenda retornado com sucesso. [ownerId={}] [classroomId={}] [scheduleId={}] [lessonDate={}] [totalAttendances={}]",
+                ownerId, classroomId, schedule.getId(), lessonDate, attendances.size());
+        return label;
     }
 
     @Override
@@ -225,6 +308,7 @@ public class LessonServiceImpl implements LessonService {
                 ownerId, school.getId(), dto.classroomId(), dto.scheduleId());
         ResponsibleSnapshotDTO responsibleSnapshot = userFacade.getResponsible(ownerId);
         Classroom classroom = classroomService.findById(dto.classroomId());
+        validator.ensureSchoolHasSubscription(school);
         validator.ensureLessonClassroomBelongsSameSchool(school, classroom);
         ClassSchedule schedule = scheduleService.findById(dto.scheduleId());
         validator.ensureLessonClassroomBelongsSchedule(schedule, classroom);

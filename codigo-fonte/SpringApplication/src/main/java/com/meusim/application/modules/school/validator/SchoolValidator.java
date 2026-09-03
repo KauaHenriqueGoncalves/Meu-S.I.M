@@ -8,4 +8,5 @@ public interface SchoolValidator {
     void ensureSchoolSameByOwnerId(UUID userSchoolId, School ownerSchool);
     void ensureSchoolAlreadyExistNameCode(String nameCode);
     void ensureSchoolAlreadyExistCnpj(String cnpj);
+    void ensureSchoolHasSubscription(School school);
 }
