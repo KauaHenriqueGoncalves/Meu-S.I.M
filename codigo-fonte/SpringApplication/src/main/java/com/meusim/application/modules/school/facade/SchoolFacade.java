@@ -1,0 +1,20 @@
+package com.meusim.application.modules.school.facade;
+
+import com.meusim.application.modules.school.School;
+import com.meusim.application.modules.school.dto.CreateSchoolRequestDTO;
+import com.meusim.application.modules.school.dto.SchoolCapacityResponseDTO;
+import com.meusim.application.modules.school.dto.SchoolResponseDTO;
+import com.meusim.application.modules.school.dto.UpdateSchoolRequestDTO;
+import java.util.UUID;
+
+public interface SchoolFacade {
+    School getEntityById(UUID id);
+    School getEntityByUserId(UUID userId);
+    School getEntityByOwnerId();
+    School getEntityByOwnerIdWithCache();
+    SchoolCapacityResponseDTO getCapacity(UUID schoolId);
+    SchoolResponseDTO getById(UUID id);
+    SchoolResponseDTO getByOwnerId();
+    School create(CreateSchoolRequestDTO dto);
+    School update(UUID id, UpdateSchoolRequestDTO dto);
+}

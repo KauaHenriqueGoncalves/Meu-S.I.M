@@ -17,17 +17,30 @@
 .nav-bar
     position: sticky
     top: 0
+    box-sizing: border-box
     background: var(--white)
     border-bottom: 1px solid var(--border-light)
     z-index: 1000
 
-.nav-bar .container
-    display: flex
-    justify-content: space-between
-    align-items: center
-    padding-top: 1.2rem
-    padding-bottom: 1.2rem
-    margin: 0 auto
+    .container
+        display: flex
+        align-items: center
+        justify-content: space-between
+        padding-top: 1.2rem
+        padding-bottom: 1.2rem
+        margin: 0 auto
+
+        .logo
+            display: flex
+            align-items: center
+            flex-shrink: 0
+            text-decoration: none
+
+        img
+            display: block
+            width: 9rem
+            height: auto
+            object-fit: contain
 
 .nav-bar .container .menu-toggle
     display: none
@@ -39,9 +52,6 @@
 
     @media (max-width: 992px)
         display: block
-
-.nav-bar .container .icon img
-    object-fit: contain
 
 .nav-bar .container .navigation
     display: flex
