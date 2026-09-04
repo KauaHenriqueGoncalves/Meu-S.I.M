@@ -8,6 +8,7 @@ public record LegalGuardianResponse(
 
         UUID id,
         String username,
+        String email,
         String degreeOfKinship
 
 ) implements Serializable {

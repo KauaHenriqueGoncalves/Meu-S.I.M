@@ -1,11 +1,13 @@
 package com.meusim.application.modules.classdiary.lesson.dto;
 
+import com.meusim.application.modules.classdiary.attendance.Attendance;
+import com.meusim.application.modules.classdiary.attendance.dto.AttendanceViewResponseDTO;
 import com.meusim.application.modules.classdiary.lesson.Lesson;
 import com.meusim.application.modules.classdiary.lesson.enums.LessonStatus;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 public record LessonDetailViewResponseDTO(
@@ -23,9 +25,10 @@ public record LessonDetailViewResponseDTO(
         LocalTime startTime,
         LocalTime endTime,
         String description,
-        Instant createdAt
+        Instant createdAt,
+        List<AttendanceViewResponseDTO> attendances
 ) {
-    public static LessonDetailViewResponseDTO of(Lesson l) {
+    public static LessonDetailViewResponseDTO of(Lesson l, List<Attendance> list) {
         return new LessonDetailViewResponseDTO(
                 l.getId(),
                 l.getLessonDate(),
@@ -41,7 +44,8 @@ public record LessonDetailViewResponseDTO(
                 l.getStartTime(),
                 l.getEndTime(),
                 l.getDescription(),
-                l.getCreatedAt()
+                l.getCreatedAt(),
+                list.stream().map(AttendanceViewResponseDTO::of).toList()
         );
     }
 }

@@ -1,5 +1,6 @@
 package com.meusim.application.modules.classdiary.lesson.service;
 
+import com.meusim.application.modules.classdiary.attendance.Attendance;
 import com.meusim.application.modules.classdiary.lesson.Lesson;
 import com.meusim.application.modules.classdiary.lesson.dto.AgendaDayResponseDTO;
 import com.meusim.application.modules.classdiary.lesson.dto.CreateLessonRequestDTO;
@@ -18,6 +19,7 @@ public interface LessonService {
     LabelToCreateLessonResponseDTO getLabelToCreateLesson(UUID classroomId, GetToCreateLessonRequestDTO dto);
     Lesson findById(UUID id);
     Lesson findByIdWithCache(UUID id);
+    List<Attendance> findAllAttendancesByLessonId(UUID lessonId);
     Lesson create(CreateLessonRequestDTO dto);
 
 }

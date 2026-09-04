@@ -30,6 +30,7 @@ public record StudentDetailResponse(
                 new LegalGuardianResponse(
                         s.getLegalGuardian().getId(),
                         s.getLegalGuardian().getUser().getUsername(),
+                        s.getLegalGuardian().getUser().getEmail(),
                         s.getLegalGuardian().getDegreeOfKinship()
                 ));
     }

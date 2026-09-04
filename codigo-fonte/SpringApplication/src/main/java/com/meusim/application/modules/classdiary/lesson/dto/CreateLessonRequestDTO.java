@@ -1,11 +1,14 @@
 package com.meusim.application.modules.classdiary.lesson.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.meusim.application.modules.classdiary.attendance.dto.CreateAttendanceRequestDTO;
 import com.meusim.application.shared.validation.NoEmoji;
 import com.meusim.application.shared.validation.NoLeadingTrailingSpace;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record CreateLessonRequestDTO(
@@ -25,5 +28,8 @@ public record CreateLessonRequestDTO(
         @Size(max = 500, message = "Descrição da Agenda até 500 caracteres")
         @NoLeadingTrailingSpace
         @NoEmoji(message = "Não é permitido o recebimento de emoji")
-        String description
+        String description,
+
+        @Valid
+        List<CreateAttendanceRequestDTO> attendances
 ) { }

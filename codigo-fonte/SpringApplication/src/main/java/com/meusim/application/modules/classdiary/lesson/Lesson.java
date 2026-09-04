@@ -1,12 +1,15 @@
 package com.meusim.application.modules.classdiary.lesson;
 
 import com.meusim.application.modules.academic.classroom.Classroom;
+import com.meusim.application.modules.classdiary.attendance.Attendance;
 import com.meusim.application.modules.classdiary.lesson.enums.LessonStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -70,6 +73,11 @@ public final class Lesson {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
+
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Attendance> attendances = new ArrayList<>();
+
+    // TODO: cascade lesson_note
 
     public Lesson() {
     }

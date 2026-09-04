@@ -7,7 +7,9 @@ import com.meusim.application.modules.academic.classroom.service.ClassroomServic
 import com.meusim.application.modules.academic.classschedule.ClassSchedule;
 import com.meusim.application.modules.academic.classschedule.enums.Weekday;
 import com.meusim.application.modules.academic.classschedule.service.ClassScheduleService;
+import com.meusim.application.modules.classdiary.attendance.Attendance;
 import com.meusim.application.modules.classdiary.attendance.dto.CreateAttendanceRequestDTO;
+import com.meusim.application.modules.classdiary.attendance.facade.AttendanceFacade;
 import com.meusim.application.modules.classdiary.lesson.Lesson;
 import com.meusim.application.modules.classdiary.lesson.cache.LessonCacheKeys;
 import com.meusim.application.modules.classdiary.lesson.dto.AgendaDayResponseDTO;
@@ -49,6 +51,7 @@ public class LessonServiceImpl implements LessonService {
     private final LessonValidator validator;
     private final SchoolFacade schoolFacade;
     private final UserFacade userFacade;
+    private final AttendanceFacade attendanceFacade;
     private final ClassroomService classroomService;
     private final ClassScheduleService scheduleService;
     private final CacheService cacheService;
@@ -58,6 +61,7 @@ public class LessonServiceImpl implements LessonService {
                              LessonValidator validator,
                              SchoolFacade schoolFacade,
                              UserFacade userFacade,
+                             AttendanceFacade attendanceFacade,
                              ClassroomService classroomService,
                              ClassScheduleService scheduleService,
                              CacheService cacheService) {
@@ -66,6 +70,7 @@ public class LessonServiceImpl implements LessonService {
         this.validator = validator;
         this.schoolFacade = schoolFacade;
         this.userFacade = userFacade;
+        this.attendanceFacade = attendanceFacade;
         this.classroomService = classroomService;
         this.scheduleService = scheduleService;
         this.cacheService = cacheService;
@@ -300,6 +305,11 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
+    public List<Attendance> findAllAttendancesByLessonId(UUID lessonId) {
+        return attendanceFacade.getAllByLessonId(lessonId);
+    }
+
+    @Override
     @Transactional
     public Lesson create(CreateLessonRequestDTO dto) {
         UUID ownerId = authenticatedUserService.getOwnerId();
@@ -336,6 +346,16 @@ public class LessonServiceImpl implements LessonService {
         lesson.setEndTime(schedule.getEndTime());
         lesson.setDescription(dto.description());
         lesson = lessonRepository.save(lesson);
+        log.info("Agenda criada com sucesso. [ownerId={}] [schoolId={}] [lessonId={}] [status={}]",
+                ownerId, school.getId(), lesson.getId(), lesson.getStatus());
+        if (lesson.getStatus() == LessonStatus.DONE) {
+            attendanceFacade.createAll(lesson, dto.attendances());
+            log.info("Presencas registradas para a agenda. [ownerId={}] [lessonId={}] [totalAttendances={}]",
+                    ownerId, lesson.getId(), dto.attendances().size());
+        } else {
+            log.info("Agenda cancelada, presencas nao serao registradas. [ownerId={}] [lessonId={}]",
+                    ownerId, lesson.getId());
+        }
         log.info("Agenda criada e limpar os cache relacionados. [ownerId={}] [schoolId={}] [lessonId={}] [status={}]",
                 ownerId, school.getId(), lesson.getId(), lesson.getStatus());
         cacheService.delete(LessonCacheKeys.agenda(classroom.getId(), lessonDate.getYear(), lessonDate.getMonth().getValue()));

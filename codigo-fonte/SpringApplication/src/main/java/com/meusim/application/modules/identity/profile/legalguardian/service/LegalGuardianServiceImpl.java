@@ -95,7 +95,7 @@ public class LegalGuardianServiceImpl implements LegalGuardianService {
 
         Page<LegalGuardianResponse> responsePage =
                 legalGuardianRepository.findAllBySchoolIdAndName(school.getId(), nameFilter, sortedPageable)
-                        .map(l -> new LegalGuardianResponse(l.getId(), l.getUser().getUsername(), l.getDegreeOfKinship()));
+                        .map(l -> new LegalGuardianResponse(l.getId(), l.getUser().getUsername(), l.getUser().getEmail(), l.getDegreeOfKinship()));
 
         log.info("Responsáveis encontrados e serão enviado para cache. [schoolId={}] [total={}] [totalPages={}]",
                 school.getId(), responsePage.getTotalElements(), responsePage.getTotalPages());

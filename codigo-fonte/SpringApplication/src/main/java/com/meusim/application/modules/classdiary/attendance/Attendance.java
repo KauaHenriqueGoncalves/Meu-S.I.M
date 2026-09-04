@@ -1,5 +1,6 @@
 package com.meusim.application.modules.classdiary.attendance;
 
+import com.meusim.application.modules.classdiary.attendance.dto.CreateAttendanceRequestDTO;
 import com.meusim.application.modules.classdiary.attendance.enums.AttendanceStatus;
 import com.meusim.application.modules.classdiary.lesson.Lesson;
 import jakarta.persistence.*;
@@ -49,15 +50,24 @@ public final class Attendance {
                       UUID studentId,
                       String studentName,
                       AttendanceStatus status,
-                      String content,
-                      Instant createdAt) {
+                      String content) {
         this.id = id;
         this.lesson = lesson;
         this.studentId = studentId;
         this.studentName = studentName;
         this.status = status;
         this.content = content;
-        this.createdAt = createdAt;
+    }
+
+    public static Attendance createInit(Lesson entity, CreateAttendanceRequestDTO dto) {
+        return new Attendance(
+                null,
+                entity,
+                dto.studentId(),
+                dto.studentName(),
+                dto.status(),
+                dto.content()
+        );
     }
 
     public UUID getId() {
