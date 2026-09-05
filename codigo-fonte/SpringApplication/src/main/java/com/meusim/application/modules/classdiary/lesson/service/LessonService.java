@@ -17,6 +17,7 @@ public interface LessonService {
     List<AgendaDayResponseDTO> findAgendaByMonth(UUID classroomId, int year, int month);
     List<AgendaDayResponseDTO> findAgendaByMonthWithCache(UUID classroomId, int year, int month);
     LabelToCreateLessonResponseDTO getLabelToCreateLesson(UUID classroomId, GetToCreateLessonRequestDTO dto);
+    LabelToCreateLessonResponseDTO getLabelToCreateLessonWithCache(UUID classroomId, GetToCreateLessonRequestDTO dto);
     Lesson findById(UUID id);
     Lesson findByIdWithCache(UUID id);
     List<Attendance> findAllAttendancesByLessonId(UUID lessonId);

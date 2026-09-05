@@ -30,7 +30,7 @@ public class LessonFacadeImpl implements LessonFacade {
 
     @Override
     public LabelToCreateLessonResponseDTO getLabelToCreateLesson(UUID classroomId, GetToCreateLessonRequestDTO dto) {
-        return lessonService.getLabelToCreateLesson(classroomId, dto);
+        return lessonService.getLabelToCreateLessonWithCache(classroomId, dto);
     }
 
     @Override

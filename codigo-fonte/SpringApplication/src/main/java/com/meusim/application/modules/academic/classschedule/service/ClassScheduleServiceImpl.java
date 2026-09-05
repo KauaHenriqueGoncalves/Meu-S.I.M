@@ -161,6 +161,7 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
                 school.getId(), key);
         cacheService.evictByPattern(key);
         cacheService.evictByPattern(LessonCacheKeys.agendaPattern(classroomId));
+        cacheService.evictByPattern(LessonCacheKeys.labelPattern(classroomId));
     }
 
     @Override
@@ -181,6 +182,7 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
                 school.getId(), key);
         cacheService.evictByPattern(key);
         cacheService.evictByPattern(LessonCacheKeys.agendaPattern(classroomId));
+        cacheService.evictByPattern(LessonCacheKeys.labelPattern(classroomId));
     }
 
     private void ensureClassroomBelongsSchool(UUID schoolId, Classroom classroom) {

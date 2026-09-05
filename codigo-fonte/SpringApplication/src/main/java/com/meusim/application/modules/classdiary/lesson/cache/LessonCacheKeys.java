@@ -1,6 +1,7 @@
 package com.meusim.application.modules.classdiary.lesson.cache;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public final class LessonCacheKeys {
@@ -28,5 +29,13 @@ public final class LessonCacheKeys {
 
     public static String agendaPattern(UUID classroomId) {
         return PREFIX + classroomId + "::*::agenda";
+    }
+
+    public static String label(UUID classroomId, LocalDate date) {
+        return PREFIX + classroomId + "::" + date + "::label";
+    }
+
+    public static String labelPattern(UUID classroomId) {
+        return PREFIX + classroomId + "*::label";
     }
 }

@@ -8,6 +8,7 @@ import com.meusim.application.modules.academic.classroom.dto.ClassroomRequest;
 import com.meusim.application.modules.academic.classroom.dto.ClassroomDetailResponse;
 import com.meusim.application.modules.academic.classroom.dto.ClassroomResponse;
 import com.meusim.application.modules.academic.classroom.repository.ClassroomRepository;
+import com.meusim.application.modules.classdiary.lesson.cache.LessonCacheKeys;
 import com.meusim.application.modules.licensing.schoolsubscription.service.SchoolSubscriptionService;
 import com.meusim.application.modules.school.School;
 import com.meusim.application.modules.school.service.SchoolService;
@@ -296,6 +297,7 @@ public class ClassroomServiceImpl implements ClassroomService {
                 keyClassroom);
 
         cacheService.evictByPattern(keyClassroom);
+        cacheService.evictByPattern(LessonCacheKeys.labelPattern(classroomId));
     }
 
     @Override
@@ -326,6 +328,7 @@ public class ClassroomServiceImpl implements ClassroomService {
                 keyClassroom);
 
         cacheService.evictByPattern(keyClassroom);
+        cacheService.evictByPattern(LessonCacheKeys.labelPattern(classroomId));
     }
 
     @Override
@@ -363,6 +366,7 @@ public class ClassroomServiceImpl implements ClassroomService {
 
         deleteCacheByStudent(school.getId(), keysStudents);
         cacheService.evictByPattern(keySchool);
+        cacheService.evictByPattern(LessonCacheKeys.labelPattern(classroomId));
     }
 
     private void deleteCacheByStudent(UUID schoolId, List<UUID> keysStudents) {

@@ -1,6 +1,8 @@
 package com.meusim.application.modules.academic.student.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.meusim.application.modules.academic.classroom.Classroom;
+import com.meusim.application.modules.classdiary.lesson.cache.LessonCacheKeys;
 import com.meusim.application.modules.identity.profile.legalguardian.LegalGuardian;
 import com.meusim.application.modules.identity.profile.legalguardian.service.LegalGuardianService;
 import com.meusim.application.modules.licensing.schoolsubscription.SchoolSubscription;
@@ -245,6 +247,8 @@ public class StudentServiceImpl implements StudentService {
         cacheService.evictByPattern(keyClassroom);
         cacheService.evictByPattern(keyUser);
         cacheService.evictByPattern(keyByLegalGuardian);
+        List<Classroom> classroomsByStudent = studentRepository.findAllClassroomByStudentId(studentId);
+        classroomsByStudent.forEach(c -> cacheService.evictByPattern(LessonCacheKeys.labelPattern(c.getId())));
     }
 
     @Override
@@ -272,6 +276,8 @@ public class StudentServiceImpl implements StudentService {
 
         cacheService.evictByPattern(keySchool);
         cacheService.evictByPattern(keyUser);
+        List<Classroom> classroomsByStudent = studentRepository.findAllClassroomByStudentId(studentId);
+        classroomsByStudent.forEach(c -> cacheService.evictByPattern(LessonCacheKeys.labelPattern(c.getId())));
     }
 
     private void ensureLegalGuardianBelongsToUserSchool(UUID schoolId, LegalGuardian legalGuardian) {

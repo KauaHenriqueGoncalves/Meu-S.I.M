@@ -3,7 +3,6 @@ package com.meusim.application.modules.classdiary.lesson.validator;
 import com.meusim.application.modules.academic.classroom.Classroom;
 import com.meusim.application.modules.academic.classschedule.ClassSchedule;
 import com.meusim.application.modules.school.School;
-
 import java.time.LocalDate;
 
 public interface LessonValidator {

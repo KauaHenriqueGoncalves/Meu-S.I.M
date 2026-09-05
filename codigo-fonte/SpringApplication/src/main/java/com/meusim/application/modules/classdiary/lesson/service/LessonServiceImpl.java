@@ -244,7 +244,6 @@ public class LessonServiceImpl implements LessonService {
         ClassSchedule schedule = scheduleService.findById(dto.scheduleId());
         validator.ensureLessonClassroomBelongsSchedule(schedule, classroom);
         LocalDate lessonDate = (dto.lessonDate() != null) ? dto.lessonDate() : LocalDate.now();
-        validator.ensureLessonDateIsNotFuture(lessonDate);
         validator.ensureLessonDateMatchesScheduleWeekday(schedule, lessonDate);
         validator.ensureDontExistsByScheduleIdAndLessonDate(schedule, lessonDate);
         if (lessonDate.getYear() != LocalDate.now().getYear()) {
@@ -266,6 +265,21 @@ public class LessonServiceImpl implements LessonService {
         );
         log.info("Label para criação de agenda retornado com sucesso. [ownerId={}] [classroomId={}] [scheduleId={}] [lessonDate={}] [totalAttendances={}]",
                 ownerId, classroomId, schedule.getId(), lessonDate, attendances.size());
+        return label;
+    }
+
+    @Override
+    public LabelToCreateLessonResponseDTO getLabelToCreateLessonWithCache(UUID classroomId, GetToCreateLessonRequestDTO dto) {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        String key = LessonCacheKeys.label(classroomId, dto.lessonDate());
+        Optional<LabelToCreateLessonResponseDTO> cache = cacheService.get(key, new TypeReference<>(){});
+        if (cache.isPresent()) {
+            log.info("Label encontrado no cache para Agenda. [ownerId={}] [classroomId={}] [key={}]",
+                    ownerId, classroomId, key);
+            return cache.get();
+        }
+        LabelToCreateLessonResponseDTO label = getLabelToCreateLesson(classroomId, dto);
+        cacheService.set(key, label, LessonCacheKeys.TTL);
         return label;
     }
 
