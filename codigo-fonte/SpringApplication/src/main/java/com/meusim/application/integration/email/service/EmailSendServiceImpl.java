@@ -114,8 +114,8 @@ public class EmailSendServiceImpl implements EmailSendService {
                 String html = templateService.process("email/lesson-notification", variables);
                 helper.setTo(dto.legalGuardianEmail());
                 helper.setSubject(dto.status().name().equals("CANCELED")
-                        ? "Aula Cancelada - Meu S.I.M"
-                        : "Resumo da Aula - Meu S.I.M");
+                        ? "Aula Cancelada - Meu S.I.M Agenda"
+                        : "Resumo da Aula - Meu S.I.M Agenda");
                 helper.setText(html, true);
                 mailSender.send(message);
                 log.info("E-mail de aula enviado para responsável. [destinatario={}] [status={}]",
@@ -148,8 +148,8 @@ public class EmailSendServiceImpl implements EmailSendService {
                 String html = templateService.process("email/lesson-notification-admins", variables);
                 helper.setTo(to);
                 helper.setSubject(info.status() == LessonStatus.CANCELED
-                        ? "Aula Cancelada - Meu S.I.M"
-                        : "Resumo da Aula - Meu S.I.M");
+                        ? "Aula Cancelada - Meu S.I.M Agenda"
+                        : "Resumo da Aula - Meu S.I.M Agenda");
                 helper.setText(html, true);
                 mailSender.send(message);
                 log.info("E-mail de aula enviado para admin. [destinatario={}] [status={}]", to, info.status());
@@ -158,6 +158,38 @@ public class EmailSendServiceImpl implements EmailSendService {
                 log.error("Falha ao enviar e-mail de aula para admin. [destinatario={}] [motivo={}]",
                         to, e.getMessage(), e);
             }
+        }
+    }
+
+    @Override
+    @Async("emailExecutor")
+    public void sendLessonEmailToResponsible(String responsibleEmail, SendEmailLessonAdminDTO info) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("lessonDate", info.lessonDate());
+            variables.put("status", info.status().name().toLowerCase());
+            variables.put("responsibleUsername", info.responsibleUsername());
+            variables.put("classroomName", info.classroomName());
+            variables.put("subjectName", info.subjectName());
+            variables.put("startTime", info.startTime());
+            variables.put("endTime", info.endTime());
+            variables.put("description", info.description());
+            variables.put("attendances", info.attendances());
+            String html = templateService.process("email/lesson-notification-responsible", variables);
+            helper.setTo(responsibleEmail);
+            helper.setSubject(info.status() == LessonStatus.CANCELED
+                    ? "Confirmação de Cancelamento - Meu S.I.M Agenda"
+                    : "Confirmação de Registro de Aula - Meu S.I.M Agenda");
+            helper.setText(html, true);
+            mailSender.send(message);
+            log.info("E-mail de confirmação de aula enviado ao colaborador. [destinatario={}] [status={}]",
+                    responsibleEmail, info.status());
+        }
+        catch (Exception e) {
+            log.error("Falha ao enviar e-mail de confirmação de aula ao colaborador. [destinatario={}] [motivo={}]",
+                    responsibleEmail, e.getMessage(), e);
         }
     }
 }

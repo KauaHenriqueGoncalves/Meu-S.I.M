@@ -63,14 +63,19 @@ public class LessonListener {
             emailSendService.sendLessonEmailsToLegalGuardians(legalGuardianEmails);
         }
         List<SchoolAdmin> admins = schoolFacade.getAllSchoolAdminFromSchool();
+        SendEmailLessonAdminDTO adminDto = buildAdminEmailDto(lessonDetail);
         if (admins.isEmpty()) {
             log.warn("Nenhum admin encontrado para envio de email da agenda. [lessonId={}]", event.lessonId());
         } else {
             List<String> adminEmails = admins.stream().map(a -> a.getUser().getEmail()).toList();
-            SendEmailLessonAdminDTO adminDto = buildAdminEmailDto(lessonDetail);
             emailSendService.sendLessonEmailToAdmins(adminEmails, adminDto);
         }
-        //emailSendService.sendLessonEmailToResponsible(lessonDetail);
+        String responsibleEmail = lessonDetail.responsibleEmail();
+        if (responsibleEmail == null) {
+            log.warn("Email do responsável pela aula não encontrado. [lessonId={}]", event.lessonId());
+        } else {
+            emailSendService.sendLessonEmailToResponsible(responsibleEmail, adminDto);
+        }
         log.info("Emails da agenda processados. [lessonId={}] [status={}] [totalResponsaveis={}] [totalAdmins={}]",
                 event.lessonId(), lessonDetail.status(), legalGuardianEmails.size(), admins.size());
     }

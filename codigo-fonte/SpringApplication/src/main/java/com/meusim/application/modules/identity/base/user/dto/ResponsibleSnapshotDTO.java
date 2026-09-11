@@ -5,5 +5,6 @@ import java.util.UUID;
 public record ResponsibleSnapshotDTO(
         UUID responsibleId, // <- collaboratorId || schoolAdminId
         String username,
-        String role // <- SCOPE_collaborator || SCOPE_school_admin
+        String role, // <- SCOPE_collaborator || SCOPE_school_admin
+        String email
 ) { }

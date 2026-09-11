@@ -21,9 +21,11 @@ public class ResponsibleSnapshotQueryImpl implements ResponsibleSnapshotQuery {
     private final CollaboratorRepository collaboratorRepository;
     private final SchoolAdminRepository schoolAdminRepository;
 
-    public ResponsibleSnapshotQueryImpl(UserRepository userRepository,
-                                        CollaboratorRepository collaboratorRepository,
-                                        SchoolAdminRepository schoolAdminRepository) {
+    public ResponsibleSnapshotQueryImpl(
+            UserRepository userRepository,
+            CollaboratorRepository collaboratorRepository,
+            SchoolAdminRepository schoolAdminRepository
+    ) {
         this.userRepository = userRepository;
         this.collaboratorRepository = collaboratorRepository;
         this.schoolAdminRepository = schoolAdminRepository;
@@ -42,7 +44,8 @@ public class ResponsibleSnapshotQueryImpl implements ResponsibleSnapshotQuery {
             return new ResponsibleSnapshotDTO(
                     collaborator.get().getId(),
                     user.getUsername(),
-                    "SCOPE_collaborator"
+                    "SCOPE_collaborator",
+                    collaborator.get().getUser().getEmail()
             );
         }
         Optional<SchoolAdmin> schoolAdmin = schoolAdminRepository.findByUserId(userId);
@@ -50,7 +53,8 @@ public class ResponsibleSnapshotQueryImpl implements ResponsibleSnapshotQuery {
             return new ResponsibleSnapshotDTO(
                     schoolAdmin.get().getId(),
                     user.getUsername(),
-                    "SCOPE_school_admin"
+                    "SCOPE_school_admin",
+                    schoolAdmin.get().getUser().getEmail()
             );
         }
         log.error("Usuário sem vínculo de collaborator ou school_admin. [userId={}]", userId);

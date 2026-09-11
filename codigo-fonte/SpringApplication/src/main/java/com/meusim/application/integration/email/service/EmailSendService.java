@@ -11,4 +11,5 @@ public interface EmailSendService {
     void sendSubscriptionPaidEmails(List<String> emails, UUID schoolId, SendEmailSubscriptionPaid info);
     void sendLessonEmailsToLegalGuardians(List<SendEmailLessonLegalGuardianDTO> emails);
     void sendLessonEmailToAdmins(List<String> adminEmails, SendEmailLessonAdminDTO info);
+    void sendLessonEmailToResponsible(String responsibleEmail, SendEmailLessonAdminDTO info);
 }

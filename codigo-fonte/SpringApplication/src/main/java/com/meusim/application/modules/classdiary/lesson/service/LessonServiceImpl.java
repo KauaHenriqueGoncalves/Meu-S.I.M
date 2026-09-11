@@ -357,6 +357,7 @@ public class LessonServiceImpl implements LessonService {
         lesson.setResponsibleId(responsibleSnapshot.responsibleId());
         lesson.setResponsibleUsername(responsibleSnapshot.username());
         lesson.setResponsibleRole(responsibleSnapshot.role());
+        lesson.setResponsibleEmail(responsibleSnapshot.email());
         lesson.setClassroomName(classroom.getName());
         lesson.setSubjectName(classroom.getSubject().getName());
         lesson.setScheduleId(schedule.getId());

@@ -16,6 +16,7 @@ public record LessonDetailViewResponseDTO(
         UUID responsibleId, // <- collaboratorId || schoolAdminId
         String responsibleUsername,
         String responsibleRole,
+        String responsibleEmail,
         UUID classroomId,
         String classroomName,
         String subjectName,
@@ -35,6 +36,7 @@ public record LessonDetailViewResponseDTO(
                 l.getResponsibleId(),
                 l.getResponsibleUsername(),
                 l.getResponsibleRole(),
+                l.getResponsibleEmail(),
                 l.getClassroom().getId(),
                 l.getClassroomName(),
                 l.getSubjectName(),

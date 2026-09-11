@@ -49,6 +49,9 @@ public final class Lesson {
     @Column(name = "responsible_role_snap", nullable = false, length = 30)
     private String responsibleRole; // <- SCOPE_collaborator || SCOPE_school_admin
 
+    @Column(name = "responsible_email_snap", nullable = false, length = 255)
+    private String responsibleEmail;
+
     @Column(name = "classroom_name_snap", nullable = false, length = 60)
     private String classroomName;
 
@@ -80,20 +83,23 @@ public final class Lesson {
     public Lesson() {
     }
 
-    public Lesson(UUID id,
-                  Classroom classroom,
-                  LocalDate lessonDate,
-                  LessonStatus status,
-                  UUID responsibleId,
-                  String responsibleUsername,
-                  String responsibleRole,
-                  String classroomName,
-                  String subjectName,
-                  UUID scheduleId,
-                  int weekday,
-                  LocalTime startTime,
-                  LocalTime endTime,
-                  String description) {
+    public Lesson(
+            UUID id,
+            Classroom classroom,
+            LocalDate lessonDate,
+            LessonStatus status,
+            UUID responsibleId,
+            String responsibleUsername,
+            String responsibleRole,
+            String responsibleEmail,
+            String classroomName,
+            String subjectName,
+            UUID scheduleId,
+            int weekday,
+            LocalTime startTime,
+            LocalTime endTime,
+            String description
+    ) {
         this.id = id;
         this.classroom = classroom;
         this.lessonDate = lessonDate;
@@ -101,6 +107,7 @@ public final class Lesson {
         this.responsibleId = responsibleId;
         this.responsibleUsername = responsibleUsername;
         this.responsibleRole = responsibleRole;
+        this.responsibleEmail = responsibleEmail;
         this.classroomName = classroomName;
         this.subjectName = subjectName;
         this.scheduleId = scheduleId;
@@ -164,6 +171,14 @@ public final class Lesson {
 
     public void setResponsibleRole(String responsibleRole) {
         this.responsibleRole = responsibleRole;
+    }
+
+    public String getResponsibleEmail() {
+        return responsibleEmail;
+    }
+
+    public void setResponsibleEmail(String responsibleEmail) {
+        this.responsibleEmail = responsibleEmail;
     }
 
     public String getClassroomName() {
@@ -252,6 +267,7 @@ public final class Lesson {
                 ", responsibleId=" + responsibleId +
                 ", responsibleUsername='" + responsibleUsername + '\'' +
                 ", responsibleRole='" + responsibleRole + '\'' +
+                ", responsibleEmail='" + responsibleEmail + '\'' +
                 ", classroomName='" + classroomName + '\'' +
                 ", subjectName='" + subjectName + '\'' +
                 ", scheduleId=" + scheduleId +
@@ -260,6 +276,7 @@ public final class Lesson {
                 ", endTime=" + endTime +
                 ", description='" + description + '\'' +
                 ", createdAt=" + createdAt +
+                ", attendances=" + attendances +
                 '}';
     }
 }
