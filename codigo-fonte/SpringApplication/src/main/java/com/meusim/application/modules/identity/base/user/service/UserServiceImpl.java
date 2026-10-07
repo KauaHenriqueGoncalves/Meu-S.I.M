@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> {
                     log.warn("Tentativa de login com credenciais inválidas. [email={}] [schoolCode={}]",
                             email, schoolCode);
-                    return new NotFoundObjectException("Não encontrou usuário");
+                    return new NotFoundObjectException("Credenciais Inválidas");
                 });
     }
 

@@ -22,8 +22,8 @@ export class AuthApi {
       schoolCode: loginRequest.schoolCode,
       email: loginRequest.email,
       password: loginRequest.password,
-      captchaRequest: {
-        captchaToken: captchaRequest.captchaToken
+      captcha: {
+        token: captchaRequest.captchaToken
       }
     }
 
@@ -37,7 +37,7 @@ export class AuthApi {
   }
 
   loginAdmin(adminLoginRequest: AdminLoginRequestDto, captchaRequest: CaptchaRequestDto): Observable<TokenResponse> {
-    const payload = { ...adminLoginRequest, captchaRequest };
+    const payload = { ...adminLoginRequest, captcha: { token: captchaRequest.captchaToken } };
     console.log(payload);
     return this.apiService.post<TokenResponse>(
       ApiConfig.endpoints.auth.loginAdmin, 

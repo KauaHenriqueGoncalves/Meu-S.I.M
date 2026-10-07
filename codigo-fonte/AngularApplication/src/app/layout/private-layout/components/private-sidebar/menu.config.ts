@@ -33,6 +33,7 @@ export const MENU_CONFIG: Record<Role, MenuItem[]> = {
         { label: 'Turmas', route: '/app/classrooms' },
         { label: 'Estudantes', route: '/app/students' },
         { label: 'Disciplinas', route: '/app/subjects' },
+        { label: 'Agendas', route: '/app/lessons' },
       ]
     },
     {

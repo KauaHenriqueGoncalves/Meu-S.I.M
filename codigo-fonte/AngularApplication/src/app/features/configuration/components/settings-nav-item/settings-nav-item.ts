@@ -14,5 +14,5 @@ import { AngleDownSvg } from '../../../../shared/components/svg/angle-down.svg';
 export class SettingsNavItem {
   @Input() title: string = '';
   @Input() description: string = '';
-  @Input() route: string = '';
+  @Input() route: string | null = null;
 }

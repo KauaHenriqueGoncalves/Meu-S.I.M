@@ -1,0 +1,265 @@
+.create-container
+    display: flex
+    flex-direction: column
+    height: 100%
+    width: 100%
+    padding: 1rem 0
+    animation: fadeIn 0.4s ease-out
+
+.page-header
+    margin-bottom: 2rem
+    padding: 0rem 0 2rem
+    border-bottom: 1px solid var(--border-light, #e5e7eb)
+
+    .btn-back
+        background: transparent
+        border: none
+        color: var(--text-back-btn)
+        font-weight: 400
+        font-size: .9rem
+        display: flex
+        align-items: center
+        gap: 8px
+        cursor: pointer
+        padding: 0
+        margin: .25rem 0 1.5rem
+        transition: color 0.2s
+
+        &:hover
+            color: var(--color-primary-600)
+
+    .title-area
+        h1
+            font-size: 1.8rem
+            color: var(--text-333, #1f2937)
+            margin: 0 0 0.5rem 0
+
+        p
+            color: var(--text-666, #6b7280)
+            font-size: 1rem
+            margin: 0
+
+.form-card
+    max-width: 560px
+    background: var(--white, #ffffff)
+    border: 1px solid var(--border-color, #e5e7eb)
+    border-radius: 12px
+    overflow: hidden
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03)
+    display: flex
+    flex-direction: column
+
+    .card-header
+        background: var(--bg-light, #f9fafb)
+        padding: 1.25rem 1.5rem
+        border-bottom: 1px solid var(--border-color, #e5e7eb)
+
+        h2
+            font-size: 1.1rem
+            margin: 0
+            color: var(--text-333, #1f2937)
+            font-weight: 600
+
+    .card-body
+        padding: 1.5rem
+        display: flex
+        flex-direction: column
+        gap: 1.5rem
+
+.form-group
+    display: flex
+    flex-direction: column
+    gap: 0.4rem
+
+    label
+        font-size: 0.9rem
+        font-weight: 600
+        color: var(--text-666, #4b5563)
+
+    input
+        width: 100%
+        padding: 0.8rem 1rem
+        border: 1px solid var(--border-color, #d1d5db)
+        border-radius: 8px
+        font-size: 0.95rem
+        color: var(--text-333, #1f2937)
+        transition: all 0.2s ease
+        background: #fff
+
+        &::placeholder
+            color: #9ca3af
+
+        &:focus
+            border-color: var(--color-primary-600, #16a34a)
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1)
+            outline: none
+
+    &.has-error input
+        border-color: #ef4444
+        background: #fef2f2
+
+        &:focus
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1)
+
+    .error-text
+        color: #ef4444
+        font-size: 0.8rem
+        font-weight: 500
+
+.actions-card
+    background: var(--bg-light, #f9fafb)
+    border-top: 1px solid var(--border-color, #e5e7eb)
+    padding: 1.5rem
+    display: flex
+    flex-direction: column
+    gap: 1.25rem
+
+    .actions-hint
+        margin: 0
+        font-size: 0.9rem
+        color: var(--text-666, #6b7280)
+        line-height: 1.4
+
+.cnpj-row
+    display: flex
+    align-items: center
+    gap: 12px
+
+    input
+        flex: 1
+
+.disabled-input
+    background: #f3f4f6
+    color: #999
+    cursor: not-allowed
+
+.cnpj-row input:disabled
+    background: #f3f4f6
+    color: #999
+    cursor: not-allowed
+
+.no-cnpj-check
+    white-space: nowrap
+    margin-top: 0
+
+.custom-checkbox
+    cursor: pointer
+    user-select: none
+    display: flex
+    align-items: flex-start
+    gap: 6px
+
+    input
+        position: absolute
+        top: 0
+        left: 0
+        width: 1px
+        height: 1px
+        opacity: 0
+
+    .text
+        font-size: .92rem
+        line-height: 1.4
+        color: var(--text-secondary)
+
+    .checkmark
+        position: relative
+        flex-shrink: 0
+        height: 20px
+        width: 20px
+        background-color: var(--white)
+        border: 1px solid #bbb
+        border-radius: 6px
+        margin-top: -1px
+
+        &::after
+            content: ""
+            position: absolute
+            display: none
+            left: 7px
+            top: 3px
+            width: 5px
+            height: 10px
+            border: solid var(--white)
+            border-width: 0 2px 2px 0
+            transform: rotate(45deg)
+
+    input:checked + .checkmark
+        background-color: var(--color-primary-600)
+        border-color: var(--color-primary-600)
+
+    input:checked + .checkmark::after
+        display: block
+
+.btn-submit
+    height: 48px
+    border-radius: 8px
+    font-weight: 600
+    font-size: 1rem
+    cursor: pointer
+    border: none
+    color: #fff
+    background: var(--color-primary-600, #16a34a)
+    display: flex
+    align-items: center
+    justify-content: center
+    box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2)
+
+    &:hover:not(:disabled)
+        background: var(--color-primary-700, #15803d)
+
+    &:active
+        transform: scale(.98)
+
+    &:disabled
+        background: #9ca3af
+        box-shadow: none
+        cursor: not-allowed
+
+.skeleton-card
+    border-color: #e5e7eb !important
+    box-shadow: none !important
+    max-width: 560px
+
+.skeleton-shimmer
+    background: linear-gradient(90deg, #e3e4e6 25%, #d6d7da 50%, #f3f4f6 75%)
+    background-size: 200% 100%
+    animation: shimmer 1.5s infinite ease-in-out
+    border-radius: 6px
+
+.skeleton-title
+    width: 180px
+    height: 1.25rem
+
+.skeleton-label
+    width: 90px
+    height: 0.85rem
+    margin-bottom: 0.25rem
+
+.skeleton-input
+    height: 44px
+    width: 100%
+    border-radius: 8px
+
+@keyframes fadeIn
+    from
+        opacity: 0
+        transform: translateY(10px)
+    to
+        opacity: 1
+        transform: translateY(0)
+
+@keyframes shimmer
+    0%
+        background-position: -200% 0
+    100%
+        background-position: 200% 0
+
+@media (max-width: 640px)
+    .create-container
+        padding: 1rem
+        height: fit-content
+        margin-bottom: 1rem
+
+    .form-card, .skeleton-card
+        max-width: 100%

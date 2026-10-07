@@ -7,16 +7,28 @@
   <div class="config-list">
     <app-accessibility-settings></app-accessibility-settings>
 
-    <app-settings-nav-item
-      title="Meu Perfil"
-      description="Edite seus dados pessoais e senha."
-      route="/app/profile">
-    </app-settings-nav-item>
+    @if (this.role === 'school_admin') {
+       <app-settings-nav-item
+        title="Meu Perfil"
+        description="Edite seus dados pessoais e senha."
+        (click)="navigateToProfile()">
+      </app-settings-nav-item>
+    }
 
-    <app-settings-nav-item
-      title="Assinatura"
-      description="Veja e gerencie sua licença."
-      route="/app/my-subscriptions">
-    </app-settings-nav-item>
+    @if (this.role === 'school_admin') {
+      <app-settings-nav-item
+        title="Assinatura"
+        description="Veja e gerencie sua licença."
+        route="/app/my-subscriptions">
+      </app-settings-nav-item>
+    }
+
+    @if (this.role === 'school_admin') {
+      <app-settings-nav-item
+        title="Editar Reforço"
+        description="Edite as informações do seu reforço escolar."
+        route="/app/configurations/edit-school">
+      </app-settings-nav-item>
+    }
   </div>
 </div>

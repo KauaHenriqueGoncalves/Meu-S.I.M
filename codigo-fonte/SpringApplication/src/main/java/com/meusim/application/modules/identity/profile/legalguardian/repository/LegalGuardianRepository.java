@@ -8,12 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface LegalGuardianRepository extends JpaRepository<LegalGuardian, UUID> {
     boolean existsByIdAndSchoolId(UUID legalGuardianId, UUID schoolId);
     int countBySchoolId(UUID schoolId);
+    Optional<LegalGuardian> findByUserId(UUID userId);
 
     @Query("""
         SELECT l FROM LegalGuardian l

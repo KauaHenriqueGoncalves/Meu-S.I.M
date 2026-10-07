@@ -15,6 +15,7 @@ import { subjectRoutes } from './features/subject/subject.routes';
 import { studentRoutes } from './features/student/student.routes';
 import { classroomRoutes } from './features/classroom/classroom.routes';
 import { configurationRoutes } from './features/configuration/configuration.routes';
+import { lessonRoutes } from './features/lesson/lesson.routes';
 
 export const routes: Routes = [
     {
@@ -66,53 +67,8 @@ export const routes: Routes = [
         path: 'app',
         canActivate: [authGuard],
         component: PrivateLayout,
-        children: [
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin', 'collaborator', 'legal_guardian')],
-                children: dashboardRoutes
-            },
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin')],
-                children: classroomRoutes
-            },
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin')],
-                children: subjectRoutes
-            },
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin')],
-                children: studentRoutes
-            },
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin')],
-                children: collaboratorRoutes
-            },
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin')],
-                children: legalGuardianRoutes
-            },
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin')],
-                children: schoolAdminRoutes
-            },
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin', 'dfasdfasdcasdf')],
-                children: subscriptionRoutes
-            },
-            {
-                path: '',
-                canMatch: [roleGuard('school_admin', 'collaborator', 'legal_guardian')],
-                children: configurationRoutes
-            }
-        ]
+        loadChildren: () => import("./features/private.routes")
+            .then(m => m.privateRoutes)
     },
     {
         path: '**',

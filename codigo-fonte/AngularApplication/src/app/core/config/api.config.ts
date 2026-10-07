@@ -33,6 +33,9 @@ export class ApiConfig {
         classType: {
             base: '/class-types'
         },
+        lesson: {
+            base: '/lessons',
+        },
         schoolPlan: {
             base: '/school-plans',
             toClient: '/school-plans/to-client',
@@ -55,6 +58,7 @@ export class ApiConfig {
         },
         user: {
             base: '/users',
+            me: '/users/me',
         },
         collaborator: {
             base: '/collaborators',
@@ -66,6 +70,7 @@ export class ApiConfig {
         },
         schoolAdmin: {
             base: '/school-admins',
+            changePassword: '/school-admins/{id}/password'
         },
         school: {
             base: '/schools',

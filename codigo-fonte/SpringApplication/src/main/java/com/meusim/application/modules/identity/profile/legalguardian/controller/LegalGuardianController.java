@@ -21,9 +21,7 @@ import java.util.UUID;
 public class LegalGuardianController {
     private final LegalGuardianService legalGuardianService;
 
-    public LegalGuardianController(
-            LegalGuardianService legalGuardianService
-    ) {
+    public LegalGuardianController(LegalGuardianService legalGuardianService) {
         this.legalGuardianService = legalGuardianService;
     }
 

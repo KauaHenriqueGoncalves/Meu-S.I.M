@@ -1,5 +1,6 @@
 package com.meusim.application.modules.identity.profile.schooladmin.service;
 
+import com.meusim.application.modules.identity.base.user.dto.PasswordRequest;
 import com.meusim.application.modules.identity.profile.schooladmin.dto.UpdateSchoolAdminRequestDTO;
 import com.meusim.application.modules.school.dto.CreateSchoolRequestDTO;
 import com.meusim.application.modules.identity.profile.schooladmin.SchoolAdmin;
@@ -18,5 +19,6 @@ public interface SchoolAdminService {
     SchoolAdmin create(CreateUserRequestDTO dto);
     SchoolAdmin createNewSchool(CreateUserRequestDTO createUserDto, CreateSchoolRequestDTO createSchoolDto);
     SchoolAdmin update(UUID id, UpdateSchoolAdminRequestDTO dto);
+    SchoolAdmin changePassword(UUID id, PasswordRequest dto);
     void deleteById(UUID id);
 }

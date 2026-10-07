@@ -1,6 +1,7 @@
 package com.meusim.application.modules.identity.profile.schooladmin.facade;
 
 import com.meusim.application.modules.identity.base.user.dto.CreateUserRequestDTO;
+import com.meusim.application.modules.identity.base.user.dto.PasswordRequest;
 import com.meusim.application.modules.identity.profile.schooladmin.SchoolAdmin;
 import com.meusim.application.modules.identity.profile.schooladmin.dto.SchoolAdminDetailViewResponseDTO;
 import com.meusim.application.modules.identity.profile.schooladmin.dto.SchoolAdminSimpleViewResponseDTO;
@@ -49,6 +50,11 @@ public class SchoolAdminFacadeImpl implements SchoolAdminFacade {
     @Override
     public SchoolAdmin update(UUID id, UpdateSchoolAdminRequestDTO dto) {
         return service.update(id, dto);
+    }
+
+    @Override
+    public SchoolAdmin changePassword(UUID id, PasswordRequest dto) {
+        return service.changePassword(id, dto);
     }
 
     @Override

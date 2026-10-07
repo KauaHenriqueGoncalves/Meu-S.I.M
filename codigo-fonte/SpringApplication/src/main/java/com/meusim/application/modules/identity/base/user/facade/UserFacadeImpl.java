@@ -2,9 +2,10 @@ package com.meusim.application.modules.identity.base.user.facade;
 
 import com.meusim.application.modules.identity.base.role.Role;
 import com.meusim.application.modules.identity.base.user.User;
-import com.meusim.application.modules.identity.base.user.dto.MeResponseDTO;
+import com.meusim.application.modules.identity.base.user.dto.CurrentUserDTO;
 import com.meusim.application.modules.identity.base.user.dto.CreateUserRequestDTO;
 import com.meusim.application.modules.identity.base.user.dto.ResponsibleSnapshotDTO;
+import com.meusim.application.modules.identity.base.user.query.CurrentUserQuery;
 import com.meusim.application.modules.identity.base.user.query.ResponsibleSnapshotQuery;
 import com.meusim.application.modules.identity.base.user.service.UserService;
 import org.springframework.stereotype.Component;
@@ -14,11 +15,16 @@ import java.util.UUID;
 public class UserFacadeImpl implements UserFacade {
     private final UserService userService;
     private final ResponsibleSnapshotQuery responsibleSnapshotQuery;
+    private final CurrentUserQuery currentUserQuery;
 
-    public UserFacadeImpl(UserService userService,
-                          ResponsibleSnapshotQuery responsibleSnapshotQuery) {
+    public UserFacadeImpl(
+            UserService userService,
+            ResponsibleSnapshotQuery responsibleSnapshotQuery,
+            CurrentUserQuery currentUserQuery
+    ) {
         this.userService = userService;
         this.responsibleSnapshotQuery = responsibleSnapshotQuery;
+        this.currentUserQuery = currentUserQuery;
     }
 
     @Override
@@ -42,9 +48,8 @@ public class UserFacadeImpl implements UserFacade {
     }
 
     @Override
-    public MeResponseDTO me() {
-        User user = userService.findByOwnerWithCache();
-        return MeResponseDTO.of(user);
+    public CurrentUserDTO me() {
+        return currentUserQuery.get();
     }
 
     @Override

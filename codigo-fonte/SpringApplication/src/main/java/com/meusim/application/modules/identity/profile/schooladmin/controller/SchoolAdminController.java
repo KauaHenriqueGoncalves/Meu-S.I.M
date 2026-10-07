@@ -2,6 +2,7 @@ package com.meusim.application.modules.identity.profile.schooladmin.controller;
 
 import com.meusim.application.integration.captcha.service.CaptchaService;
 import com.meusim.application.modules.identity.base.user.dto.CreateUserRequestDTO;
+import com.meusim.application.modules.identity.base.user.dto.PasswordRequest;
 import com.meusim.application.modules.identity.profile.schooladmin.SchoolAdmin;
 import com.meusim.application.modules.identity.profile.schooladmin.dto.CreateNewSchoolRequestDTO;
 import com.meusim.application.modules.identity.profile.schooladmin.dto.SchoolAdminDetailViewResponseDTO;
@@ -76,6 +77,16 @@ public class SchoolAdminController {
         facade.update(id, dto);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/password")
+    @PreAuthorize("hasAuthority('SCOPE_school_admin')")
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable UUID id,
+            @RequestBody @Valid PasswordRequest body
+    ) {
+        facade.changePassword(id, body);
+        return ResponseEntity.ok().build();
+    };
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_school_admin')")

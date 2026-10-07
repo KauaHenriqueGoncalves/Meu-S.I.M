@@ -10,7 +10,6 @@ import com.meusim.application.modules.school.query.SchoolAdminQuery;
 import com.meusim.application.modules.school.query.SchoolCapacityQuery;
 import com.meusim.application.modules.school.service.SchoolService;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +22,8 @@ public class SchoolFacadeImpl implements SchoolFacade {
     public SchoolFacadeImpl(
             SchoolService schoolService,
             SchoolAdminQuery schoolAdminQuery,
-            SchoolCapacityQuery schoolCapacityQuery) {
+            SchoolCapacityQuery schoolCapacityQuery
+    ) {
         this.schoolService = schoolService;
         this.schoolAdminQuery = schoolAdminQuery;
         this.schoolCapacityQuery = schoolCapacityQuery;

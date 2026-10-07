@@ -1,6 +1,6 @@
 package com.meusim.application.modules.identity.base.user.controller;
 
-import com.meusim.application.modules.identity.base.user.dto.MeResponseDTO;
+import com.meusim.application.modules.identity.base.user.dto.CurrentUserDTO;
 import com.meusim.application.modules.identity.base.user.facade.UserFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +17,7 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("hasAnyAuthority('SCOPE_system_admin', 'SCOPE_school_admin', 'SCOPE_collaborator', 'SCOPE_legal_guardian')")
-    public ResponseEntity<MeResponseDTO> me() {
+    public ResponseEntity<CurrentUserDTO> me() {
         return ResponseEntity.ok(facade.me());
     }
 }

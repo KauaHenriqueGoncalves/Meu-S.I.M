@@ -1,0 +1,398 @@
+.lessons-container
+    padding: 1rem 0
+    animation: fadeIn 0.4s ease-out
+
+.page-header
+    display: flex
+    justify-content: space-between
+    align-items: flex-end
+    flex-wrap: wrap
+    gap: 1rem
+    margin-bottom: 1.5rem
+    padding: 1rem 0 1.5rem
+    border-bottom: 1px solid var(--border-light)
+
+    h1
+        font-size: 1.8rem
+        color: var(--text-333)
+        margin-bottom: 0.5rem
+    p
+        color: var(--text-666)
+
+.classroom-select
+    display: flex
+    flex-direction: column
+    gap: 0.4rem
+    min-width: 260px
+
+    label
+        font-size: 0.9rem
+        font-weight: 600
+        color: var(--text-666)
+
+    select
+        padding: 0.8rem 1rem
+        border: 1px solid var(--border-color)
+        border-radius: 8px
+        background: var(--white)
+        color: var(--text-333)
+
+        &:focus
+            border-color: var(--color-primary-600)
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1)
+
+.summary
+    display: grid
+    grid-template-columns: repeat(4, 1fr)
+    gap: 1rem
+    margin-bottom: 1.5rem
+
+.summary-item
+    background: var(--white)
+    border: 1px solid var(--border-color)
+    border-left-width: 4px
+    border-radius: 10px
+    padding: 0.9rem 1rem
+    display: flex
+    flex-direction: column
+
+    strong
+        font-size: 1.5rem
+        color: var(--text-333)
+    span
+        font-size: 0.8rem
+        color: var(--text-666)
+
+    &.done
+        border-left-color: var(--color-primary-600)
+    &.pending
+        border-left-color: var(--info-500)
+    &.late
+        border-left-color: #f59e0b
+    &.canceled
+        border-left-color: #ef4444
+
+.calendar-card
+    background: var(--white)
+    border: 1px solid var(--border-color)
+    border-radius: 12px
+    padding: 1.25rem
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03)
+
+.calendar-toolbar
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 1rem
+
+    .nav
+        display: flex
+        align-items: center
+        gap: 1rem
+
+    h2
+        font-size: 1.2rem
+        color: var(--text-333)
+        min-width: 170px
+        text-align: center
+
+.btn-nav
+    width: 34px
+    height: 34px
+    border-radius: 50%
+    display: flex
+    align-items: center
+    justify-content: center
+    color: var(--text-666)
+
+    &.prev
+        transform: rotate(90deg)
+    &.next
+        transform: rotate(-90deg)
+    &:hover
+        background: var(--background-muted)
+
+.btn-today
+    border: 1px solid var(--border-color)
+    padding: 0.5rem 1rem
+    border-radius: 8px
+    font-weight: 600
+    color: var(--text-333)
+
+    &:hover
+        background: var(--color-primary-600)
+        border-color: var(--color-primary-600)
+        color: var(--white)
+
+.calendar-wrapper
+    overflow-x: auto
+    transition: opacity 0.2s
+
+    &.loading
+        opacity: 0.5
+        pointer-events: none
+
+.calendar-grid
+    display: grid
+    grid-template-columns: repeat(7, minmax(0, 1fr))
+    min-width: 700px
+    border-top: 1px solid var(--border-color)
+    border-left: 1px solid var(--border-color)
+
+.week-label
+    padding: 0.6rem 0
+    text-align: center
+    font-size: 0.8rem
+    font-weight: 700
+    text-transform: uppercase
+    color: var(--text-666)
+    background: var(--bg-light)
+    border-right: 1px solid var(--border-color)
+    border-bottom: 1px solid var(--border-color)
+
+.day-cell
+    min-height: 105px
+    padding: 0.4rem
+    display: flex
+    flex-direction: column
+    gap: 0.3rem
+    border-right: 1px solid var(--border-color)
+    border-bottom: 1px solid var(--border-color)
+
+    &.out
+        background: var(--bg-light)
+        .day-number
+            opacity: 0.4
+
+    &.clickable
+        cursor: pointer
+        &:hover
+            background: rgba(22, 163, 74, 0.04)
+
+    &.today .day-number
+        background: var(--color-primary-600)
+        color: var(--white)
+
+.day-number
+    width: 24px
+    height: 24px
+    border-radius: 50%
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: 0.8rem
+    font-weight: 600
+    color: var(--text-333)
+
+.events
+    display: flex
+    flex-direction: column
+    gap: 3px
+
+.event
+    width: 100%
+    text-align: left
+    padding: 0.2rem 0.4rem
+    border-radius: 4px
+    font-size: 0.72rem
+    font-weight: 600
+    color: var(--white)
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    transition: filter 0.15s
+
+    &:hover
+        filter: brightness(0.9)
+    &:active
+        transform: scale(.98)
+
+    &.done
+        background: var(--color-primary-600)
+    &.pending
+        background: var(--info-500)
+    &.late
+        background: #f59e0b
+    &.canceled
+        background: #ef4444
+        text-decoration: line-through
+
+.more
+    font-size: 0.7rem
+    font-weight: 600
+    color: var(--text-666)
+    padding-left: 0.2rem
+
+.legend
+    display: flex
+    flex-wrap: wrap
+    gap: 1rem
+    margin-top: 1rem
+    font-size: 0.8rem
+    color: var(--text-666)
+
+    span
+        display: flex
+        align-items: center
+        gap: 0.4rem
+
+.dot
+    display: inline-block
+    width: 10px
+    height: 10px
+    border-radius: 50%
+    flex-shrink: 0
+
+    &.done
+        background: var(--color-primary-600)
+    &.pending
+        background: var(--info-500)
+    &.late
+        background: #f59e0b
+    &.canceled
+        background: #ef4444
+
+.hint
+    text-align: center
+    color: var(--text-666)
+    font-size: 0.9rem
+    padding-top: 1rem
+
+.modal-overlay
+    position: fixed
+    inset: 0
+    background: rgba(0, 0, 0, 0.5)
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 1000
+    padding: 1rem
+
+.modal-card
+    background: var(--white)
+    width: 100%
+    max-width: 420px
+    max-height: 90vh
+    display: flex
+    flex-direction: column
+    border-radius: 12px
+    overflow: hidden
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15)
+
+.modal-header, .modal-body, .modal-footer
+    padding: 1.25rem 1.5rem
+
+.modal-header, .modal-footer
+    flex-shrink: 0
+
+.modal-header
+    border-bottom: 1px solid var(--border-color)
+    h3
+        margin: 0
+        font-size: 1.1rem
+        color: var(--text-333)
+        text-transform: capitalize
+
+.modal-body
+    display: flex
+    flex-direction: column
+    flex: 1
+    min-height: 0
+    overflow-y: auto
+    gap: 0.6rem
+
+.day-item
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    padding: 0.75rem 1rem
+    border: 1px solid var(--border-color)
+    border-radius: 8px
+    text-align: left
+
+    &:hover
+        border-color: var(--color-primary-600)
+        background: var(--bg-light)
+
+    &:active
+        transform: scale(0.98)
+
+    .day-time
+        font-weight: 600
+        color: var(--text-333)
+    .day-status
+        margin-left: auto
+        font-size: 0.8rem
+        color: var(--text-666)
+
+.modal-footer
+    display: flex
+    justify-content: flex-end
+    background: var(--bg-light)
+    border-top: 1px solid var(--border-color)
+
+.btn-cancel
+    background: #e5e7eb
+    color: #374151
+    padding: 0.6rem 1.2rem
+    border-radius: 8px
+    font-weight: 600
+
+    &:hover
+        opacity: .9
+
+@keyframes fadeIn
+    from
+        opacity: 0
+        transform: translateY(10px)
+    to
+        opacity: 1
+        transform: translateY(0)
+
+@media (max-width: 768px)
+    .lessons-container
+        padding: 1rem
+
+    .page-header
+        flex-direction: column
+        align-items: stretch
+
+        h1
+            font-size: 1.5rem
+
+    .classroom-select
+        width: 100%
+        min-width: 0
+
+        select
+            width: 100%
+
+    .summary
+        grid-template-columns: repeat(2, 1fr)
+        gap: 0.6rem
+
+    .calendar-card
+        padding: 0.8rem
+
+    .calendar-toolbar
+        flex-wrap: wrap
+        gap: 0.6rem
+
+        .nav
+            flex: 1
+            justify-content: space-between
+            gap: 0.4rem
+
+        h2
+            min-width: 0
+            font-size: 1rem
+
+        .btn-today
+            width: 100%
+            padding: 0.6rem
+
+    .calendar-grid
+        min-width: 620px
+
+    .modal-card
+        max-width: 100%

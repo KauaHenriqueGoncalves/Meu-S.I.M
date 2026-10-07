@@ -3,7 +3,9 @@
     <div class="sidebar-info">
       <span class="system-badge">Portal de Acesso</span>
       <h2>Meu S.I.M</h2>
-      <p>Acesse a sua conta e tenha o controle.</p>
+      <p>
+        Acesse a sua conta e tenha o controle.
+      </p>
     </div>
     <div class="circle-bottom"></div>
   </aside>
@@ -20,6 +22,7 @@
         [captchaExecuting]="captchaExecuting"
         (next)="finish($event)">
       </app-log-in-user>
+      <span class="captcha-notice">Esta página utiliza CAPTCHA para validar o acesso.</span>
     </div>
   </main>
 </div>

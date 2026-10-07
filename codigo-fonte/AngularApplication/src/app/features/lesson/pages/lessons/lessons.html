@@ -1,0 +1,97 @@
+<div class="lessons-container">
+    <div class="page-header">
+        <div class="title-area">
+            <h1>Agenda</h1>
+            <p>Acompanhe as aulas de cada turma no calendário.</p>
+        </div>
+        <div class="classroom-select">
+            <label for="classroom">Turma</label>
+            <select id="classroom" [(ngModel)]="classroomId" (ngModelChange)="onClassroomChange()" [disabled]="isLoadingClassrooms">
+                <option value="" disabled>Selecione uma turma</option>
+                @for (c of classrooms; track c.id) {
+                    <option [value]="c.id">{{ c.name }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="summary">
+        <div class="summary-item done"><strong>{{ summary.DONE }}</strong><span>Realizadas</span></div>
+        <div class="summary-item pending"><strong>{{ summary.PENDING }}</strong><span>Pendentes</span></div>
+        <div class="summary-item late"><strong>{{ summary.LATE }}</strong><span>Atrasadas</span></div>
+        <div class="summary-item canceled"><strong>{{ summary.CANCELED }}</strong><span>Canceladas</span></div>
+    </div>
+
+    <div class="calendar-card">
+        <div class="calendar-toolbar">
+            <div class="nav">
+                <button type="button" class="btn-nav prev" (click)="prevMonth()" title="Mês anterior">
+                    <app-svg-angle-down color="currentColor" [size]="16" />
+                </button>
+                <h2>{{ monthLabel }}</h2>
+                <button type="button" class="btn-nav next" (click)="nextMonth()" title="Próximo mês">
+                    <app-svg-angle-down color="currentColor" [size]="16" />
+                </button>
+            </div>
+            <button type="button" class="btn-today" (click)="goToday()">Hoje</button>
+        </div>
+
+        <div class="calendar-wrapper" [class.loading]="isLoadingAgenda">
+            <div class="calendar-grid">
+                @for (w of weekLabels; track w) {
+                    <div class="week-label">{{ w }}</div>
+                }
+                @for (cell of cells; track cell.date.getTime()) {
+                    <div class="day-cell" [class.out]="!cell.inMonth" [class.today]="cell.isToday"
+                        [class.clickable]="cell.events.length > 0" (click)="openDay(cell)">
+                        <span class="day-number">{{ cell.date.getDate() }}</span>
+                        <div class="events">
+                            @for (e of cell.events.slice(0, MAX_VISIBLE); track e.scheduleId + e.date) {
+                                <button type="button" class="event" [class]="e.displayStatus.toLowerCase()"
+                                    [title]="statusLabel(e.displayStatus)" (click)="onEventClick(e, $event)">
+                                    {{ time(e) }}
+                                </button>
+                            }
+                            @if (cell.events.length > MAX_VISIBLE) {
+                                <span class="more">+{{ cell.events.length - MAX_VISIBLE }} mais</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (!classroomId) {
+            <p class="hint">Selecione uma turma para ver a agenda.</p>
+        }
+
+        <div class="legend">
+            <span><i class="dot done"></i> Realizada</span>
+            <span><i class="dot pending"></i> Pendente</span>
+            <span><i class="dot late"></i> Atrasada</span>
+            <span><i class="dot canceled"></i> Cancelada</span>
+        </div>
+    </div>
+</div>
+
+@if (selectedCell) {
+    <div class="modal-overlay" (click)="closeDay()">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>{{ selectedCell.date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) }}</h3>
+            </div>
+            <div class="modal-body">
+                @for (e of selectedCell.events; track e.scheduleId + e.date) {
+                    <button type="button" class="day-item" (click)="onEventClick(e)">
+                        <i class="dot" [class]="e.displayStatus.toLowerCase()"></i>
+                        <span class="day-time">{{ time(e) }}</span>
+                        <span class="day-status">{{ statusLabel(e.displayStatus) }}</span>
+                    </button>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeDay()">Fechar</button>
+            </div>
+        </div>
+    </div>
+}

@@ -117,7 +117,7 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
         ensureSchoolHasActiveSubscription(school.getId());
         Classroom classroom = classroomService.findById(classroomId);
         ensureClassroomBelongsSchool(school.getId(), classroom);
-        ensureClassScheduleDontHaveInSameTime(classroomId, request);
+        ensureClassScheduleDontHaveInSameTime(classroomId, null, request);
         long totalSchedule = this.classScheduleRepository.countByClassroomId(classroomId);
         log.info("Quantidade encontrada de horário da turma. [schoolId={}] [classroomId={}] [totalSchedule={}/80]",
                 school.getId(), classroomId, totalSchedule);
@@ -147,7 +147,7 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
                 userId, classScheduleId, classroomId);
         School school = schoolService.findByUserId(userId);
         ensureSchoolHasActiveSubscription(school.getId());
-        ensureClassScheduleDontHaveInSameTime(classroomId, updateRequest);
+        ensureClassScheduleDontHaveInSameTime(classroomId, classScheduleId, updateRequest);
         ClassSchedule schedule = findById(classScheduleId);
         ensureClassScheduleBelongsSchool(school.getId(), schedule);
         ensureClassScheduleBelongsClassroom(classroomId, schedule);
@@ -209,9 +209,10 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
         }
     }
 
-    private void ensureClassScheduleDontHaveInSameTime(UUID classroomId, ClassScheduleRequest request) {
+    private void ensureClassScheduleDontHaveInSameTime(UUID classroomId, UUID ignoreScheduleId, ClassScheduleRequest request) {
         List<ClassSchedule> schedules = classScheduleRepository.findByClassroomId(classroomId);
         for (ClassSchedule schedule : schedules) {
+            if (schedule.getId().equals(ignoreScheduleId)) continue;
             boolean sameWeekday = schedule.getWeekday().equals(request.weekday());
             boolean overlaps = request.startTime().isBefore(schedule.getEndTime())
                     && request.endTime().isAfter(schedule.getStartTime());

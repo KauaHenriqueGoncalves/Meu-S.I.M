@@ -3,6 +3,7 @@ package com.meusim.application.modules.identity.profile.schooladmin.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.meusim.application.auth.service.AuthenticatedUserService;
 import com.meusim.application.modules.identity.base.role.Role;
+import com.meusim.application.modules.identity.base.user.dto.PasswordRequest;
 import com.meusim.application.modules.identity.base.user.facade.UserFacade;
 import com.meusim.application.modules.identity.profile.schooladmin.cache.SchoolAdminCacheKeys;
 import com.meusim.application.modules.identity.profile.schooladmin.dto.UpdateSchoolAdminRequestDTO;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,6 +37,7 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private final AuthenticatedUserService authenticatedUserService;
     private final CacheService cacheService;
     private final SchoolAdminValidator schoolAdminValidator;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final UserFacade userFacade;
     private final SchoolFacade schoolFacade;
 
@@ -43,12 +46,15 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
             AuthenticatedUserService authenticatedUserService,
             CacheService cacheService,
             SchoolAdminValidator schoolAdminValidator,
+            BCryptPasswordEncoder passwordEncoder,
             UserFacade userFacade,
-            SchoolFacade schoolFacade) {
+            SchoolFacade schoolFacade
+    ) {
         this.schoolAdminRepository = schoolAdminRepository;
         this.authenticatedUserService = authenticatedUserService;
         this.cacheService = cacheService;
         this.schoolAdminValidator = schoolAdminValidator;
+        this.passwordEncoder = passwordEncoder;
         this.userFacade = userFacade;
         this.schoolFacade = schoolFacade;
     }
@@ -210,6 +216,22 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
                 ownerId, id, dto.username(), dto.email(), dto.phoneNumber(), dto.address(), dto.isActive());
         cacheService.delete(SchoolAdminCacheKeys.byId(ownerSchool.getId(), admin.getId()));
         cacheService.evictByPattern(SchoolAdminCacheKeys.pagePattern(ownerSchool.getId()));
+        return admin;
+    }
+
+    @Override
+    @Transactional
+    public SchoolAdmin changePassword(UUID id, PasswordRequest dto) {
+        UUID ownerId = authenticatedUserService.getOwnerId();
+        School ownerSchool = schoolFacade.getEntityByOwnerIdWithCache();
+        log.info("Atualização de senha do administrador do reforco. [ownerId={}] [schoolAdminId={}] [ownerSchoolID={}]",
+                ownerId, id, ownerSchool.getId());
+        SchoolAdmin admin = findById(id);
+        schoolAdminValidator.ensureSchoolAdminAndOwnerBelongsSameSchool(ownerSchool, admin.getSchool());
+        schoolAdminValidator.ensureSchoolHasSubscription(ownerSchool);
+        admin.getUser().setPassword(passwordEncoder.encode(dto.newPassword()));
+        log.info("Atualizacao do administrador feita com sucesso. [ownerId={}] [schoolAdminId={}] [ownerSchoolID={}]",
+                ownerId, id, ownerSchool.getId());
         return admin;
     }
 

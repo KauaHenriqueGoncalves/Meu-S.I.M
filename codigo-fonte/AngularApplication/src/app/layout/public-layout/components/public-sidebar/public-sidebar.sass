@@ -26,8 +26,11 @@
         display: flex
         align-items: center
         justify-content: space-between
+        box-sizing: border-box
         padding-top: 1.2rem
         padding-bottom: 1.2rem
+        height: 78px
+        overflow: hidden
         margin: 0 auto
 
         .logo
@@ -36,9 +39,16 @@
             flex-shrink: 0
             text-decoration: none
 
+        .main-title
+            font-weight: 600
+            font-size: 1.2rem
+            letter-spacing: 1px
+            margin-left: .5rem
+            color: var(--color-primary-600)
+
         img
             display: block
-            width: 9rem
+            width: 2.25rem
             height: auto
             object-fit: contain
 
