@@ -20,7 +20,7 @@ export class LessonApi {
   constructor(
     private apiService: ApiService,
     private cacheReset: CacheResetService
-  ) { 
+  ) {
     this.cacheReset.register(() => this.cache.clear());
   }
 
@@ -35,7 +35,7 @@ export class LessonApi {
     return this.cache.get(key)!;
   }
 
-  getDetails(classroomId: string,lessonId: string) {
+  getDetails(classroomId: string, lessonId: string) {
     const key = `${classroomId}-${lessonId}-details`;
     if (!this.cache.has(key)) {
       const request$ = this.apiService.get<LessonDetailViewResponseDto>(
@@ -57,16 +57,11 @@ export class LessonApi {
     return this.cache.get(key)!;
   }
 
-  getLabel(classroomId: string, label: GetToCreateLessonRequestDto) {
-    const key = `${classroomId}-${label.lessonDate}-${label.scheduleId}-label`;
-    if (!this.cache.has(key)) {
-      const request$ = this.apiService.get<LabelToCreateLessonResponseDto>(
-        `${ApiConfig.endpoints.lesson.base}/${classroomId}/agenda/label`,
-        label
-      ).pipe(shareReplay(1)) as unknown as Observable<LabelToCreateLessonResponseDto>;
-      this.cache.set(key, request$);
-    }
-    return this.cache.get(key)!;
+  getLabel(classroomId: string, label: GetToCreateLessonRequestDto): Observable<LabelToCreateLessonResponseDto> {
+    return this.apiService.post<LabelToCreateLessonResponseDto>(
+      `${ApiConfig.endpoints.lesson.base}/${classroomId}/agenda/label`,
+      { scheduleId: label.scheduleId, lessonDate: label.lessonDate }
+    ).pipe(shareReplay(1)) as unknown as Observable<LabelToCreateLessonResponseDto>;
   }
 
   create(body: CreateLessonRequestDto): Observable<any> {
@@ -75,5 +70,9 @@ export class LessonApi {
       `${ApiConfig.endpoints.lesson.base}`,
       body
     );
+  }
+
+  clearCache(): void {
+    this.cache.clear();
   }
 }

@@ -1,4 +1,4 @@
-import { LessonDetailViewResponseDto } from "../lesson-detail-view-response.dto";
+import { LessonNoteViewResponseDTO } from "../lessonnote/lesson-note-view-response.dto";
 
 export interface AttendanceViewResponseDTO {
     id: string;
@@ -6,5 +6,5 @@ export interface AttendanceViewResponseDTO {
     studentName: string;
     status: string;
     content: string;
-    lessonNote: LessonDetailViewResponseDto | null;
+    lessonNote: LessonNoteViewResponseDTO | null;
 }

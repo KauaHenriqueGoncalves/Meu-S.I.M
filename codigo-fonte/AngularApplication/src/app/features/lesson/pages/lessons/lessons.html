@@ -95,3 +95,157 @@
         </div>
     </div>
 }
+
+@if (isLabelModalOpen) {
+    <div class="modal-overlay" (click)="closeLabel()">
+        <div class="modal-card lesson-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Registrar Aula</h3>
+            </div>
+
+            @if (isLoadingLabel) {
+                <div class="modal-body">
+                    <div class="skeleton-shimmer sk-row"></div>
+                    <div class="skeleton-shimmer sk-row"></div>
+                </div>
+            } @else {
+                <form [formGroup]="lessonForm" (ngSubmit)="onSaveLesson()" class="lesson-form">
+                    <div class="modal-body">
+                        <label class="check-row">
+                            <input type="checkbox" formControlName="isCanceled">
+                            <span>Aula cancelada</span>
+                        </label>
+
+                        <div class="form-group">
+                            <label for="description">Descrição</label>
+                            <textarea id="description" rows="3" formControlName="description" placeholder="Resumo da aula..."></textarea>
+                        </div>
+
+                        @if (!lessonForm.get('isCanceled')?.value) {
+                            <h4 class="section-title">Presença</h4>
+                            <div formArrayName="attendances" class="attendance-list">
+                                @for (a of attendances.controls; track $index) {
+                                    <div class="attendance-card" [formGroupName]="$index">
+                                        <strong class="student-name">{{ a.get('studentName')?.value }}</strong>
+
+                                        <select formControlName="status">
+                                            @for (s of attendanceStatuses; track s) {
+                                                <option [value]="s">{{ attendanceLabels[s] }}</option>
+                                            }
+                                        </select>
+
+                                        <input type="text" formControlName="content" placeholder="Observação de presença">
+
+                                        <label class="check-row">
+                                            <input type="checkbox" formControlName="hasNote">
+                                            <span>Adicionar nota</span>
+                                        </label>
+
+                                        @if (a.get('hasNote')?.value) {
+                                            <div formGroupName="note" class="note-box">
+                                                <select formControlName="type">
+                                                    @for (t of noteTypes; track t) {
+                                                        <option [value]="t">{{ noteLabels[t] }}</option>
+                                                    }
+                                                </select>
+                                                <input type="text" formControlName="subtype" placeholder="Assunto">
+                                                <textarea rows="2" formControlName="content" placeholder="Conteúdo da nota"></textarea>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" (click)="closeLabel()" [disabled]="isSubmitting">Cancelar</button>
+                        <button type="submit" class="btn-confirm" [disabled]="lessonForm.invalid || isSubmitting">
+                            {{ isSubmitting ? 'Salvando...' : 'Salvar' }}
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+}
+
+@if (isDetailOpen) {
+  <div class="modal-overlay" (click)="closeDetail()">
+    <div class="modal-card detail-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Detalhes da Aula</h3>
+      </div>
+
+      <div class="modal-body">
+        @if (isLoadingDetail) {
+          <div class="skeleton-shimmer sk-row"></div>
+          <div class="skeleton-shimmer sk-row"></div>
+          <div class="skeleton-shimmer sk-row"></div>
+        }
+        @else if (detail) {
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Turma</label>
+              <p>{{ detail.classroomName }}</p>
+            </div>
+            <div class="info-item">
+              <label>Disciplina</label>
+              <p>{{ detail.subjectName }}</p>
+            </div>
+            <div class="info-item">
+              <label>Data</label>
+              <p>{{ detail.lessonDate | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Horário</label>
+              <p>{{ detail.startTime }} - {{ detail.endTime }}</p>
+            </div>
+            <div class="info-item">
+              <label>Responsável</label>
+              <p>{{ detail.responsibleUsername }}</p>
+              <small>{{ detail.responsibleEmail }}</small>
+            </div>
+            <div class="info-item">
+              <label>Registrada em</label>
+              <p>{{ detail.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+
+          @if (detail.description) {
+            <div class="info-item">
+              <label>Descrição</label>
+              <p>{{ detail.description }}</p>
+            </div>
+          }
+
+          <h4 class="section-title">Presenças ({{ detail.attendances.length }})</h4>
+          
+          @for (a of detail.attendances; track a.id) {
+            <div class="attendance-item">
+              <div class="attendance-head">
+                <span class="student-name">{{ a.studentName }}</span>
+                <span class="status-badge" [class]="a.status.toLowerCase()">{{ a.status }}</span>
+              </div>
+              @if (a.content) {
+                <p class="attendance-content">{{ a.content }}</p>
+              }
+              @if (a.lessonNote) {
+                <div class="note">
+                  <strong>{{ a.lessonNote.type }} / {{ a.lessonNote.subType }}</strong>
+                  <p>{{ a.lessonNote.content }}</p>
+                </div>
+              }
+            </div>
+          } @empty {
+            <p class="empty-text">Nenhuma presença registrada.</p>
+          }
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeDetail()">Fechar</button>
+      </div>
+    </div>
+  </div>
+}

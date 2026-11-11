@@ -341,6 +341,211 @@
     &:hover
         opacity: .9
 
+.lesson-modal
+    max-width: 560px
+
+.lesson-form
+    display: flex
+    flex-direction: column
+    flex: 1
+    min-height: 0
+
+.skeleton-shimmer
+    background: linear-gradient(90deg, #e3e4e6 25%, #d6d7da 50%, #f3f4f6 75%)
+    background-size: 200% 100%
+    animation: shimmer 1.5s infinite ease-in-out
+    border-radius: 8px
+
+.sk-row
+    height: 60px
+
+@keyframes shimmer
+    0%
+        background-position: -200% 0
+    100%
+        background-position: 200% 0
+
+.form-group
+    display: flex
+    flex-direction: column
+    gap: 0.4rem
+
+    label
+        font-size: 0.9rem
+        font-weight: 600
+        color: var(--text-666)
+
+.lesson-modal
+    input[type="text"], select, textarea
+        width: 100%
+        padding: 0.7rem 0.9rem
+        border: 1px solid var(--border-color)
+        border-radius: 8px
+        background: var(--white)
+        color: var(--text-333)
+        font-size: 0.9rem
+
+        &:focus
+            border-color: var(--color-primary-600)
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1)
+
+    textarea
+        resize: vertical
+
+.check-row
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    font-size: 0.9rem
+    color: var(--text-333)
+    cursor: pointer
+
+    input
+        width: 16px
+        height: 16px
+        accent-color: var(--color-primary-600)
+
+.section-title
+    margin: 0.5rem 0 0
+    font-size: 1rem
+    color: var(--text-333)
+
+.attendance-list
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+.attendance-card
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    padding: 0.9rem
+    border: 1px solid var(--border-color)
+    border-radius: 10px
+    background: var(--bg-light)
+
+    .student-name
+        color: var(--text-333)
+
+.note-box
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    padding: 0.7rem
+    border-left: 3px solid var(--color-primary-600)
+    background: var(--white)
+    border-radius: 6px
+
+.btn-confirm
+    background: var(--color-primary-600)
+    color: var(--white)
+    padding: 0.6rem 1.2rem
+    border-radius: 8px
+    font-weight: 600
+    margin-left: 0.75rem
+
+    &:hover:not(:disabled)
+        background: var(--color-primary-700)
+    &:disabled
+        background: #a3aab4
+
+.modal-footer
+    align-items: center
+
+.detail-modal
+    max-width: 640px
+    max-height: 90vh
+    display: flex
+    flex-direction: column
+
+    .modal-body
+        overflow-y: auto
+
+.info-grid
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    gap: 1rem
+    margin-bottom: 1rem
+
+    @media (max-width: 480px)
+        grid-template-columns: 1fr
+
+.info-item
+    margin-bottom: .5rem
+
+    label
+        display: block
+        font-size: .75rem
+        font-weight: 500
+        text-transform: uppercase
+        color: var(--text-666)
+        margin-bottom: .2rem
+
+    p
+        color: var(--text-333)
+        margin: 0
+
+    small
+        color: var(--text-666)
+
+.section-title
+    margin: 1.25rem 0 .75rem
+    font-size: 1rem
+    color: var(--text-333)
+
+.attendance-item
+    border: 1px solid var(--border-color)
+    border-radius: 8px
+    padding: .75rem 1rem
+    margin-bottom: .5rem
+
+.attendance-head
+    display: flex
+    justify-content: space-between
+    align-items: center
+
+.student-name
+    font-weight: 600
+    color: var(--text-333)
+
+.status-badge
+    font-size: .72rem
+    font-weight: 700
+    padding: .2rem .6rem
+    border-radius: 20px
+    background: var(--bg-light)
+    color: var(--text-666)
+
+    &.present
+        background: rgba(30, 194, 118, 0.15)
+        color: var(--color-primary-600)
+    &.absent
+        background: rgba(211, 47, 47, 0.1)
+        color: #d32f2f
+
+.attendance-content
+    margin-top: .4rem
+    font-size: .9rem
+    color: var(--text-666)
+
+.note
+    margin-top: .5rem
+    padding: .6rem .75rem
+    background: var(--bg-light)
+    border-left: 3px solid var(--color-primary-600)
+    border-radius: 4px
+    font-size: .85rem
+
+    p 
+        margin-top: 5px
+
+@keyframes shimmer
+    0%
+        background-position: -200% 0
+    100%
+        background-position: 200% 0
+
+
 @keyframes fadeIn
     from
         opacity: 0

@@ -22,6 +22,10 @@
             <app-svg-clock color="currentColor" [size]="18" />
             <span>Horários</span>
         </button>
+        <button type="button" class="tab-btn" [class.active]="active === 'lessons'" (click)="activeTab('lessons')" (click)="goToLessons()">
+            <app-svg-agenda color="currentColor" [size]="20"/>
+            <span>Agendas</span>
+        </button>
     </div>
     <div>
         <router-outlet></router-outlet>

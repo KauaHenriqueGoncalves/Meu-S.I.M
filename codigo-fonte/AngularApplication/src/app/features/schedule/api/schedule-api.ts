@@ -5,6 +5,7 @@ import { ScheduleRequestDto } from '../dto/schedule-request.dto';
 import { ApiConfig } from '../../../core/config/api.config';
 import { ScheduleResponseDto } from '../dto/schedule-response.dto';
 import { Observable, shareReplay } from 'rxjs';
+import { LessonApi } from '../../lesson/api/lesson-api';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class ScheduleApi {
 
   constructor(
     private apiService: ApiService,
+    private lessonApi: LessonApi,
     private cacheReset: CacheResetService
   ) {
     this.cacheReset.register(() => this.cleanCache());
@@ -34,6 +36,7 @@ export class ScheduleApi {
   create(classroomId: string, data: ScheduleRequestDto): Observable<any> {
     const endpoint: string = ApiConfig.endpoints.schedule.base.replace('{classroomId}', classroomId);
     this.cleanCache();
+    this.lessonApi.clearCache();
     return this.apiService.post<ScheduleRequestDto>(
       endpoint,
       data
@@ -43,6 +46,7 @@ export class ScheduleApi {
   update(classroomId: string, scheduleId: string, data: ScheduleRequestDto) {
     const endpoint: string = ApiConfig.endpoints.schedule.base.replace('{classroomId}', classroomId);
     this.cleanCache();
+    this.lessonApi.clearCache();
     return this.apiService.put<ScheduleRequestDto>(
       `${endpoint}/${scheduleId}`,
       data
@@ -52,6 +56,7 @@ export class ScheduleApi {
   delete(classroomId: string, scheduleId: string) {
     const endpoint: string = ApiConfig.endpoints.schedule.base.replace('{classroomId}', classroomId);
     this.cleanCache();
+    this.lessonApi.clearCache();
     return this.apiService.delete(
       `${endpoint}/${scheduleId}`
     ) as Observable<any>;

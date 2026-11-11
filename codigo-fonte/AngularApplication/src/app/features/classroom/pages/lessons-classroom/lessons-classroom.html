@@ -1,0 +1,61 @@
+<div class="lessons-card">
+    <div class="card-header">
+        <h2>Agendas da Turma</h2>
+    </div>
+
+    <div class="card-body">
+        @if (isLoading) {
+            <div class="skeleton-shimmer sk-row"></div>
+            <div class="skeleton-shimmer sk-row"></div>
+            <div class="skeleton-shimmer sk-row"></div>
+        }
+        @else if (lessons.length === 0) {
+            <div class="empty-state">
+                <h3>Nenhuma agenda encontrada</h3>
+                <p>Esta turma ainda não possui aulas agendadas.</p>
+            </div>
+        }
+        @else {
+            <div class="lesson-list">
+                @for (lesson of lessons; track lesson.id) {
+                    <div class="lesson-item">
+                        <div class="lesson-date">
+                            <strong>{{ lesson.lessonDate | date:'dd/MM/yyyy' }}</strong>
+                            <span>{{ getWeekdayName(lesson.weekday) }}</span>
+                        </div>
+                        <div class="lesson-time">{{ lesson.startTime }} - {{ lesson.endTime }}</div>
+                        <span class="badge" [ngClass]="statusClass(lesson.status)">
+                            {{ getStatusLabel(lesson.status) }}
+                        </span>
+                        <button type="button" class="btn-details" (click)="goToDetails(lesson.id)">
+                            Ver Detalhes
+                        </button>
+                    </div>
+                }
+            </div>
+
+            @if (totalPages > 1) {
+                <div class="pagination-container">
+                    <button class="btn-page" [disabled]="currentPage === 0 || isPaginating" (click)="changePage(currentPage - 1)">
+                        @if (isPaginating) {
+                            <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                        } @else {
+                            Anterior
+                        }
+                    </button>
+                    <div class="page-info">
+                        <span class="numbers">Página <strong>{{ currentPage + 1 }}</strong> de {{ totalPages }}</span>
+                        <span class="total">({{ totalElements }} registros)</span>
+                    </div>
+                    <button class="btn-page" [disabled]="currentPage === totalPages - 1 || isPaginating" (click)="changePage(currentPage + 1)">
+                        @if (isPaginating) {
+                            <app-spinner-to-button color="var(--color-primary-600)"></app-spinner-to-button>
+                        } @else {
+                            Próximo
+                        }
+                    </button>
+                </div>
+            }
+        }
+    </div>
+</div>

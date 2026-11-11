@@ -205,7 +205,7 @@ export class CreateLegalGuardian implements OnInit {
     const formValue = this.legalGuardianForm.value;
 
     const payload: CreateLegalGuardianRequestDto = {
-      userRequest: {
+      createUserRequestDTO: {
         username: formValue.userRequest.username?.trim(),
         email: formValue.userRequest.email?.trim(),
         password: formValue.userRequest.password?.trim(),

@@ -22,6 +22,14 @@ export class ApiService {
     );
   }
 
+  getWithBody<T>(url: string, body: any, options?: any) {
+    return this.http.request<T>('GET', `${this.baseUrl}${url}`, {
+      body,
+      withCredentials: true,
+      ...options
+    });
+  }
+
   post<T>(url: string, body: any, options?: any) {
     return this.http.post<T>(
       `${this.baseUrl}${url}`,

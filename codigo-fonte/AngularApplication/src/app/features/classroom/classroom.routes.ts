@@ -5,6 +5,8 @@ import { DetailsClassroom } from "./pages/details-classroom/details-classroom";
 import { AboutClassroom } from "./pages/about-classroom/about-classroom";
 import { StudentsClassroom } from "./pages/students-classroom/students-classroom";
 import { ScheduleClassroom } from "./pages/schedule-classroom/schedule-classroom";
+import { LessonsClassroom } from "./pages/lessons-classroom/lessons-classroom";
+import { LessonsDetailsClassroom } from "./pages/lessons-details-classroom/lessons-details-classroom";
 
 export const classroomRoutes: Routes = [
     {
@@ -30,7 +32,15 @@ export const classroomRoutes: Routes = [
             {
                 path: 'schedule',
                 component: ScheduleClassroom
-            }
+            },
+            {
+                path: 'lessons',
+                component: LessonsClassroom
+            },
+            {
+                path: 'lesson-details',
+                component: LessonsDetailsClassroom
+            },
         ]
     }
 ];

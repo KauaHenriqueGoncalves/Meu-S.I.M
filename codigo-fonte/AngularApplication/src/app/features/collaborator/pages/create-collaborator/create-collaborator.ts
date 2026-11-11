@@ -128,7 +128,7 @@ export class CreateCollaborator implements OnInit {
     const formValue = this.collaboratorForm.value;
 
     const payload: CreateCollaboratorRequestDto = {
-      userRequest: {
+      createUserRequestDTO: {
         username: formValue.userRequest.username?.trim(),
         email: formValue.userRequest.email?.trim(),
         password: formValue.userRequest.password?.trim(),
@@ -142,6 +142,8 @@ export class CreateCollaborator implements OnInit {
         workload: formValue.collaboratorRequest.workload?.trim()
       }
     };
+
+    console.log(payload)
 
     this.collaboratorApi.create(payload)
       .pipe(

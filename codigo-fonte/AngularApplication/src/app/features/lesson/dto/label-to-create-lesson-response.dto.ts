@@ -3,7 +3,7 @@ import { CreateAttendanceRequestDTO } from "./attendance/create-attendance-reque
 export interface LabelToCreateLessonResponseDto {
     scheduleId: string;
     classroomId: string;
-    lessonDate: Date;
+    lessonDate: string;
     isCanceled: boolean;
     description: string;
     attendances: CreateAttendanceRequestDTO[];

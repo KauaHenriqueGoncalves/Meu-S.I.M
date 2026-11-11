@@ -5,6 +5,7 @@ import { UsersSvg } from '../../../../shared/components/svg/users.svg';
 import { ClockSvg } from '../../../../shared/components/svg/clock.svg';
 import { Router, RouterOutlet } from "@angular/router";
 import { NotificationService } from '../../../../core/services/notification/notification.service';
+import { AgendaSvg } from '../../../../shared/components/svg/agenda.svg';
 
 @Component({
   selector: 'app-about-classroom',
@@ -13,7 +14,8 @@ import { NotificationService } from '../../../../core/services/notification/noti
     BookSvg,
     UsersSvg,
     ClockSvg,
-    RouterOutlet
+    RouterOutlet,
+    AgendaSvg
 ],
   templateUrl: './about-classroom.html',
   styleUrl: './about-classroom.sass',
@@ -67,6 +69,13 @@ export class AboutClassroom implements OnInit {
   goToSchedule(): void {
     this.router.navigate(
       ['/app/about-classroom/schedule'],
+      { state: { id: this.classroomId }, replaceUrl: true }
+    );
+  }
+
+  goToLessons(): void {
+    this.router.navigate(
+      ['/app/about-classroom/lessons'],
       { state: { id: this.classroomId }, replaceUrl: true }
     );
   }
